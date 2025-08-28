@@ -1,0 +1,29 @@
+meta {
+  name: withdraw
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{base-url}}/account/1/balance/withdraw
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "method": "PIX",
+    "pix": {
+      "type": "email",
+      "key": "fulano@email.com"
+    },
+    "amount": 150.75,
+    // Define o agendamento do saque
+    // (null informa que o saque deve ocorrer imediatamente)
+    "schedule": null // | "2026-01-01 15:00"
+  }
+}
+
+settings {
+  encodeUrl: true
+}

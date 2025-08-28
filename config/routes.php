@@ -2,15 +2,10 @@
 
 declare(strict_types=1);
 
+use App\Controller\Accounts\Balances\WithDrawController;
 use Hyperf\HttpServer\Router\Router;
 
-Router::addRoute(['GET', 'POST', 'HEAD'], '/', 'App\Controller\IndexController@index');
+Router::addRoute(['GET', 'HEAD'], '/', 'App\Controller\IndexController@index');
+Router::addRoute(['GET', 'HEAD'], '/health', 'App\Controller\IndexController@health');
 
-Router::get('/favicon.ico', function () {
-    return '';
-});
-
-Router::addGroup('/api', function () {
-    Router::get('/', 'App\Controller\IndexController@index');
-    Router::get('/health', 'App\Controller\IndexController@health');
-});
+Router::post('/account/{accountId}/balance/withdraw', WithDrawController::class);
