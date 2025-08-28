@@ -21,33 +21,19 @@ class Account extends Model
     use SoftDeletes;
 
     protected ?string $table = 'accounts';
+    
+    public bool $incrementing = false;
+    protected string $keyType = 'string';
 
     protected array $fillable = [
         'name',
         'balance',
     ];
 
-    protected array $casts = [
-        'id' => 'uuid',
+        protected array $casts = [
         'balance' => 'decimal:2',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
         'deleted_at' => 'datetime',
     ];
-
-    /**
-     * Relacionamento com saques PIX
-     */
-    public function pixWithdrawals()
-    {
-        return $this->hasMany(PixWithdrawal::class);
-    }
-
-    /**
-     * Relacionamento com logs de auditoria
-     */
-    public function auditLogs()
-    {
-        return $this->hasMany(AuditLog::class);
-    }
 }
