@@ -1,0 +1,95 @@
+{
+    "name": "tecnofit/pix-withdrawal-api",
+    "description": "API REST para saque via Pix - Teste Técnico Tecnofit",
+    "type": "project",
+    "keywords": [
+        "php",
+        "hyperf",
+        "pix",
+        "api",
+        "tecnofit"
+    ],
+    "license": "MIT",
+    "require": {
+        "php": ">=8.2",
+        "hyperf/cache": "~3.1.0",
+        "hyperf/command": "~3.1.0",
+        "hyperf/config": "~3.1.0",
+        "hyperf/context": "~3.1.0",
+        "hyperf/contract": "~3.1.0",
+        "hyperf/database": "~3.1.0",
+        "hyperf/db-connection": "~3.1.0",
+        "hyperf/di": "~3.1.0",
+        "hyperf/dispatcher": "~3.1.0",
+        "hyperf/event": "~3.1.0",
+        "hyperf/exception-handler": "~3.1.0",
+        "hyperf/framework": "~3.1.0",
+        "hyperf/guzzle": "~3.1.0",
+        "hyperf/http-server": "~3.1.0",
+        "hyperf/logger": "~3.1.0",
+        "hyperf/memory": "~3.1.0",
+        "hyperf/model-cache": "~3.1.0",
+        "hyperf/paginator": "~3.1.0",
+        "hyperf/pool": "~3.1.0",
+        "hyperf/process": "~3.1.0",
+        "hyperf/redis": "~3.1.0",
+        "hyperf/server": "~3.1.0",
+        "hyperf/utils": "~3.1.0",
+        "hyperf/validation": "~3.1.0",
+        "hyperf/async-queue": "~3.1.0",
+        "hyperf/view": "~3.1.0",
+        "hyperf/translation": "~3.1.0",
+        "lcobucci/jwt": "^5.0",
+        "swiftmailer/swiftmailer": "^6.0"
+    },
+    "require-dev": {
+        "friendsofphp/php-cs-fixer": "^3.0",
+        "hyperf/devtool": "~3.1.0",
+        "hyperf/ide-helper": "~3.1.0",
+        "hyperf/testing": "~3.1.0",
+        "mockery/mockery": "^1.0",
+        "phpstan/phpstan": "^1.0",
+        "phpunit/phpunit": "^10.0",
+        "swoole/ide-helper": "^5.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "App\\": "app/"
+        },
+        "files": [
+            "app/helpers.php"
+        ]
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "HyperfTest\\": "./test/"
+        }
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true,
+    "config": {
+        "optimize-autoloader": true,
+        "sort-packages": true
+    },
+    "extra": {
+        "hyperf": {
+            "config": "Hyperf\\Config\\ConfigProvider"
+        }
+    },
+    "scripts": {
+        "post-root-package-install": [
+            "@php -r \"file_exists('.env') || copy('.env.example', '.env');\""
+        ],
+        "post-autoload-dump": [
+            "rm -rf runtime/container"
+        ],
+        "test": "phpunit -c phpunit.xml --colors=always",
+        "test-coverage": "phpunit --coverage-html runtime/coverage",
+        "cs-fix": "php-cs-fixer fix $1",
+        "analyse": "phpstan analyse --memory-limit 300M -l 8",
+        "start": [
+            "Composer\\Config::disableProcessTimeout",
+            "php ./bin/hyperf.php start"
+        ]
+    }
+}

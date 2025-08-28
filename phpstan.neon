@@ -1,0 +1,17 @@
+parameters:
+    level: 8
+    paths:
+        - app
+    excludePaths:
+        - app/helpers.php
+    
+    ignoreErrors:
+        - '#Unsafe usage of new static#'
+        - '#Cannot call method .* on mixed#'
+        - '#Method .* should return .* but returns mixed#'
+    
+    checkMissingIterableValueType: false
+    checkGenericClassInNonGenericObjectType: false
+    
+    bootstrapFiles:
+        - test/bootstrap.php

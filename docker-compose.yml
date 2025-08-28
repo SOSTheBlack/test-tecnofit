@@ -1,0 +1,77 @@
+services:
+  hyperf:
+    image: hyperf/hyperf:8.2-alpine-v3.18-swoole
+    container_name: tecnofit-hyperf
+    working_dir: /opt/www
+    ports:
+      - "9501:9501"
+    environment:
+      - SCAN_CACHEABLE=false
+    volumes:
+      - .:/opt/www
+    command: sh -c "git config --global --add safe.directory /opt/www && composer install --optimize-autoloader && php bin/hyperf.php start"
+    depends_on:
+      - mysql
+      - redis
+    networks:
+      - tecnofit-network
+
+  mysql:
+    image: mysql:8.0
+    container_name: tecnofit-mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: tecnofit_pix
+      MYSQL_USER: tecnofit
+      MYSQL_PASSWORD: tecnofit123
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./docker/mysql/init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - tecnofit-network
+
+  redis:
+    image: redis:7-alpine
+    container_name: tecnofit-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - tecnofit-network
+
+  mailhog:
+    image: mailhog/mailhog:latest
+    container_name: tecnofit-mailhog
+    restart: unless-stopped
+    ports:
+      - "1025:1025"  # SMTP
+      - "8025:8025"  # Web UI
+    networks:
+      - tecnofit-network
+
+  nginx:
+    image: nginx:alpine
+    container_name: tecnofit-nginx
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    volumes:
+      - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf
+      - .:/opt/www
+    depends_on:
+      - hyperf
+    networks:
+      - tecnofit-network
+
+volumes:
+  mysql_data:
+  redis_data:
+
+networks:
+  tecnofit-network:
+    driver: bridge

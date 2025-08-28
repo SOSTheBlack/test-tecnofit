@@ -1,0 +1,56 @@
+# Dependencies
+/vendor/
+/node_modules/
+
+# Environment files
+.env
+.env.local
+.env.testing
+.env.production
+
+# Runtime files
+/runtime/
+/storage/logs/*.log
+/storage/framework/cache/
+/storage/framework/sessions/
+/storage/framework/views/
+
+# IDE files
+/.idea/
+/.vscode/
+*.swp
+*.swo
+*~
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Testing
+/.phpunit.cache/
+/runtime/coverage/
+/test/reports/
+
+# Composer
+/composer.lock
+
+# Docker
+/.docker/
+
+# Temporary files
+*.tmp
+*.temp
+
+# Logs
+*.log
+
+# PHP CS Fixer
+/.php-cs-fixer.cache
+
+# PHPStan
+/phpstan.neon.dist

@@ -1,0 +1,105 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: tecnofit_pix_test
+          MYSQL_USER: tecnofit
+          MYSQL_PASSWORD: tecnofit123
+        ports:
+          - 3306:3306
+        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
+      
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+        options: --health-cmd="redis-cli ping" --health-interval=10s --health-timeout=5s --health-retries=3
+
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Setup PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: '8.2'
+        extensions: swoole, redis, pdo_mysql, bcmath, gd
+        tools: composer:v2
+        coverage: xdebug
+
+    - name: Copy environment file
+      run: cp .env.example .env
+
+    - name: Install dependencies
+      run: composer install --prefer-dist --no-progress
+
+    - name: Run PHPStan analysis
+      run: composer analyse
+
+    - name: Run PHP CS Fixer
+      run: composer cs-fix -- --dry-run --diff
+
+    - name: Wait for MySQL
+      run: |
+        while ! mysqladmin ping -h"127.0.0.1" -P3306 -uroot -proot --silent; do
+          echo 'Waiting for MySQL...'
+          sleep 1
+        done
+
+    - name: Run database migrations
+      run: php bin/hyperf.php migrate
+      env:
+        DB_HOST: 127.0.0.1
+        DB_PORT: 3306
+        DB_DATABASE: tecnofit_pix_test
+        DB_USERNAME: tecnofit
+        DB_PASSWORD: tecnofit123
+
+    - name: Run tests with coverage
+      run: composer test-coverage
+      env:
+        DB_HOST: 127.0.0.1
+        DB_PORT: 3306
+        DB_DATABASE: tecnofit_pix_test
+        DB_USERNAME: tecnofit
+        DB_PASSWORD: tecnofit123
+        REDIS_HOST: 127.0.0.1
+        REDIS_PORT: 6379
+
+    - name: Upload coverage reports
+      uses: codecov/codecov-action@v3
+      with:
+        file: ./runtime/coverage/clover.xml
+        flags: unittests
+        name: codecov-umbrella
+        fail_ci_if_error: true
+
+  build:
+    needs: test
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Build Docker image
+      run: docker build -t tecnofit-pix-api .
+    
+    - name: Test Docker container
+      run: |
+        docker-compose up -d
+        sleep 30
+        docker-compose exec -T hyperf php bin/hyperf.php server:info
+        docker-compose down
