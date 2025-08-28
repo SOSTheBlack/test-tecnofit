@@ -11,37 +11,25 @@ use Hyperf\DbConnection\Model\Model;
 /**
  * @property int $id
  * @property string $name
- * @property string $email
- * @property string $cpf
- * @property string $phone
- * @property Carbon $email_verified_at
- * @property string $password
+ * @property float $balance
  * @property Carbon $created_at
  * @property Carbon $updated_at
  * @property Carbon $deleted_at
  */
-class User extends Model
+class Account extends Model
 {
     use SoftDeletes;
 
-    protected string $table = 'users';
+    protected ?string $table = 'accounts';
 
     protected array $fillable = [
         'name',
-        'email',
-        'cpf',
-        'phone',
-        'password',
-        'email_verified_at',
-    ];
-
-    protected array $hidden = [
-        'password',
+        'balance',
     ];
 
     protected array $casts = [
-        'id' => 'integer',
-        'email_verified_at' => 'datetime',
+        'id' => 'uuid',
+        'balance' => 'decimal:2',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
         'deleted_at' => 'datetime',
@@ -61,21 +49,5 @@ class User extends Model
     public function auditLogs()
     {
         return $this->hasMany(AuditLog::class);
-    }
-
-    /**
-     * Verificar se o usuário está verificado
-     */
-    public function isVerified(): bool
-    {
-        return $this->email_verified_at !== null;
-    }
-
-    /**
-     * Verificar se o usuário pode realizar saques
-     */
-    public function canWithdraw(): bool
-    {
-        return $this->isVerified();
     }
 }
