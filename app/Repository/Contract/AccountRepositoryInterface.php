@@ -8,6 +8,13 @@ use App\Model\Account;
 
 interface AccountRepositoryInterface
 {
+    /**
+     * @param string $accountId
+     * 
+     * @return Account|null
+     * 
+     * @throws RepositoryNotFoundException
+     */
     public function findById(string $accountId): ?Account;
     
     public function getBalance(string $accountId): ?float;

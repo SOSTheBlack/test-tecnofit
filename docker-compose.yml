@@ -9,7 +9,7 @@ services:
       - SCAN_CACHEABLE=false
     volumes:
       - .:/opt/www
-    command: sh -c "git config --global --add safe.directory /opt/www && composer install --optimize-autoloader && php bin/hyperf.php start"
+    command: sh -c "git config --global --add safe.directory /opt/www && composer install --optimize-autoloader && composer run watch"
     depends_on:
       - mysql
       - redis

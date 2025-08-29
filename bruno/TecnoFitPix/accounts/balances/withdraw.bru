@@ -5,7 +5,7 @@ meta {
 }
 
 post {
-  url: {{base-url}}/account/1/balance/withdraw
+  url: {{base-url}}/account/{{account-uuid}}/balance/withdraw
   body: json
   auth: inherit
 }
@@ -17,7 +17,7 @@ body:json {
       "type": "email",
       "key": "fulano@email.com"
     },
-    "amount": 150.75,
+    "amount": 5,
     // Define o agendamento do saque
     // (null informa que o saque deve ocorrer imediatamente)
     "schedule": null // | "2026-01-01 15:00"

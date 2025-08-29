@@ -107,7 +107,7 @@ class WithDrawController extends BalanceController
 
         return $response->json([
             'status' => 'success',
-            'message' => 'Saque processado com sucesso.',
+            'message' => 'Saque processado com sucesso! 🚀 AUTO-RELOAD FUNCIONANDO!',
             'data' => [
                 'account_id' => $account->id,
                 'amount' => $amount,

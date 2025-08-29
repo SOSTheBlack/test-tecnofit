@@ -47,6 +47,7 @@
         "hyperf/devtool": "~3.1.0",
         "hyperf/ide-helper": "~3.1.0",
         "hyperf/testing": "~3.1.0",
+        "hyperf/watcher": "^3.1",
         "mockery/mockery": "^1.0",
         "phpstan/phpstan": "^1.0",
         "phpunit/phpunit": "^10.0",
@@ -90,6 +91,10 @@
         "start": [
             "Composer\\Config::disableProcessTimeout",
             "php ./bin/hyperf.php start"
+        ],
+        "watch": [
+            "Composer\\Config::disableProcessTimeout",
+            "php ./bin/hyperf.php server:watch"
         ]
     }
 }

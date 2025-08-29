@@ -1,0 +1,31 @@
+meta {
+  name: teste
+  type: http
+  seq: 4
+}
+
+post {
+  url: http://localhost/account/test-account-id/balance/withdraw
+  body: json
+  auth: inherit
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "method": "PIX",
+    "pix": {
+      "type": "email",
+      "key": "test@example.com"
+    },
+    "amount": 150.75,
+    "schedule": "2026-01-01 15:00"
+  }
+}
+
+settings {
+  encodeUrl: false
+}

@@ -24,6 +24,11 @@ enum WithdrawMethodEnum: string
         return array_map(fn($case) => $case->value, self::cases());
     }
 
+    public static function getValues(): array
+    {
+        return self::getAvailableMethods();
+    }
+
     public static function isValid(string $method): bool
     {
         return in_array($method, self::getAvailableMethods(), true);

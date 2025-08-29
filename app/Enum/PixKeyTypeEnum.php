@@ -28,6 +28,11 @@ enum PixKeyTypeEnum: string
         return array_map(fn($case) => $case->value, self::cases());
     }
 
+    public static function getValues(): array
+    {
+        return self::getAvailableTypes();
+    }
+
     public static function isValid(string $type): bool
     {
         return in_array($type, self::getAvailableTypes(), true);

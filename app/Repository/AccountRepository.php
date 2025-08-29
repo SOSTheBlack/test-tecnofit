@@ -6,16 +6,26 @@ namespace App\Repository;
 
 use App\Model\Account;
 use App\Repository\Contract\AccountRepositoryInterface;
+use App\Repository\Exceptions\RepositoryException;
+use App\Repository\Exceptions\RepositoryNotFoundException;
+use Exception;
 use Hyperf\Database\Model\ModelNotFoundException;
 
 class AccountRepository implements AccountRepositoryInterface
 {
+    public function __construct(private Account $account = new Account())
+    {
+
+    }
+
     public function findById(string $accountId): ?Account
     {
         try {
-            return Account::findOrFail($accountId);
-        } catch (ModelNotFoundException $e) {
-            return null;
+            return $this->account->findOrFail($accountId);
+        } catch (ModelNotFoundException $exception) {
+            throw new RepositoryNotFoundException(previous: $exception);
+        } catch (Exception $exception) {
+            throw new RepositoryException('Erro ao buscar a conta.', previous: $exception);
         }
     }
 
