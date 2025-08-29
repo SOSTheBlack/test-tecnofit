@@ -5,7 +5,7 @@ meta {
 }
 
 post {
-  url: {{base-url}}/account/{{account-uuid}}/balance/withdraw
+  url: {{base-url}}/account/{{account-uuid}}sss/balance/withdraw
   body: json
   auth: inherit
 }
@@ -20,7 +20,7 @@ body:json {
     "amount": 5,
     // Define o agendamento do saque
     // (null informa que o saque deve ocorrer imediatamente)
-    "schedule": null // | "2026-01-01 15:00"
+    "schedule": "2025-08-30 15:00"
   }
 }
 

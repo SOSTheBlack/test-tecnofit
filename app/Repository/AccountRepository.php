@@ -20,7 +20,11 @@ class AccountRepository implements AccountRepositoryInterface
 
     public function findById(string $accountId): ?Account
     {
-        return $this->account->findOrFail($accountId);
+        try {
+            return $this->account->findOrFail($accountId);
+        } catch (ModelNotFoundException $e) {
+            throw new RepositoryNotFoundException('Conta não encontrada.', previous: $e);
+        }
     }
 
     public function getBalance(string $accountId): ?float

@@ -24,24 +24,16 @@ class WithDrawController extends BalanceController
 
     public function __invoke(string $accountId, WithdrawRequest $request): PsrResponseInterface
     {
-        try {
-            $data = $request->validated();
-            $account = $this->accountRepository->findById($accountId);
+        $data = $request->validated();
+        $account = $this->accountRepository->findById($accountId);
 
-            // Se for agendamento
-            if ($data['schedule'] ?? null) {
-                return $this->scheduleWithdraw($account, $data);
-            }
-
-            // Saque imediato
-            return $this->processImmediateWithdraw($account, $data);
-
-        } catch (Throwable $exception) {
-            error_log("WithdrawController Error: " . $exception->getMessage());
-            error_log("Exception class: " . get_class($exception));
-            error_log("Stack trace: " . $exception->getTraceAsString());
-            return $this->processException($exception);
+        // Se for agendamento
+        if ($data['schedule'] ?? null) {
+            return $this->scheduleWithdraw($account, $data);
         }
+
+        // Saque imediato
+        return $this->processImmediateWithdraw($account, $data);
     }
 
     private function processException(Throwable $exception): PsrResponseInterface
