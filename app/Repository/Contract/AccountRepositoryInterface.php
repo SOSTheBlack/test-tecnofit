@@ -13,7 +13,7 @@ interface AccountRepositoryInterface
      * 
      * @return Account|null
      * 
-     * @throws RepositoryNotFoundException
+     * @throws ModelNotFoundException
      */
     public function findById(string $accountId): ?Account;
     

@@ -31,7 +31,7 @@ class ValidationMiddleware implements MiddlewareInterface
         } catch (ValidationException $exception) {
             return $this->response->json([
                 'status' => 'error',
-                'message' => ValidationExceptionHandler::VALIDATION_DEFAULT_MESSAGE,
+                'message' => ValidationExceptionHandler::DEFAULT_ERROR_MESSAGE,
                 'errors' => $exception->errors()
             ])->withStatus(422);
         } catch (\Throwable $exception) {

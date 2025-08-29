@@ -13,7 +13,7 @@ use Throwable;
 
 class ValidationExceptionHandler extends ExceptionHandler
 {
-    public const VALIDATION_DEFAULT_MESSAGE = 'Dados da requisição inválidos.';
+    public const DEFAULT_ERROR_MESSAGE = 'Dados da requisição inválidos.';
     
     public function handle(Throwable $throwable, ResponseInterface $response)
     {
@@ -23,7 +23,7 @@ class ValidationExceptionHandler extends ExceptionHandler
             
             $data = [
                 'status' => 'error',
-                'message' => self::VALIDATION_DEFAULT_MESSAGE,
+                'message' => self::DEFAULT_ERROR_MESSAGE,
                 'errors' => $throwable->validator->errors()->getMessages()
             ];
 
