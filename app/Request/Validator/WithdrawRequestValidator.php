@@ -10,6 +10,9 @@ use App\Service\Validator\PixKeyValidator;
 use DateTime;
 use Exception;
 
+/**
+ * @deprecated
+ */
 class WithdrawRequestValidator
 {
     private array $errors = [];

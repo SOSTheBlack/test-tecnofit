@@ -4,70 +4,57 @@ declare(strict_types=1);
 
 namespace App\Controller\Accounts\Balances;
 
-use App\Request\Validator\WithdrawRequestValidator;
+use App\Repository\Contract\AccountRepositoryInterface;
+use App\Request\WithdrawRequest;
 use App\Service\AccountService;
-use Hyperf\HttpServer\Contract\RequestInterface;
 use Hyperf\HttpServer\Contract\ResponseInterface;
 use Psr\Http\Message\ResponseInterface as PsrResponseInterface;
+use Symfony\Component\HttpFoundation\Response;
+use App\Repository\Exceptions\RepositoryNotFoundException;
+use Throwable;
 
 class WithDrawController extends BalanceController
 {
     public function __construct(
-        private AccountService $accountService
-    ) {}
+        private ResponseInterface $response,
+        private AccountRepositoryInterface $accountRepository,
+        private AccountService $accountService,
+    ) {
+    }
 
-    public function __invoke(RequestInterface $request, ResponseInterface $response): PsrResponseInterface
+    public function __invoke(string $accountId, WithdrawRequest $request): PsrResponseInterface
     {
         try {
-            $data = $request->all();
-            $accountId = $request->route('accountId');
+            $data = $request->validated();
+            $account = $this->accountRepository->findById($accountId);
 
-            // Validação básica do accountId
-            if (empty($accountId)) {
-                return $response->json([
-                    'status' => 'error',
-                    'message' => 'ID da conta é obrigatório.',
-                    'errors' => ['accountId' => ['ID da conta não pode estar vazio.']]
-                ])->withStatus(400);
+            // Se for agendamento
+            if ($data['schedule'] ?? null) {
+                return $this->scheduleWithdraw($account, $data);
             }
 
-            // Verifica se a conta existe usando o Service
-            $account = $this->accountService->findAccountById($accountId);
-            if (!$account) {
-                return $response->json([
-                    'status' => 'error',
-                    'message' => 'Conta não encontrada.',
-                    'errors' => ['accountId' => ['Conta com ID informado não existe.']]
-                ])->withStatus(404);
-            }
+            // Saque imediato
+            return $this->processImmediateWithdraw($account, $data);
 
-            // Validação dos dados da requisição
-            $validator = new WithdrawRequestValidator($data);
-            $validationResult = $validator->validateWithBalance((float) $account->balance);
-
-            if (!$validationResult['valid']) {
-                return $response->json([
-                    'status' => 'error',
-                    'message' => 'Dados da requisição inválidos.',
-                    'errors' => $validationResult['errors']
-                ])->withStatus(422);
-            }
-
-            // Processa o saque
-            return $this->processWithdraw($request, $response, $account, $data);
-
-        } catch (\Exception $e) {
-            return $response->json([
-                'status' => 'error',
-                'message' => 'Erro interno do servidor.',
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString()
-            ])->withStatus(500);
+        } catch (Throwable $exception) {
+            error_log("WithdrawController Error: " . $exception->getMessage());
+            error_log("Exception class: " . get_class($exception));
+            error_log("Stack trace: " . $exception->getTraceAsString());
+            return $this->processException($exception);
         }
     }
 
+    private function processException(Throwable $exception): PsrResponseInterface
+    {
+        return $this->response->json([
+            'status' => 'error',
+            'message' => 'Erro ao processar a solicitação.',
+            'error' => $exception->getMessage()
+        ])->withStatus(Response::HTTP_BAD_REQUEST);
+    }
+
     private function processWithdraw(
-        RequestInterface $request,
+        WithdrawRequest $request,
         ResponseInterface $response,
         $account,
         array $data
@@ -85,7 +72,6 @@ class WithDrawController extends BalanceController
     }
 
     private function processImmediateWithdraw(
-        ResponseInterface $response,
         $account,
         array $data
     ): PsrResponseInterface {
@@ -95,7 +81,7 @@ class WithDrawController extends BalanceController
         $withdrawResult = $this->accountService->processWithdraw($account->id, $amount);
 
         if (!$withdrawResult['success']) {
-            return $response->json([
+            return $this->response->json([
                 'status' => 'error',
                 'message' => $withdrawResult['message'],
                 'errors' => ['amount' => [$withdrawResult['message']]]
@@ -105,9 +91,9 @@ class WithDrawController extends BalanceController
         // Aqui você implementaria a integração com o provedor PIX
         // $pixService->processWithdraw($data['pix'], $amount);
 
-        return $response->json([
+        return $this->response->json([
             'status' => 'success',
-            'message' => 'Saque processado com sucesso! 🚀 AUTO-RELOAD FUNCIONANDO!',
+            'message' => 'Saque processado com sucesso.',
             'data' => [
                 'account_id' => $account->id,
                 'amount' => $amount,
@@ -121,7 +107,6 @@ class WithDrawController extends BalanceController
     }
 
     private function scheduleWithdraw(
-        ResponseInterface $response,
         $account,
         array $data
     ): PsrResponseInterface {
@@ -132,7 +117,7 @@ class WithDrawController extends BalanceController
         // Criar registro na tabela de saques agendados
         // Configurar job para processar na data agendada
 
-        return $response->json([
+        return $this->response->json([
             'status' => 'success',
             'message' => 'Saque agendado com sucesso.',
             'data' => [

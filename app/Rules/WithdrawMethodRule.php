@@ -18,4 +18,5 @@ class WithdrawMethodRule implements Rule
     {
         return 'Método de saque inválido. Use: ' . implode(', ', WithdrawMethodEnum::getValues());
     }
+    
 }

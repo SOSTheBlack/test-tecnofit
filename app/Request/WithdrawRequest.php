@@ -27,10 +27,10 @@ class WithdrawRequest extends FormRequest
     {
         return [
             'method' => ['required', 'string', new WithdrawMethodRule()],
-            'pix' => 'required|array',
+            'pix' => ['required', 'array'],
             'pix.type' => ['required', 'string', new PixTypeRule()],
             'pix.key' => ['required', 'string', new PixKeyRule()],
-            'amount' => 'required|numeric|min:0.01',
+            'amount' => ['required', 'numeric', 'min:0.01'],
             'schedule' => ['nullable', new ScheduleRule()],
         ];
     }
@@ -56,25 +56,17 @@ class WithdrawRequest extends FormRequest
     }
 
     /**
-     * Validar saldo suficiente (será chamado depois que soubermos o saldo da conta)
+     * Configure the validator instance.
      */
-    public function validateBalance(float $accountBalance): array
+    public function withValidator($validator)
     {
-        $amount = (float) $this->input('amount');
-        
-        if ($amount > $accountBalance) {
-            return [
-                'valid' => false,
-                'errors' => [
-                    'amount' => [sprintf(
-                        'Saldo insuficiente. Saldo disponível: R$ %.2f, Valor solicitado: R$ %.2f',
-                        $accountBalance,
-                        $amount
-                    )]
-                ]
-            ];
-        }
-
-        return ['valid' => true, 'errors' => []];
+        // Garantir que as regras customizadas sejam executadas
+        // $validator->after(function ($validator) {
+        //     // Log para debug
+        //     if (env('APP_DEBUG', false)) {
+        //         error_log('WithdrawRequest validation executed');
+        //         error_log('Validation errors: ' . json_encode($validator->errors()?->toArray()));
+        //     }
+        // });
     }
 }
