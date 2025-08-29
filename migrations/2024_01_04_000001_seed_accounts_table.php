@@ -21,7 +21,7 @@ class SeedAccountsTable extends Migration
             [
                 'id' => '123e4567-e89b-12d3-a456-426614174000',
                 'name' => 'Conta Teste 1',
-                'balance' => 1000.50,
+                'balance' => 10000.50,
                 'created_at' => $now,
                 'updated_at' => $now,
             ],
@@ -35,14 +35,14 @@ class SeedAccountsTable extends Migration
             [
                 'id' => '323e4567-e89b-12d3-a456-426614174002',
                 'name' => 'Conta Teste 3',
-                'balance' => 0.00,
+                'balance' => 0.01,
                 'created_at' => $now,
                 'updated_at' => $now,
             ],
         ];
 
         foreach ($accounts as $account) {
-            Db::table('accounts')->insert($account);
+            Db::table('account')->insert($account);
         }
     }
 
@@ -51,7 +51,7 @@ class SeedAccountsTable extends Migration
      */
     public function down(): void
     {
-        Db::table('accounts')->whereIn('id', [
+        Db::table('account')->whereIn('id', [
             '123e4567-e89b-12d3-a456-426614174000',
             '223e4567-e89b-12d3-a456-426614174001',
             '323e4567-e89b-12d3-a456-426614174002',

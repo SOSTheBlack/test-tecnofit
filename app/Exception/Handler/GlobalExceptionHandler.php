@@ -11,7 +11,6 @@ use Hyperf\HttpMessage\Exception\MethodNotAllowedHttpException;
 use Hyperf\HttpMessage\Exception\NotFoundHttpException;
 use Hyperf\HttpMessage\Exception\UnauthorizedHttpException;
 use Hyperf\HttpMessage\Stream\SwooleStream;
-use Hyperf\Validation\ValidationException;
 use Psr\Http\Message\ResponseInterface;
 use Symfony\Component\HttpFoundation\Response;
 use Throwable;
@@ -55,7 +54,7 @@ class GlobalExceptionHandler extends ExceptionHandler
         ],
     ];
 
-    public function handle(Throwable $throwable, ResponseInterface $response)
+    public function handle(Throwable $throwable, ResponseInterface $response): ResponseInterface
     {
         $handledResponse = $this->handleException($throwable, $response);
         
@@ -63,7 +62,6 @@ class GlobalExceptionHandler extends ExceptionHandler
             return $handledResponse;
         }
 
-        // Se não foi tratado especificamente, continua para o próximo handler
         return $response;
     }
 

@@ -7,14 +7,16 @@ namespace App\Controller\Accounts\Balances;
 use App\Repository\Contract\AccountRepositoryInterface;
 use App\Request\WithdrawRequest;
 use App\Service\AccountService;
+use App\UseCase\Account\Withdraw;
 use Hyperf\HttpServer\Contract\ResponseInterface;
 use Psr\Http\Message\ResponseInterface as PsrResponseInterface;
-use Symfony\Component\HttpFoundation\Response;
-use App\Repository\Exceptions\RepositoryNotFoundException;
 use Throwable;
 
 class WithDrawController extends BalanceController
 {
+    private string $account;
+    private array $data;
+
     public function __construct(
         private ResponseInterface $response,
         private AccountRepositoryInterface $accountRepository,
@@ -24,8 +26,12 @@ class WithDrawController extends BalanceController
 
     public function __invoke(string $accountId, WithdrawRequest $request): PsrResponseInterface
     {
-        $data = $request->validated();
-        $account = $this->accountRepository->findById($accountId);
+        $this->defineData($request);
+        $this->defineAccount($accountId);
+
+        // $transaction = new Withdraw
+
+        return $this->processWithdraw();
 
         // Se for agendamento
         if ($data['schedule'] ?? null) {
@@ -36,31 +42,23 @@ class WithDrawController extends BalanceController
         return $this->processImmediateWithdraw($account, $data);
     }
 
-    private function processException(Throwable $exception): PsrResponseInterface
+    private function defineData($request): void
     {
-        return $this->response->json([
-            'status' => 'error',
-            'message' => 'Erro ao processar a solicitação.',
-            'error' => $exception->getMessage()
-        ])->withStatus(Response::HTTP_BAD_REQUEST);
+        $this->data = $request->validated();
     }
 
-    private function processWithdraw(
-        WithdrawRequest $request,
-        ResponseInterface $response,
-        $account,
-        array $data
-    ): PsrResponseInterface {
-        $amount = (float) $data['amount'];
-        $schedule = $data['schedule'] ?? null;
+    private function defineAccount(string $accountId): void
+    {
+        $this->account = $accountId;
+    }
 
-        // Se for agendamento
-        if ($schedule !== null) {
-            return $this->scheduleWithdraw($response, $account, $data);
+    private function processWithdraw(): PsrResponseInterface
+    {
+        if ($data['schedule'] ?? null !== null) {
+            return $this->scheduleWithdraw($account, $data);
         }
 
-        // Saque imediato
-        return $this->processImmediateWithdraw($response, $account, $data);
+        return $this->processImmediateWithdraw($account, $data);
     }
 
     private function processImmediateWithdraw(
