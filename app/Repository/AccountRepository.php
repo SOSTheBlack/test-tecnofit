@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Repository;
 
+use App\DTO\Account\Balance\AccountDataDTO;
 use App\Model\Account;
 use App\Repository\Contract\AccountRepositoryInterface;
 use App\Repository\Exceptions\RepositoryException;
@@ -25,6 +26,13 @@ class AccountRepository implements AccountRepositoryInterface
         } catch (ModelNotFoundException $e) {
             throw new RepositoryNotFoundException('Conta não encontrada.', previous: $e);
         }
+    }
+
+    public function getAccountData(string $accountId): ?AccountDataDTO
+    {
+        $account = $this->findById($accountId);
+
+        return $account ? AccountDataDTO::fromModel($account) : null;
     }
 
     public function getBalance(string $accountId): ?float

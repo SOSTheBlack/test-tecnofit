@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace App\Rules;
 
-use App\Enum\PixKeyTypeEnum;
-use App\Service\Validator\PixKeyValidator;
 use Hyperf\Validation\Contract\Rule;
 
 class PixKeyRule implements Rule

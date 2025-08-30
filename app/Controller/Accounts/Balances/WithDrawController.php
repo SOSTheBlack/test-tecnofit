@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Controller\Accounts\Balances;
 
 use App\DTO\Account\Balance\WithdrawRequestDTO;
-use App\Service\AccountService;
 use App\Request\WithdrawRequest;
 use App\UseCase\Account\Balance\WithdrawUseCase;
 use Hyperf\HttpServer\Contract\ResponseInterface;
@@ -15,7 +14,6 @@ class WithDrawController extends BalanceController
 {
     public function __construct(
         private ResponseInterface $response,
-        private AccountService $accountService,
     ) {}
 
     public function __invoke(string $accountId, WithdrawRequest $request): PsrResponseInterface
@@ -29,7 +27,7 @@ class WithDrawController extends BalanceController
 
             // Retornar resposta baseada no resultado
             return $this->response->json($result->toJsonResponse())->withStatus($result->getHttpStatusCode());
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             error_log('Erro ao processar solicitação de saque: ' . print_r($e, false));
             return $this->response->json([
                 'success' => false,

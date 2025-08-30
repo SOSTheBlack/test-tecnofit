@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Repository\Contract;
 
+use App\DTO\Account\Balance\AccountDataDTO;
 use App\Model\Account;
 
 interface AccountRepositoryInterface
@@ -16,6 +17,8 @@ interface AccountRepositoryInterface
      * @throws RepositoryNotFoundException
      */
     public function findById(string $accountId): ?Account;
+
+    public function getAccountData(string $accountId): ?AccountDataDTO;
     
     public function getBalance(string $accountId): ?float;
     

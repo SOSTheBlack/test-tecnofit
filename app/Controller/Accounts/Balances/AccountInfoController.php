@@ -4,9 +4,8 @@ declare(strict_types=1);
 
 namespace App\Controller\Accounts\Balances;
 
-use App\DTO\Account\Balance\AccountDataDTO;
 use App\DTO\Account\Balance\AccountSummaryDTO;
-use App\Service\AccountService;
+use App\Repository\Contract\AccountRepositoryInterface;
 use Hyperf\HttpServer\Contract\ResponseInterface;
 use Psr\Http\Message\ResponseInterface as PsrResponseInterface;
 
@@ -14,7 +13,7 @@ class AccountInfoController extends BalanceController
 {
     public function __construct(
         private ResponseInterface $response,
-        private AccountService $accountService,
+        private AccountRepositoryInterface $accountRepository,
     ) {}
 
     /**
@@ -22,7 +21,7 @@ class AccountInfoController extends BalanceController
      */
     public function getAccountInfo(string $accountId): PsrResponseInterface
     {
-        $accountData = $this->accountService->getAccountData($accountId);
+        $accountData = $this->accountRepository->getAccountData($accountId);
         
         if (!$accountData) {
             return $this->response->json([
@@ -44,7 +43,7 @@ class AccountInfoController extends BalanceController
      */
     public function getAccountSummary(string $accountId): PsrResponseInterface
     {
-        $account = $this->accountService->findAccountById($accountId);
+        $account = $this->accountRepository->findById($accountId);
         
         if (!$account) {
             return $this->response->json([
@@ -68,7 +67,7 @@ class AccountInfoController extends BalanceController
      */
     public function checkBalance(string $accountId, float $amount): PsrResponseInterface
     {
-        $accountData = $this->accountService->getAccountData($accountId);
+        $accountData = $this->accountRepository->getAccountData($accountId);
         
         if (!$accountData) {
             return $this->response->json([

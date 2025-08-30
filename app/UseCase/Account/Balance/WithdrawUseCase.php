@@ -6,12 +6,8 @@ namespace App\UseCase\Account\Balance;
 
 use App\DTO\Account\Balance\AccountDataDTO;
 use App\DTO\Account\Balance\AccountWithdrawDTO;
-use App\Service\AccountService;
-use Carbon\Carbon;
-use Exception;
 use App\DTO\Account\Balance\WithdrawRequestDTO;
 use App\DTO\Account\Balance\WithdrawResultDTO;
-use App\Model\Account;
 use App\Model\AccountWithdraw;
 use App\Model\AccountWithdrawPix;
 use App\Repository\AccountRepository;
@@ -25,7 +21,6 @@ class WithdrawUseCase
 {
 
     private AccountDataDTO $accountData;
-    private AccountService $accountService;
     private WithdrawRequestDTO $withdrawRequestDTO;
     private AccountRepositoryInterface $accountRepository;
     private AccountWithdrawRepositoryInterface $accountWithdrawRepository;
@@ -33,9 +28,8 @@ class WithdrawUseCase
 
     public function __construct()
     {
-        $this->accountService = new AccountService();
-        $this->accountWithdrawRepository = new AccountWithdrawRepository();
         $this->accountRepository = new AccountRepository();
+        $this->accountWithdrawRepository = new AccountWithdrawRepository();
     }
 
     /**
@@ -85,9 +79,7 @@ class WithdrawUseCase
     private function prepareExecute(WithdrawRequestDTO $withdrawRequestDTO): void
     {
         $this->withdrawRequestDTO = $withdrawRequestDTO;
-
-        $account = $this->accountService->findAccountById($withdrawRequestDTO->accountId);
-        $this->accountData = AccountDataDTO::fromModel($account);
+        $this->accountData = $this->accountRepository->getAccountData($withdrawRequestDTO->accountId);;
     }
 
         /**
