@@ -2,14 +2,14 @@
 
 declare(strict_types=1);
 
-namespace App\Controller\Account;
+namespace App\Controller\Accounts\Balances;
 
 use App\DataTransfer\Account\Balance\AccountSummaryData;
 use App\Repository\Contract\AccountRepositoryInterface;
 use Hyperf\HttpServer\Contract\ResponseInterface;
 use Psr\Http\Message\ResponseInterface as PsrResponseInterface;
 
-class AccountInfoController extends AccountController
+class AccountInfoController extends BalanceController
 {
     public function __construct(
         private ResponseInterface $response,

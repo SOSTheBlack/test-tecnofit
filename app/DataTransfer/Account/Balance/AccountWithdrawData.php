@@ -2,18 +2,18 @@
 
 declare(strict_types=1);
 
-namespace App\DTO\Account\Balance;
+namespace App\DataTransfer\Account\Balance;
 
 use App\Enum\WithdrawMethodEnum;
 use App\Model\AccountWithdraw;
 use Carbon\Carbon;
 
-readonly class AccountWithdrawDTO
+readonly class AccountWithdrawData
 {
     public function __construct(
-        public string|\Ramsey\Uuid\UuidInterface $id,
-        public string|\Ramsey\Uuid\UuidInterface $accountId,
-        public string|\Ramsey\Uuid\UuidInterface $transactionId,
+        public string $id,
+        public string $accountId,
+        public string $transactionId,
         public WithdrawMethodEnum $method,
         public float $amount,
         public bool $scheduled,
@@ -30,9 +30,9 @@ readonly class AccountWithdrawDTO
     public static function fromModel(AccountWithdraw $model): self
     {
         return new self(
-            id: $model->id,
-            accountId: $model->account_id,
-            transactionId: $model->transaction_id,
+            id: (string) $model->id,
+            accountId: (string) $model->account_id,
+            transactionId: (string) $model->transaction_id,
             method: WithdrawMethodEnum::from($model->method),
             amount: (float) $model->amount, // Cast para float devido ao decimal cast do modelo
             scheduled: $model->scheduled,

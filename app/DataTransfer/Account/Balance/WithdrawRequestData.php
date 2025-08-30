@@ -2,18 +2,18 @@
 
 declare(strict_types=1);
 
-namespace App\DTO\Account\Balance;
+namespace App\DataTransfer\Account\Balance;
 
 use App\Enum\WithdrawMethodEnum;
 use Carbon\Carbon;
 
-readonly class WithdrawRequestDTO
+readonly class WithdrawRequestData
 {
     public function __construct(
         public string $accountId,
         public WithdrawMethodEnum $method,
         public float $amount,
-        public ?PixDataDTO $pix = null,
+        public ?PixData $pix = null,
         public ?Carbon $schedule = null,
         public ?array $metadata = null,
     ) {}
@@ -29,7 +29,7 @@ readonly class WithdrawRequestDTO
 
         $pix = null;
         if (isset($data['pix']) && is_array($data['pix'])) {
-            $pix = PixDataDTO::fromArray($data['pix']);
+            $pix = PixData::fromArray($data['pix']);
         }
 
         return new self(

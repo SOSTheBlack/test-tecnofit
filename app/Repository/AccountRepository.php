@@ -4,12 +4,10 @@ declare(strict_types=1);
 
 namespace App\Repository;
 
-use App\DTO\Account\Balance\AccountDataDTO;
+use App\DataTransfer\Account\AccountData;
 use App\Model\Account;
 use App\Repository\Contract\AccountRepositoryInterface;
-use App\Repository\Exceptions\RepositoryException;
 use App\Repository\Exceptions\RepositoryNotFoundException;
-use Exception;
 use Hyperf\Database\Model\ModelNotFoundException;
 
 class AccountRepository implements AccountRepositoryInterface
@@ -28,11 +26,11 @@ class AccountRepository implements AccountRepositoryInterface
         }
     }
 
-    public function getAccountData(string $accountId): ?AccountDataDTO
+    public function getAccountData(string $accountId): ?AccountData
     {
         $account = $this->findById($accountId);
 
-        return $account ? AccountDataDTO::fromModel($account) : null;
+        return $account ? AccountData::fromModel($account) : null;
     }
 
     public function getBalance(string $accountId): ?float

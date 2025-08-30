@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Repository\Contract;
 
-use App\DTO\Account\Balance\AccountWithdrawDTO;
+use App\DataTransfer\Account\Balance\AccountWithdrawData;
 use App\Model\AccountWithdraw;
 use Carbon\Carbon;
 use Hyperf\Database\Model\Collection;
@@ -151,7 +151,7 @@ interface AccountWithdrawRepositoryInterface
     /**
      * Converte model para DTO
      */
-    public function toDTO(AccountWithdraw $model): AccountWithdrawDTO;
+    public function toDTO(AccountWithdraw $model): AccountWithdrawData;
 
     /**
      * Converte array de models para DTOs
@@ -161,12 +161,12 @@ interface AccountWithdrawRepositoryInterface
     /**
      * Encontra um saque pelo ID e retorna como DTO
      */
-    public function findByIdAsDTO(string $id): ?AccountWithdrawDTO;
+    public function findByIdAsDTO(string $id): ?AccountWithdrawData;
 
     /**
      * Encontra um saque pelo transaction_id e retorna como DTO
      */
-    public function findByTransactionIdAsDTO(string $transactionId): ?AccountWithdrawDTO;
+    public function findByTransactionIdAsDTO(string $transactionId): ?AccountWithdrawData;
 
     /**
      * Obtém saques de uma conta como DTOs

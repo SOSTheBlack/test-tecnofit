@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Repository\Contract;
 
-use App\DTO\Account\Balance\AccountDataDTO;
+use App\DataTransfer\Account\AccountData;
 use App\Model\Account;
 
 interface AccountRepositoryInterface
@@ -18,7 +18,7 @@ interface AccountRepositoryInterface
      */
     public function findById(string $accountId): ?Account;
 
-    public function getAccountData(string $accountId): ?AccountDataDTO;
+    public function getAccountData(string $accountId): ?AccountData;
     
     public function getBalance(string $accountId): ?float;
     

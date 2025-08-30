@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Repository;
 
-use App\DTO\Account\Balance\AccountWithdrawDTO;
+use App\DataTransfer\Account\Balance\AccountWithdrawData;
 use App\Model\AccountWithdraw;
 use App\Repository\Contract\AccountWithdrawRepositoryInterface;
 use App\Repository\Exceptions\RepositoryNotFoundException;
@@ -438,9 +438,9 @@ class AccountWithdrawRepository implements AccountWithdrawRepositoryInterface
     /**
      * Converte model para DTO
      */
-    public function toDTO(AccountWithdraw $model): AccountWithdrawDTO
+    public function toDTO(AccountWithdraw $model): AccountWithdrawData
     {
-        return AccountWithdrawDTO::fromModel($model);
+        return AccountWithdrawData::fromModel($model);
     }
 
     /**
@@ -454,7 +454,7 @@ class AccountWithdrawRepository implements AccountWithdrawRepositoryInterface
     /**
      * Encontra um saque pelo ID e retorna como DTO
      */
-    public function findByIdAsDTO(string $id): ?AccountWithdrawDTO
+    public function findByIdAsDTO(string $id): ?AccountWithdrawData
     {
         $model = $this->findById($id);
         return $model ? $this->toDTO($model) : null;
@@ -463,7 +463,7 @@ class AccountWithdrawRepository implements AccountWithdrawRepositoryInterface
     /**
      * Encontra um saque pelo transaction_id e retorna como DTO
      */
-    public function findByTransactionIdAsDTO(string $transactionId): ?AccountWithdrawDTO
+    public function findByTransactionIdAsDTO(string $transactionId): ?AccountWithdrawData
     {
         $model = $this->findByTransactionId($transactionId);
         return $model ? $this->toDTO($model) : null;

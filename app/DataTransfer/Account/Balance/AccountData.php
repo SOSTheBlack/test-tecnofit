@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace App\DTO\Account\Balance;
+namespace App\DataTransfer\Account\Balance;
 
 use App\Model\Account;
 use Carbon\Carbon;
 
-readonly class AccountDataDTO
+readonly class AccountData
 {
     public function __construct(
         public string $id,

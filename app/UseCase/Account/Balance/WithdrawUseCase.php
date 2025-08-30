@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace App\UseCase\Account\Balance;
 
-use App\DTO\Account\Balance\AccountDataDTO;
-use App\DTO\Account\Balance\AccountWithdrawDTO;
-use App\DTO\Account\Balance\WithdrawRequestDTO;
-use App\DTO\Account\Balance\WithdrawResultDTO;
+use App\DataTransfer\Account\AccountData;
+use App\DataTransfer\Account\Balance\AccountWithdrawData;
+use App\DataTransfer\Account\Balance\WithdrawRequestData;
+use App\DataTransfer\Account\Balance\WithdrawResultData;
 use App\Model\AccountWithdraw;
 use App\Model\AccountWithdrawPix;
 use App\Repository\AccountRepository;
@@ -20,8 +20,8 @@ use Throwable;
 class WithdrawUseCase
 {
 
-    private AccountDataDTO $accountData;
-    private WithdrawRequestDTO $withdrawRequestDTO;
+    private AccountData $accountData;
+    private WithdrawRequestData $withdrawRequestData;
     private AccountRepositoryInterface $accountRepository;
     private AccountWithdrawRepositoryInterface $accountWithdrawRepository;
 
@@ -35,40 +35,37 @@ class WithdrawUseCase
     /**
      * Executa o saque (imediato ou agendado)
      */
-    public function execute(WithdrawRequestDTO $withdrawRequestDTO): WithdrawResultDTO
+    public function execute(WithdrawRequestData $withdrawRequestData): WithdrawResultData
     {
-        $this->prepareExecute($withdrawRequestDTO);
-
-        // Validação inicial do DTO
-        $requestErrors = $withdrawRequestDTO->validate();
-        if (!empty($requestErrors)) {
-            return WithdrawResultDTO::validationError($requestErrors);
-        }
-
-        // Validar se tem saldo suficiente
-        if (!$this->hasSufficientBalance()) {
-            return WithdrawResultDTO::error(
-                'INSUFFICIENT_BALANCE',
-                sprintf(
-                    'Saldo insuficiente. Saldo disponível: R$ %.2f, Valor solicitado: R$ %.2f',
-                    $this->accountData->availableBalance,
-                    $this->withdrawRequestDTO->amount
-                )
-            );
-        }
-
         try {
-            return Db::transaction(function () {
-                $transactionId = AccountWithdraw::generateTransactionId();
+            $this->prepareExecute($withdrawRequestData);
 
-                if ($this->withdrawRequestDTO->isScheduled()) {
-                    return $this->scheduleWithdraw($transactionId);
-                }
+            // Valida os dados da requisição
+            $requestErrors = $withdrawRequestData->validate();
+            if (!empty($requestErrors)) {
+                return WithdrawResultData::validationError($requestErrors);
+            }
 
+            // Validação de saldo
+            if (!$this->accountData->canWithdraw($withdrawRequestData->amount)) {
+                return WithdrawResultData::error(
+                    'INSUFFICIENT_BALANCE',
+                    'Saldo insuficiente para realizar o saque.'
+                );
+            }
+
+            // Gera ID da transação se não foi fornecido
+            $transactionId = AccountWithdraw::generateTransactionId();
+
+            // Processa baseado no tipo (imediato ou agendado)
+            if ($this->withdrawRequestData->isScheduled()) {
+                return $this->scheduleWithdraw($transactionId);
+            } else {
                 return $this->processImmediateWithdraw($transactionId);
-            });
-        } catch (Throwable $e) {
-            return WithdrawResultDTO::error(
+            }
+
+        } catch (\Throwable $e) {
+            return WithdrawResultData::error(
                 'PROCESSING_ERROR',
                 'Erro interno ao processar o saque.',
                 ['general' => [$e->getMessage()]]
@@ -76,56 +73,58 @@ class WithdrawUseCase
         }
     }
 
-    private function prepareExecute(WithdrawRequestDTO $withdrawRequestDTO): void
+    private function prepareExecute(WithdrawRequestData $withdrawRequestData): void
     {
-        $this->withdrawRequestDTO = $withdrawRequestDTO;
-        $this->accountData = $this->accountRepository->getAccountData($withdrawRequestDTO->accountId);;
+        $this->withdrawRequestData = $withdrawRequestData;
+        // Temporary fix - will need to update AccountRepository to return AccountData
+        $accountDto = $this->accountRepository->getAccountData($withdrawRequestData->accountId);
+        $this->accountData = AccountData::fromModel($this->accountRepository->findById($withdrawRequestData->accountId));
     }
 
-        /**
+    /**
      * Processa saque imediato
      */
-    private function processImmediateWithdraw(string $transactionId): WithdrawResultDTO
+    private function processImmediateWithdraw(string $transactionId): WithdrawResultData
     {
         // Cria o registro do saque
-        $accountWithdrawDTO = $this->createAccountWithdrawRecord($transactionId, false);
+        $accountWithdrawData = $this->createAccountWithdrawRecord($transactionId, false);
 
         // Marca como processando
-        $this->accountWithdrawRepository->markAsProcessing((string) $accountWithdrawDTO->id);
+        $this->accountWithdrawRepository->markAsProcessing((string) $accountWithdrawData->id);
 
         // Processa o débito na conta
-        $debitSuccess = $this->accountRepository->debitAmount($this->accountData->id, $this->withdrawRequestDTO->amount);
+        $debitSuccess = $this->accountRepository->debitAmount($this->accountData->id, $this->withdrawRequestData->amount);
 
         if (!$debitSuccess) {
             $this->accountWithdrawRepository->markAsFailed(
-                (string) $accountWithdrawDTO->id, 
+                (string) $accountWithdrawData->id, 
                 'Erro ao debitar valor da conta.'
             );
             
-            return WithdrawResultDTO::error(
+            return WithdrawResultData::error(
                 'DEBIT_ERROR',
                 'Erro ao debitar valor da conta.'
             );
         }
 
         // Marca como concluído
-        $this->accountWithdrawRepository->markAsCompleted((string) $accountWithdrawDTO->id);
+        $this->accountWithdrawRepository->markAsCompleted((string) $accountWithdrawData->id);
 
-        return WithdrawResultDTO::success([
+        return WithdrawResultData::success([
             'account_id' => $this->accountData->id,
             'account_name' => $this->accountData->name,
-            'amount' => $this->withdrawRequestDTO->amount,
-            'current_balance' => (float) number_format($this->accountData->balance - $this->withdrawRequestDTO->amount, 2, '.', ''),
-            'available_balance' => (float) number_format($this->accountData->availableBalance - $this->withdrawRequestDTO->amount, 2, '.', ''),
-            'method' => $this->withdrawRequestDTO->method->value,
-            'pix_key' => $this->withdrawRequestDTO->getPixKey(),
-            'pix_type' => $this->withdrawRequestDTO->getPixType(),
+            'amount' => $this->withdrawRequestData->amount,
+            'current_balance' => (float) number_format($this->accountData->balance - $this->withdrawRequestData->amount, 2, '.', ''),
+            'available_balance' => (float) number_format($this->accountData->availableBalance - $this->withdrawRequestData->amount, 2, '.', ''),
+            'method' => $this->withdrawRequestData->method->value,
+            'pix_key' => $this->withdrawRequestData->getPixKey(),
+            'pix_type' => $this->withdrawRequestData->getPixType(),
             'type' => 'immediate',
-            'withdraw_details' => $accountWithdrawDTO->toSummary(),
+            'withdraw_details' => $accountWithdrawData->toSummary(),
         ], $transactionId);
     }
 
-    private function createPixData(AccountWithdrawDTO $accountWithdrawData, WithdrawRequestDTO $request): AccountWithdrawPix
+    private function createPixData(AccountWithdrawData $accountWithdrawData, WithdrawRequestData $request): AccountWithdrawPix
     {
         return AccountWithdrawPix::create([
             'id' => \Hyperf\Stringable\Str::uuid(),
@@ -138,43 +137,43 @@ class WithdrawUseCase
     /**
      * Agenda o saque para data futura
      */
-    private function scheduleWithdraw(string $transactionId): WithdrawResultDTO
+    private function scheduleWithdraw(string $transactionId): WithdrawResultData
     {
         // Cria o registro do saque agendado
-        $accountWithdrawDTO = $this->createAccountWithdrawRecord($transactionId, true);
+        $accountWithdrawData = $this->createAccountWithdrawRecord($transactionId, true);
 
         #TODO Criar adapter para realizar a transferência - Suportado no mvp PIX(Service PixApiService por exemplo)
 
-        return WithdrawResultDTO::scheduled([
+        return WithdrawResultData::scheduled([
             'account_id' => $this->accountData->id,
             'account_name' => $this->accountData->name,
-            'amount' => $this->withdrawRequestDTO->amount,
+            'amount' => $this->withdrawRequestData->amount,
             'current_balance' => (float) number_format($this->accountData->balance, 2, '.', ''),
-            'available_balance' => (float) number_format($this->accountData->availableBalance - $this->withdrawRequestDTO->amount, 2, '.', ''),
-            'method' => $this->withdrawRequestDTO->method->value,
-            'scheduled_for' => $this->withdrawRequestDTO->schedule?->toISOString(),
-            'pix_key' => $this->withdrawRequestDTO->getPixKey(),
-            'pix_type' => $this->withdrawRequestDTO->getPixType(),
+            'available_balance' => (float) number_format($this->accountData->availableBalance - $this->withdrawRequestData->amount, 2, '.', ''),
+            'method' => $this->withdrawRequestData->method->value,
+            'scheduled_for' => $this->withdrawRequestData->schedule?->toISOString(),
+            'pix_key' => $this->withdrawRequestData->getPixKey(),
+            'pix_type' => $this->withdrawRequestData->getPixType(),
             'type' => 'scheduled',
-            'withdraw_details' => $accountWithdrawDTO->toSummary(),
+            'withdraw_details' => $accountWithdrawData->toSummary(),
         ], $transactionId);
     }
 
-    private function createAccountWithdrawRecord(string $transactionId, bool $scheduled = false): AccountWithdrawDTO
+    private function createAccountWithdrawRecord(string $transactionId, bool $scheduled = false): AccountWithdrawData
     {
-        return AccountWithdrawDTO::fromModel($this->accountWithdrawRepository->create([
+        return AccountWithdrawData::fromModel($this->accountWithdrawRepository->create([
             'id' => \Hyperf\Stringable\Str::uuid(),
             'account_id' => $this->accountData->id,
             'transaction_id' => $transactionId,
-            'method' => $this->withdrawRequestDTO->method->value,
-            'amount' => $this->withdrawRequestDTO->amount,
+            'method' => $this->withdrawRequestData->method->value,
+            'amount' => $this->withdrawRequestData->amount,
             'scheduled' => $scheduled,
-            'scheduled_for' => $this->withdrawRequestDTO->schedule,
+            'scheduled_for' => $this->withdrawRequestData->schedule,
             'status' => $scheduled ? AccountWithdraw::STATUS_SCHEDULED : AccountWithdraw::STATUS_PENDING,
             'done' => false,
             'error' => false,
             'error_reason' => null,
-            'meta' => $this->withdrawRequestDTO->metadata,
+            'meta' => $this->withdrawRequestData->metadata,
         ]));
     }
 
@@ -183,6 +182,6 @@ class WithdrawUseCase
      */
     private function hasSufficientBalance(): bool
     {
-        return (float) $this->accountData->balance >= $this->withdrawRequestDTO->amount;
+        return (float) $this->accountData->balance >= $this->withdrawRequestData->amount;
     }
 }
