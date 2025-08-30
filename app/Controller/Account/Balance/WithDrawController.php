@@ -12,9 +12,10 @@ use Psr\Http\Message\ResponseInterface as PsrResponseInterface;
 
 class WithDrawController extends BalanceController
 {
-    public function __construct(
-        private ResponseInterface $response,
-    ) {}
+    public function __construct(private ResponseInterface $response, private WithdrawUseCase $withdrawUseCase)
+    {
+        
+    }
 
     public function __invoke(string $accountId, WithdrawRequest $request): PsrResponseInterface
     {
@@ -23,7 +24,7 @@ class WithDrawController extends BalanceController
             $requestData = array_merge($request->validated(), ['account_id' => $accountId]);
             $withdrawRequestData = WithdrawRequestData::fromRequestData($requestData);
 
-            $result = (new WithdrawUseCase())->execute($withdrawRequestData);
+            $result = $this->withdrawUseCase->execute($withdrawRequestData);
 
             // Retornar resposta baseada no resultado
             return $this->response->json($result->toJsonResponse())->withStatus($result->getHttpStatusCode());

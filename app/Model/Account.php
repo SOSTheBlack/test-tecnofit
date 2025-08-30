@@ -54,7 +54,7 @@ class Account extends Model
     public function pendingWithdraws(): HasMany
     {
         return $this->hasMany(AccountWithdraw::class, 'account_id', 'id')
-            ->where('status', AccountWithdraw::STATUS_PENDING)
+            ->whereIn('status', [AccountWithdraw::STATUS_PENDING, AccountWithdraw::STATUS_SCHEDULED])
             ->where('done', false);
     }
 

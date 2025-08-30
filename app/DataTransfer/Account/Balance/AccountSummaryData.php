@@ -20,10 +20,10 @@ readonly class AccountSummaryData
         return new self(
             id: $account->id,
             name: $account->name,
-            currentBalance: $account->balance,
-            availableBalance: $account->getAvailableBalance(),
+            currentBalance: (float) $account->balance,
+            availableBalance: (float) $account->getAvailableBalance(),
             pendingWithdrawsCount: $account->pendingWithdraws()->count(),
-            pendingWithdrawsAmount: $account->getTotalPendingWithdrawAmount(),
+            pendingWithdrawsAmount: (float) $account->getTotalPendingWithdrawAmount(),
         );
     }
 

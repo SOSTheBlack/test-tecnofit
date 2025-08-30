@@ -1,0 +1,15 @@
+meta {
+  name: sumary
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{base-url}}/account/{{account-uuid}}
+  body: json
+  auth: inherit
+}
+
+settings {
+  encodeUrl: true
+}
