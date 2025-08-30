@@ -28,6 +28,7 @@ class Account extends Model
     protected string $keyType = 'string';
 
     protected array $fillable = [
+        'id',
         'name',
         'balance',
     ];

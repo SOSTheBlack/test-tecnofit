@@ -32,11 +32,11 @@ readonly class AccountSummaryDTO
         return [
             'id' => $this->id,
             'name' => $this->name,
-            'current_balance' => $this->currentBalance,
-            'available_balance' => $this->availableBalance,
+            'current_balance' => (float) number_format($this->currentBalance, 2, '.', ''),
+            'available_balance' => (float) number_format($this->availableBalance, 2, '.', ''),
             'pending_withdraws' => [
                 'count' => $this->pendingWithdrawsCount,
-                'total_amount' => $this->pendingWithdrawsAmount,
+                'total_amount' => (float) number_format($this->pendingWithdrawsAmount, 2, '.', ''),
             ],
         ];
     }

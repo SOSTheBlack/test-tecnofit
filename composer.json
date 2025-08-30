@@ -12,6 +12,7 @@
     "license": "MIT",
     "require": {
         "php": ">=8.2",
+        "hyperf/async-queue": "~3.1.0",
         "hyperf/cache": "~3.1.0",
         "hyperf/command": "~3.1.0",
         "hyperf/config": "~3.1.0",
@@ -34,12 +35,12 @@
         "hyperf/process": "~3.1.0",
         "hyperf/redis": "~3.1.0",
         "hyperf/server": "~3.1.0",
+        "hyperf/translation": "~3.1.0",
         "hyperf/utils": "~3.1.0",
         "hyperf/validation": "~3.1.0",
-        "hyperf/async-queue": "~3.1.0",
         "hyperf/view": "~3.1.0",
-        "hyperf/translation": "~3.1.0",
         "lcobucci/jwt": "^5.0",
+        "ramsey/uuid": "^4.9",
         "swiftmailer/swiftmailer": "^6.0"
     },
     "require-dev": {

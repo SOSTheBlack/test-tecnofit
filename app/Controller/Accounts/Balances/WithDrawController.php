@@ -25,15 +25,12 @@ class WithDrawController extends BalanceController
             $requestData = array_merge($request->validated(), ['account_id' => $accountId]);
             $withdrawRequestData = WithdrawRequestDTO::fromRequestData($requestData);
 
-            $result = (new WithdrawUseCase($this->accountService))->execute($withdrawRequestData);
-
-            // Processar saque via service
-            // $result = $this->accountService->processWithdraw($withdrawRequestData);
+            $result = (new WithdrawUseCase())->execute($withdrawRequestData);
 
             // Retornar resposta baseada no resultado
             return $this->response->json($result->toJsonResponse())->withStatus($result->getHttpStatusCode());
-            
         } catch (\Exception $e) {
+            error_log('Erro ao processar solicitação de saque: ' . print_r($e, false));
             return $this->response->json([
                 'success' => false,
                 'message' => 'Erro interno do servidor.',

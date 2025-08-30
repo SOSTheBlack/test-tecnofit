@@ -10,6 +10,7 @@ use Hyperf\Database\Model\Relations\BelongsTo;
 use Hyperf\Database\Model\Relations\HasOne;
 use Hyperf\Database\Model\SoftDeletes;
 use Hyperf\DbConnection\Model\Model;
+use Hyperf\Stringable\Str;
 
 /**
  * @property string $id
@@ -40,6 +41,7 @@ class AccountWithdraw extends Model
     protected string $keyType = 'string';
 
     protected array $fillable = [
+        'id',
         'account_id',
         'transaction_id',
         'method',

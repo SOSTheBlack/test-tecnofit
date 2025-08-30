@@ -31,6 +31,7 @@ class AccountWithdrawPix extends Model
     protected string $keyType = 'string';
 
     protected array $fillable = [
+        'id',
         'account_withdraw_id',
         'external_id',
         'type',
