@@ -54,7 +54,7 @@ class GlobalExceptionHandler extends ExceptionHandler
         ],
     ];
 
-    public function handle(Throwable $throwable, ResponseInterface $response): ResponseInterface
+    public function handle(Throwable $throwable, ResponseInterface $response)
     {
         $handledResponse = $this->handleException($throwable, $response);
         
@@ -62,6 +62,7 @@ class GlobalExceptionHandler extends ExceptionHandler
             return $handledResponse;
         }
 
+        // Se não foi tratado especificamente, continua para o próximo handler
         return $response;
     }
 
@@ -109,7 +110,7 @@ class GlobalExceptionHandler extends ExceptionHandler
         $data = [
             'status' => 'error',
             'message' => $message,
-            'error' => $throwable->getPrevious()?->getMessage()
+            'errors' => ['general' => $throwable->getPrevious()?->getMessage()],
         ];
 
         if ($code !== null) {
@@ -117,7 +118,7 @@ class GlobalExceptionHandler extends ExceptionHandler
         }
 
         if ($includeError) {
-            $data['error'] = $throwable->getMessage();
+            $data['errors']['general'][] = $throwable->getMessage();
         }
 
         $this->addDebugInfo($data, $throwable);
