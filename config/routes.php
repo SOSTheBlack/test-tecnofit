@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-use App\Controller\Accounts\Balances\WithDrawController;
+use App\Controller\Account\Balance\WithDrawController;
 use Hyperf\HttpServer\Router\Router;
 
 Router::addRoute(['GET', 'HEAD'], '/', 'App\Controller\IndexController@index');

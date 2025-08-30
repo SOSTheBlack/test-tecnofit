@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Controller\Accounts\Balances;
+namespace App\Controller\Account\Balance;
 
-use App\Controller\Accounts\AccountController;
+use App\Controller\Account\AccountController;
 
 abstract class BalanceController extends AccountController
 {
