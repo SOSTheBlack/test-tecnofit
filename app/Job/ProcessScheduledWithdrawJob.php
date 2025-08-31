@@ -29,7 +29,11 @@ class ProcessScheduledWithdrawJob extends Job
         $this->withdrawId = $withdrawId;
 
         $container = ApplicationContext::getContainer();
-        $this->accountWithdrawRepository = $container->get(AccountWithdrawRepositoryInterface::class) ?? new AccountWithdrawRepository();
+        try {
+            $this->accountWithdrawRepository = $container->get(AccountWithdrawRepositoryInterface::class);
+        } catch (Throwable $e) {
+            $this->accountWithdrawRepository = new AccountWithdrawRepository();
+        }
     }
 
     public function handle(): void
