@@ -70,7 +70,7 @@ class WithdrawUseCase
             $transactionId = AccountWithdraw::generateTransactionId();
             
             // Cria registro do saque no banco
-            $accountWithdrawData = $this->createAccountWithdrawRecord(
+            $accountWithdrawData = $this->createOrFindAccountWithdraw(
                 $accountData,
                 $withdrawRequestData,
                 $transactionId,
@@ -189,18 +189,20 @@ class WithdrawUseCase
     }
 
     /**
-     * Cria registro do saque no banco
-     * 
-     * Método puro que recebe todos os dados necessários como parâmetros
+     * Cria ou busca registro do saque no banco
      */
-    private function createAccountWithdrawRecord(
+    private function createOrFindAccountWithdraw(
         AccountData $accountData,
         WithdrawRequestData $withdrawRequestData,
         string $transactionId,
         bool $scheduled = false
     ): AccountWithdrawData {
         $status = $scheduled ? AccountWithdraw::STATUS_PENDING : AccountWithdraw::STATUS_NEW;
-        
+
+        if (!is_null($withdrawRequestData->id)) {
+            return AccountWithdrawData::fromModel($this->accountWithdrawRepository->findById($withdrawRequestData->id));
+        }
+
         return AccountWithdrawData::fromModel($this->accountWithdrawRepository->create([
             'account_id' => $accountData->id,
             'transaction_id' => $transactionId,

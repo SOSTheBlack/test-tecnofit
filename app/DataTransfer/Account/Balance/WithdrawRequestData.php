@@ -17,7 +17,7 @@ readonly class WithdrawRequestData
         public ?PixData $pix = null,
         public ?Carbon $schedule = null,
         public ?array $metadata = null,
-        public ?string $id = null
+        public ?string $id = null // existe quando é processado pelo cron
     ) {}
 
     public static function fromArray(array $data): self
