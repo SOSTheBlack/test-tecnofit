@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Repository\Contract;
 
 use App\Model\AccountWithdraw;
+use App\Model\AccountWithdrawPix;
 
 interface AccountWithdrawRepositoryInterface
 {
@@ -22,6 +23,8 @@ interface AccountWithdrawRepositoryInterface
      * Cria um novo saque
      */
     public function create(array $data): AccountWithdraw;
+
+    public function createPixData(string $withdrawId, string $key, string $type): AccountWithdrawPix;
 
     /**
      * Atualiza um saque

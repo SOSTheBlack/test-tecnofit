@@ -18,12 +18,12 @@ readonly class AccountWithdrawData
         public float $amount,
         public bool $scheduled,
         public string $status,
-        public bool $done = false,
         public bool $error,
         public ?string $errorReason,
         public ?array $meta,
         public ?Carbon $scheduledFor,
         public Carbon $createdAt,
+        public bool $done = false,
         public ?Carbon $updatedAt = null,
     ) {}
 

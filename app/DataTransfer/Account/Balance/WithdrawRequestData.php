@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\DataTransfer\Account\Balance;
 
 use App\Enum\WithdrawMethodEnum;
+use App\Model\AccountWithdraw;
 use Carbon\Carbon;
 
 readonly class WithdrawRequestData
@@ -16,6 +17,7 @@ readonly class WithdrawRequestData
         public ?PixData $pix = null,
         public ?Carbon $schedule = null,
         public ?array $metadata = null,
+        public ?string $id = null // existe quando é processado pelo cron
     ) {}
 
     public static function fromArray(array $data): self
@@ -52,6 +54,19 @@ readonly class WithdrawRequestData
             'schedule' => $requestData['schedule'] ?? null,
             'metadata' => $requestData['metadata'] ?? null,
         ]);
+    }
+
+    public static function fromModel(AccountWithdraw $withdraw): self
+    {
+        return new self(
+            id: $withdraw->id ?? null,
+            accountId: $withdraw->account_id,
+            method: WithdrawMethodEnum::from($withdraw->method),
+            amount: (float) $withdraw->amount,
+            pix: $withdraw->pixData ? PixData::fromModel($withdraw->pixData) : null,
+            schedule: $withdraw->scheduled_for,
+            metadata: $withdraw->meta ?? []
+        );
     }
 
     public function isScheduled(): bool
