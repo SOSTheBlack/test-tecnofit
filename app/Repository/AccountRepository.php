@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Repository;
 
-use App\DataTransfer\Account\AccountData;
 use App\Model\Account;
 use App\Repository\Contract\AccountRepositoryInterface;
 use App\Repository\Exceptions\RepositoryNotFoundException;

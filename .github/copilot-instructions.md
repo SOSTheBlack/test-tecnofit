@@ -19,10 +19,8 @@
 - Migrations e Seeders para banco de dados
 
 ## Funcionalidades Principais
-- Autenticação JWT
-- CRUD de usuários
 - Solicitação e consulta de saques via Pix
-- Integração simulada com provedor Pix
+- Integração simulada com provedor Pix(ServiceFakeAPI)
 - Sistema de notificações por email
 - Logs e auditoria de transações
 
@@ -37,7 +35,4 @@
 - [x] Scaffold the Project - Estrutura base criada com Docker, Hyperf, configurações
 - [x] Customize the Project - Estrutura básica implementada (controllers, models, migrations, testes)
 - [x] Install Required Extensions - Extensões PHP/Docker instaladas (Intelephense, YAML, Composer)
-- [ ] Compile the Project - Resolvendo compatibilidade Hyperf 3 (em progresso)
-- [ ] Create and Run Task - Tasks para desenvolvimento
-- [ ] Launch the Project - Docker Compose funcionando parcialmente
 - [x] Ensure Documentation is Complete - README e documentação criados
