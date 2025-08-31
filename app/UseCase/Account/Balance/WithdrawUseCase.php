@@ -118,6 +118,7 @@ class WithdrawUseCase
             );
             
             return WithdrawResultData::debitError();
+            return WithdrawResultData::debitError();
         }
 
         // Marca como concluído após débito bem-sucedido
