@@ -6,7 +6,6 @@ namespace App\UseCase\Account\Balance;
 
 use App\DataTransfer\Account\AccountData;
 use App\DataTransfer\Account\Balance\AccountWithdrawData;
-use App\DataTransfer\Account\Balance\PixData;
 use App\DataTransfer\Account\Balance\WithdrawRequestData;
 use App\DataTransfer\Account\Balance\WithdrawResultData;
 use App\Enum\PixKeyTypeEnum;
