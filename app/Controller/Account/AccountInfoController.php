@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Controller\Account;
 
 use App\DataTransfer\Account\Balance\AccountSummaryData;
+use App\DataTransfer\Account\Balance\WithdrawResultData;
 use App\Repository\Contract\AccountRepositoryInterface;
 use Hyperf\HttpServer\Contract\ResponseInterface;
 use Psr\Http\Message\ResponseInterface as PsrResponseInterface;
@@ -27,7 +28,7 @@ class AccountInfoController extends AccountController
             return $this->response->json([
                 'success' => false,
                 'message' => 'Conta não encontrada.',
-                'error_code' => 'ACCOUNT_NOT_FOUND'
+                'error_code' => WithdrawResultData::ERROR_ACCOUNT_NOT_FOUND
             ])->withStatus(404);
         }
 
@@ -49,7 +50,7 @@ class AccountInfoController extends AccountController
             return $this->response->json([
                 'success' => false,
                 'message' => 'Conta não encontrada.',
-                'error_code' => 'ACCOUNT_NOT_FOUND'
+                'error_code' => WithdrawResultData::ERROR_ACCOUNT_NOT_FOUND
             ])->withStatus(404);
         }
 
@@ -73,7 +74,7 @@ class AccountInfoController extends AccountController
             return $this->response->json([
                 'success' => false,
                 'message' => 'Conta não encontrada.',
-                'error_code' => 'ACCOUNT_NOT_FOUND'
+                'error_code' => WithdrawResultData::ERROR_ACCOUNT_NOT_FOUND
             ])->withStatus(404);
         }
 

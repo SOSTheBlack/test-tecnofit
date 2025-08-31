@@ -294,10 +294,6 @@ class AccountWithdrawRepository implements AccountWithdrawRepositoryInterface
     }
 
     /**
-     * Métodos auxiliares para operações específicas
-     */
-
-    /**
      * Marca um saque como processando
      */
     public function markAsProcessing(string $id): bool

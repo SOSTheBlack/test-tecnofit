@@ -8,6 +8,16 @@ use Carbon\Carbon;
 
 readonly class WithdrawResultData
 {
+    // Error code constants
+    public const ERROR_ACCOUNT_NOT_FOUND = 'ACCOUNT_NOT_FOUND';
+    public const ERROR_INSUFFICIENT_BALANCE = 'INSUFFICIENT_BALANCE';
+    public const ERROR_VALIDATION_ERROR = 'VALIDATION_ERROR';
+    public const ERROR_UNAUTHORIZED = 'UNAUTHORIZED';
+    public const ERROR_FORBIDDEN = 'FORBIDDEN';
+    public const ERROR_PROCESSING_ERROR = 'PROCESSING_ERROR';
+    public const ERROR_DEBIT_ERROR = 'DEBIT_ERROR';
+    public const ERROR_INTERNAL_ERROR = 'INTERNAL_ERROR';
+
     public function __construct(
         public bool $success,
         public string $message,
@@ -46,52 +56,42 @@ readonly class WithdrawResultData
         );
     }
 
-    public static function error(
-        string $errorCode, 
-        string $message, 
-        ?array $errors = null
-    ): self {
-        return new self(
-            success: false,
-            message: $message,
-            errorCode: $errorCode,
-            errors: $errors,
-        );
-    }
-
     public static function validationError(array $validationErrors): self
     {
         return new self(
             success: false,
             message: 'Dados inválidos fornecidos.',
-            errorCode: 'VALIDATION_ERROR',
+            errorCode: self::ERROR_VALIDATION_ERROR,
             errors: $validationErrors,
         );
     }
 
-    public function isSuccessful(): bool
+    public static function insufficientBalance(string $message = 'Saldo insuficiente para realizar o saque.'): self
     {
-        return $this->success;
+        return new self(
+            success: false,
+            message: $message,
+            errorCode: self::ERROR_INSUFFICIENT_BALANCE,
+        );
     }
 
-    public function hasErrors(): bool
+    public static function processingError(string $message = 'Erro interno ao processar o saque.', ?array $errors = null): self
     {
-        return !$this->success;
+        return new self(
+            success: false,
+            message: $message,
+            errorCode: self::ERROR_PROCESSING_ERROR,
+            errors: $errors,
+        );
     }
 
-    public function getErrorCode(): ?string
+    public static function debitError(string $message = 'Erro ao debitar valor da conta.'): self
     {
-        return $this->errorCode;
-    }
-
-    public function getData(): ?array
-    {
-        return $this->data;
-    }
-
-    public function getTransactionId(): ?string
-    {
-        return $this->transactionId;
+        return new self(
+            success: false,
+            message: $message,
+            errorCode: self::ERROR_DEBIT_ERROR,
+        );
     }
 
     public function toArray(): array
@@ -136,11 +136,14 @@ readonly class WithdrawResultData
         }
 
         return match ($this->errorCode) {
-            'ACCOUNT_NOT_FOUND' => 404,
-            'INSUFFICIENT_BALANCE' => 422,
-            'VALIDATION_ERROR' => 422,
-            'UNAUTHORIZED' => 401,
-            'FORBIDDEN' => 403,
+            self::ERROR_ACCOUNT_NOT_FOUND => 404,
+            self::ERROR_INSUFFICIENT_BALANCE => 422,
+            self::ERROR_VALIDATION_ERROR => 422,
+            self::ERROR_UNAUTHORIZED => 401,
+            self::ERROR_FORBIDDEN => 403,
+            self::ERROR_PROCESSING_ERROR => 500,
+            self::ERROR_DEBIT_ERROR => 500,
+            self::ERROR_INTERNAL_ERROR => 500,
             default => 500,
         };
     }
