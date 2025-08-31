@@ -74,7 +74,7 @@ POST /account/{accountId}/balance/withdraw
 
 Exemplo para testar o endpoint de saque imediato:
 ```sh
-curl --request POST \
+cd /home/garcia/code/tecnofit && docker-compose exec hyperf curl --request POST \
   --url http://127.0.0.1/account/223e4567-e89b-12d3-a456-426614174001/balance/withdraw \
   --header 'content-type: application/json' \
   --data '{

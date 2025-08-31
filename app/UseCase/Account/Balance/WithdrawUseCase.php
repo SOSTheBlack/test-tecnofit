@@ -6,14 +6,21 @@ namespace App\UseCase\Account\Balance;
 
 use App\DataTransfer\Account\AccountData;
 use App\DataTransfer\Account\Balance\AccountWithdrawData;
+use App\DataTransfer\Account\Balance\PixData;
 use App\DataTransfer\Account\Balance\WithdrawRequestData;
 use App\DataTransfer\Account\Balance\WithdrawResultData;
+use App\Enum\PixKeyTypeEnum;
+use App\Job\SendWithdrawNotificationJob;
 use App\Model\AccountWithdraw;
 use App\Repository\AccountRepository;
 use App\Repository\AccountWithdrawRepository;
 use App\Repository\Contract\AccountRepositoryInterface;
 use App\Repository\Contract\AccountWithdrawRepositoryInterface;
 use App\Service\ScheduledWithdrawService;
+use Hyperf\AsyncQueue\Driver\DriverFactory;
+use Hyperf\Context\ApplicationContext;
+use Hyperf\Logger\LoggerFactory;
+use Psr\Log\LoggerInterface;
 use Throwable;
 
 class WithdrawUseCase
@@ -25,17 +32,23 @@ class WithdrawUseCase
     private readonly AccountRepositoryInterface $accountRepository;
     private readonly AccountWithdrawRepositoryInterface $accountWithdrawRepository;
     private readonly ScheduledWithdrawService $scheduledWithdrawService;
+    private readonly LoggerInterface $logger;
 
     public function __construct(
         ?AccountRepositoryInterface $accountRepository = null,
         ?AccountWithdrawRepositoryInterface $accountWithdrawRepository = null,
-        ?ScheduledWithdrawService $scheduledWithdrawService = null
+        ?ScheduledWithdrawService $scheduledWithdrawService = null,
+        ?LoggerInterface $logger = null
     ) {
         // Fallback para instâncias concretas quando dependências não são injetadas
         // Em produção, recomenda-se usar container de DI do Hyperf
         $this->accountRepository = $accountRepository ?? new AccountRepository();
         $this->accountWithdrawRepository = $accountWithdrawRepository ?? new AccountWithdrawRepository();
         $this->scheduledWithdrawService = $scheduledWithdrawService ?? new ScheduledWithdrawService();
+        
+        // Logger para auditoria de saques
+        $loggerFactory = ApplicationContext::getContainer()->get(LoggerFactory::class);
+        $this->logger = $logger ?? $loggerFactory->get('withdraw', 'default');
     }
 
     /**
@@ -117,11 +130,13 @@ class WithdrawUseCase
             );
             
             return WithdrawResultData::debitError();
-            return WithdrawResultData::debitError();
         }
 
         // Marca como concluído após débito bem-sucedido
         $this->accountWithdrawRepository->markAsCompleted((string) $accountWithdrawData->id);
+
+        // 🎯 NOVA FUNCIONALIDADE: Agenda envio de email de confirmação
+        $this->scheduleEmailNotification($accountWithdrawData->id, $withdrawRequestData);
 
         // Calcula saldos atualizados para resposta
         $newCurrentBalance = $accountData->balance - $withdrawRequestData->amount;
@@ -203,7 +218,7 @@ class WithdrawUseCase
             return AccountWithdrawData::fromModel($this->accountWithdrawRepository->findById($withdrawRequestData->id));
         }
 
-        return AccountWithdrawData::fromModel($this->accountWithdrawRepository->create([
+        $accountWithdrawData = AccountWithdrawData::fromModel($this->accountWithdrawRepository->create([
             'account_id' => $accountData->id,
             'transaction_id' => $transactionId,
             'method' => $withdrawRequestData->method->value,
@@ -211,7 +226,56 @@ class WithdrawUseCase
             'scheduled' => $scheduled,
             'scheduled_for' => $withdrawRequestData->schedule,
             'status' => $status,
-            'meta' => $withdrawRequestData->metadata,
+            'meta' => $withdrawRequestData->metadata
         ]));
+
+        if ($withdrawRequestData->isPixMethod() && $withdrawRequestData->getPixType() === PixKeyTypeEnum::EMAIL->value) {
+            $this->accountWithdrawRepository->createPixData(
+                $accountWithdrawData->id,
+                $withdrawRequestData->getPixKey(),
+                $withdrawRequestData->getPixType()
+            );
+        }
+
+        return $accountWithdrawData;
+    }
+
+    /**
+     * Agenda o envio de email de confirmação de forma assíncrona
+     * Só agenda se a chave PIX for do tipo email
+     */
+    private function scheduleEmailNotification(string $withdrawId, WithdrawRequestData $withdrawRequestData): void
+    {
+        try {
+            // Só agenda email se a chave PIX for do tipo email
+            if ($withdrawRequestData->getPixType() !== 'email') {
+                $this->logger->info("Email não enviado - chave PIX não é email", [
+                    'withdraw_id' => $withdrawId,
+                    'pix_type' => $withdrawRequestData->getPixType()
+                ]);
+                return;
+            }
+
+            $driverFactory = ApplicationContext::getContainer()->get(DriverFactory::class);
+            $driver = $driverFactory->get('default');
+
+            $job = new SendWithdrawNotificationJob($withdrawId);
+            
+            // Agenda para execução imediata (delay de 0 segundos)
+            $driver->push($job, 0);
+
+            $this->logger->info("Job de notificação de email agendado", [
+                'withdraw_id' => $withdrawId,
+                'pix_email' => $withdrawRequestData->getPixKey()
+            ]);
+
+        } catch (\Throwable $e) {
+            // Log do erro mas não falha o saque (email é secundário)
+            $this->logger->error("Falha ao agendar notificação de email", [
+                'withdraw_id' => $withdrawId,
+                'error' => $e->getMessage(),
+                'exception' => $e
+            ]);
+        }
     }
 }
