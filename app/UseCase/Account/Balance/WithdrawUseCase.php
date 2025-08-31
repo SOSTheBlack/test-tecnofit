@@ -74,11 +74,6 @@ class WithdrawUseCase
                 $transactionId,
                 $withdrawRequestData->isScheduled()
             );
-            
-            // Cria dados PIX se necessário
-            if ($withdrawRequestData->isPixMethod()) {
-                $this->createPixData($accountWithdrawData, $withdrawRequestData);
-            }
 
             // Marca como processando para evitar processamento duplo
             $this->accountWithdrawRepository->markAsProcessing((string) $accountWithdrawData->id);
@@ -144,16 +139,6 @@ class WithdrawUseCase
             'type' => 'immediate',
             'withdraw_details' => $accountWithdrawData->toSummary(),
         ], $transactionId);
-    }
-
-    private function createPixData(AccountWithdrawData $accountWithdrawData, WithdrawRequestData $request): AccountWithdrawPix
-    {
-        return AccountWithdrawPix::create([
-            'id' => \Hyperf\Stringable\Str::uuid(),
-            'account_withdraw_id' => $accountWithdrawData->id,
-            'type' => $request->getPixType(),
-            'key' => $request->getPixKey(),
-        ]);
     }
 
     /**

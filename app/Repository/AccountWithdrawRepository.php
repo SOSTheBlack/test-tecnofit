@@ -6,6 +6,7 @@ namespace App\Repository;
 
 use App\DataTransfer\Account\Balance\AccountWithdrawData;
 use App\Model\AccountWithdraw;
+use App\Model\AccountWithdrawPix;
 use App\Repository\Contract\AccountWithdrawRepositoryInterface;
 use App\Repository\Exceptions\RepositoryNotFoundException;
 use Carbon\Carbon;
@@ -37,7 +38,29 @@ class AccountWithdrawRepository implements AccountWithdrawRepositoryInterface
             $data['transaction_id'] = AccountWithdraw::generateTransactionId();
         }
 
-        return AccountWithdraw::create($data);
+        $account = AccountWithdraw::create($data);
+
+        $this->createdMethodRelations($account, $data);
+
+        return $account;
+    }
+
+    private function createdMethodRelations(AccountWithdraw $accountWithdraw, array $data): void
+    {
+        // Cria relações de métodos de pagamento, se necessário
+        if ($data['payment_method'] === 'pix') {
+            $this->createPixData($accountWithdraw, $data);
+        }
+    }
+
+    private function createPixData(AccountWithdraw $accountWithdraw, array $data): void
+    {
+        AccountWithdrawPix::create([
+            'id' => \Hyperf\Stringable\Str::uuid(),
+            'account_withdraw_id' => $accountWithdraw->id,
+            'type' => $data['pix_type'],
+            'key' => $data['pix_key'],
+        ]);
     }
 
     public function update(string $id, array $data): bool
