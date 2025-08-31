@@ -59,34 +59,6 @@ class Account extends Model
     }
 
     /**
-     * Saques completados
-     */
-    public function completedWithdraws(): HasMany
-    {
-        return $this->hasMany(AccountWithdraw::class, 'account_id', 'id')
-            ->where('status', AccountWithdraw::STATUS_COMPLETED)
-            ->where('done', true);
-    }
-
-    /**
-     * Saques agendados
-     */
-    public function scheduledWithdraws(): HasMany
-    {
-        return $this->hasMany(AccountWithdraw::class, 'account_id', 'id')
-            ->where('scheduled', true)
-            ->whereNotNull('scheduled_for');
-    }
-
-    /**
-     * Verifica se a conta tem saldo suficiente para um saque
-     */
-    public function hasSufficientBalance(float $amount): bool
-    {
-        return $this->balance >= $amount;
-    }
-
-    /**
      * Verifica se a conta tem saldo suficiente considerando saques pendentes
      */
     public function hasSufficientAvailableBalance(float $amount): bool
@@ -114,6 +86,14 @@ class Account extends Model
     }
 
     /**
+     * Verifica se a conta tem saldo suficiente para um saque
+     */
+    public function hasSufficientBalance(float $amount): bool
+    {
+        return $this->balance >= $amount;
+    }
+
+    /**
      * Debita um valor da conta
      */
     public function debit(float $amount): bool
@@ -125,89 +105,5 @@ class Account extends Model
         return $this->update([
             'balance' => $this->balance - $amount,
         ]);
-    }
-
-    /**
-     * Credita um valor na conta
-     */
-    public function credit(float $amount): bool
-    {
-        return $this->update([
-            'balance' => $this->balance + $amount,
-        ]);
-    }
-
-    /**
-     * Cria um novo saque para esta conta
-     */
-    public function createWithdraw(array $withdrawData): AccountWithdraw
-    {
-        $withdrawData['account_id'] = $this->id;
-        $withdrawData['transaction_id'] = AccountWithdraw::generateTransactionId();
-        
-        return AccountWithdraw::create($withdrawData);
-    }
-
-    /**
-     * Verifica se a conta está ativa (não deletada)
-     */
-    public function isActive(): bool
-    {
-        return $this->deleted_at === null;
-    }
-
-    /**
-     * Obtém histórico de saques (últimos 30 dias)
-     */
-    public function getRecentWithdrawHistory(int $days = 30)
-    {
-        return $this->withdraws()
-            ->where('created_at', '>=', Carbon::now()->subDays($days))
-            ->orderBy('created_at', 'desc')
-            ->with('pixData')
-            ->get();
-    }
-
-    /**
-     * Obtém estatísticas de saques
-     */
-    public function getWithdrawStats(): array
-    {
-        $totalWithdraws = $this->withdraws()->count();
-        $totalAmount = (float) $this->withdraws()->sum('amount');
-        $pendingCount = $this->withdraws()->where('status', AccountWithdraw::STATUS_PENDING)->count();
-        $pendingAmount = (float) $this->withdraws()->where('status', AccountWithdraw::STATUS_PENDING)->sum('amount');
-        $completedCount = $this->withdraws()->where('status', AccountWithdraw::STATUS_COMPLETED)->count();
-        $completedAmount = (float) $this->withdraws()->where('status', AccountWithdraw::STATUS_COMPLETED)->sum('amount');
-        $failedCount = $this->withdraws()->where('status', AccountWithdraw::STATUS_FAILED)->count();
-        $failedAmount = (float) $this->withdraws()->where('status', AccountWithdraw::STATUS_FAILED)->sum('amount');
-        
-        return [
-            'total_withdraws' => $totalWithdraws,
-            'total_amount' => $totalAmount,
-            'pending_count' => $pendingCount,
-            'pending_amount' => $pendingAmount,
-            'completed_count' => $completedCount,
-            'completed_amount' => $completedAmount,
-            'failed_count' => $failedCount,
-            'failed_amount' => $failedAmount,
-            'available_balance' => $this->getAvailableBalance(),
-        ];
-    }
-
-    /**
-     * Scope para contas com saldo mínimo
-     */
-    public function scopeWithMinimumBalance($query, float $minimumBalance)
-    {
-        return $query->where('balance', '>=', $minimumBalance);
-    }
-
-    /**
-     * Scope para contas ativas
-     */
-    public function scopeActive($query)
-    {
-        return $query->whereNull('deleted_at');
     }
 }
