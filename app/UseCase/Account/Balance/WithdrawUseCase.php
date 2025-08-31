@@ -9,12 +9,11 @@ use App\DataTransfer\Account\Balance\AccountWithdrawData;
 use App\DataTransfer\Account\Balance\WithdrawRequestData;
 use App\DataTransfer\Account\Balance\WithdrawResultData;
 use App\Model\AccountWithdraw;
-use App\Model\AccountWithdrawPix;
 use App\Repository\AccountRepository;
 use App\Repository\AccountWithdrawRepository;
 use App\Repository\Contract\AccountRepositoryInterface;
 use App\Repository\Contract\AccountWithdrawRepositoryInterface;
-use Hyperf\DbConnection\Db;
+use App\Service\ScheduledWithdrawService;
 use Throwable;
 
 class WithdrawUseCase
@@ -25,15 +24,18 @@ class WithdrawUseCase
      */
     private readonly AccountRepositoryInterface $accountRepository;
     private readonly AccountWithdrawRepositoryInterface $accountWithdrawRepository;
+    private readonly ScheduledWithdrawService $scheduledWithdrawService;
 
     public function __construct(
         ?AccountRepositoryInterface $accountRepository = null,
-        ?AccountWithdrawRepositoryInterface $accountWithdrawRepository = null
+        ?AccountWithdrawRepositoryInterface $accountWithdrawRepository = null,
+        ?ScheduledWithdrawService $scheduledWithdrawService = null
     ) {
         // Fallback para instâncias concretas quando dependências não são injetadas
         // Em produção, recomenda-se usar container de DI do Hyperf
         $this->accountRepository = $accountRepository ?? new AccountRepository();
         $this->accountWithdrawRepository = $accountWithdrawRepository ?? new AccountWithdrawRepository();
+        $this->scheduledWithdrawService = $scheduledWithdrawService ?? new ScheduledWithdrawService();
     }
 
     /**
@@ -74,9 +76,6 @@ class WithdrawUseCase
                 $transactionId,
                 $withdrawRequestData->isScheduled()
             );
-
-            // Marca como processando para evitar processamento duplo
-            $this->accountWithdrawRepository->markAsProcessing((string) $accountWithdrawData->id);
 
             // Roteamento baseado no tipo de saque
             if ($withdrawRequestData->isScheduled()) {
@@ -153,11 +152,26 @@ class WithdrawUseCase
         AccountWithdrawData $accountWithdrawData,
         string $transactionId
     ): WithdrawResultData {
-        // TODO: Criar adapter para realizar a transferência - Suportado no MVP PIX
-        // (Service PixApiService por exemplo)
-
         // Calcula saldo disponível após reserva do valor agendado
         $newAvailableBalance = $accountData->availableBalance - $withdrawRequestData->amount;
+
+        // Agenda job assíncrono para processar saque na data correta
+        $jobScheduled = $this->scheduledWithdrawService->scheduleWithdrawJob(
+            $accountWithdrawData->id,
+            $withdrawRequestData->schedule
+        );
+
+        if (!$jobScheduled) {
+            // Se falhar ao agendar job, marca o saque como falha
+            $this->accountWithdrawRepository->markAsFailed(
+                $accountWithdrawData->id,
+                'Erro ao agendar processamento automático do saque'
+            );
+            
+            return WithdrawResultData::processingError(
+                'Erro ao agendar o saque. Tente novamente.'
+            );
+        }
 
         return WithdrawResultData::scheduled([
             'account_id' => $accountData->id,
@@ -185,6 +199,8 @@ class WithdrawUseCase
         string $transactionId,
         bool $scheduled = false
     ): AccountWithdrawData {
+        $status = $scheduled ? AccountWithdraw::STATUS_PENDING : AccountWithdraw::STATUS_NEW;
+        
         return AccountWithdrawData::fromModel($this->accountWithdrawRepository->create([
             'account_id' => $accountData->id,
             'transaction_id' => $transactionId,
@@ -192,7 +208,7 @@ class WithdrawUseCase
             'amount' => $withdrawRequestData->amount,
             'scheduled' => $scheduled,
             'scheduled_for' => $withdrawRequestData->schedule,
-            'status' => AccountWithdraw::STATUS_NEW,
+            'status' => $status,
             'meta' => $withdrawRequestData->metadata,
         ]));
     }
