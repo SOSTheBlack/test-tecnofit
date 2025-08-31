@@ -42,7 +42,7 @@ readonly class WithdrawRequestData
         );
     }
 
-    public static function fromRequestData(array $requestData): self
+    public static function fromRequest(array $requestData): self
     {
         return self::fromArray([
             'account_id' => $requestData['account_id'],

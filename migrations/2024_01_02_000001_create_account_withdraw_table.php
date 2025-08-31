@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Model\AccountWithdraw;
 use Hyperf\Database\Migrations\Migration;
 use Hyperf\Database\Schema\Blueprint;
 use Hyperf\Database\Schema\Schema;
@@ -21,7 +22,7 @@ class CreateAccountWithdrawTable extends Migration
             $table->string('method');
             $table->decimal('amount', 10, 2);
             $table->boolean('scheduled')->default(false);
-            $table->string('status')->default('pending');
+            $table->string('status')->default(AccountWithdraw::STATUS_NEW);
             $table->boolean('done')->default(false);
             $table->boolean('error')->default(false);
             $table->string('error_reason')->nullable();

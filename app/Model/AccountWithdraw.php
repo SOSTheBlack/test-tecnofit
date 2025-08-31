@@ -68,6 +68,7 @@ class AccountWithdraw extends Model
     ];
 
     // Status constants
+    public const STATUS_NEW = 'new';
     public const STATUS_PENDING = 'pending';
     public const STATUS_PROCESSING = 'processing';
     public const STATUS_COMPLETED = 'completed';
