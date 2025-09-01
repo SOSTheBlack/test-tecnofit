@@ -22,7 +22,7 @@ class ScheduledWithdrawService
             $driver = $driverFactory->get('default');
 
             // Calcula o delay em segundos até a data agendada
-            $delayInSeconds = max(0, $scheduledFor->diffInSeconds(Carbon::now()));
+            $delayInSeconds = max(0, $scheduledFor->diffInSeconds(timezone()->now()));
 
             // Cria e agenda o job
             $job = new ProcessScheduledWithdrawJob($withdrawId);
@@ -48,7 +48,7 @@ class ScheduledWithdrawService
      */
     public function scheduleImmediateExecution(string $withdrawId): bool
     {
-        return $this->scheduleWithdrawJob($withdrawId, Carbon::now());
+        return $this->scheduleWithdrawJob($withdrawId, timezone()->now());
     }
 
     /**

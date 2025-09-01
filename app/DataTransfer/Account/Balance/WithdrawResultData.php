@@ -38,7 +38,7 @@ readonly class WithdrawResultData
             message: $message,
             data: $data,
             transactionId: $transactionId,
-            processedAt: Carbon::now(),
+            processedAt: timezone()->now(),
         );
     }
 
@@ -52,7 +52,7 @@ readonly class WithdrawResultData
             message: $message,
             data: $data,
             transactionId: $transactionId,
-            processedAt: Carbon::now(),
+            processedAt: timezone()->now(),
         );
     }
 
