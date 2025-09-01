@@ -69,6 +69,26 @@ readonly class WithdrawRequestData
         );
     }
 
+    /**
+     * Cria instância a partir de AccountWithdrawData DTO
+     * 
+     * @param AccountWithdrawData $withdrawData DTO do saque
+     * @param PixData|null $pixData Dados PIX (opcional)
+     * @return self
+     */
+    public static function fromAccountWithdrawData(AccountWithdrawData $withdrawData, ?PixData $pixData = null): self
+    {
+        return new self(
+            id: $withdrawData->id,
+            accountId: $withdrawData->accountId,
+            method: $withdrawData->method,
+            amount: $withdrawData->amount,
+            pix: $pixData,
+            schedule: $withdrawData->scheduledFor,
+            metadata: $withdrawData->meta ?? []
+        );
+    }
+
     public function isScheduled(): bool
     {
         if ($this->schedule === null) {

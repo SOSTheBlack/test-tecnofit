@@ -2,14 +2,14 @@
 
 declare(strict_types=1);
 
-namespace App\Service;
+namespace App\Service\Withdraw;
 
 use App\DataTransfer\Account\AccountData;
 use App\DataTransfer\Account\Balance\AccountWithdrawData;
 use App\DataTransfer\Account\Balance\WithdrawRequestData;
 use App\DataTransfer\Account\Balance\WithdrawResultData;
 use App\Enum\PixKeyTypeEnum;
-use App\Model\AccountWithdraw;
+use App\Enum\WithdrawStatusEnum;
 use App\Repository\Contract\AccountRepositoryInterface;
 use App\Repository\Contract\AccountWithdrawRepositoryInterface;
 use Psr\Log\LoggerInterface;
@@ -116,17 +116,17 @@ class WithdrawService
         string $transactionId,
         bool $scheduled = false
     ): AccountWithdrawData {
-        $status = $scheduled ? AccountWithdraw::STATUS_PENDING : AccountWithdraw::STATUS_NEW;
+        $status = $scheduled ? WithdrawStatusEnum::PENDING->value : WithdrawStatusEnum::NEW->value;
 
         if (!is_null($withdrawRequestData->id)) {
-            $withdraw = $this->accountWithdrawRepository->findById($withdrawRequestData->id);
+            $withdraw = $this->accountWithdrawRepository->findWithdrawById($withdrawRequestData->id);
             if ($withdraw === null) {
                 throw new \InvalidArgumentException('Withdraw not found');
             }
-            return AccountWithdrawData::fromModel($withdraw);
+            return $withdraw;
         }
 
-        $accountWithdrawData = AccountWithdrawData::fromModel($this->accountWithdrawRepository->create([
+        $accountWithdrawData = $this->accountWithdrawRepository->createWithdraw([
             'account_id' => $accountData->id,
             'transaction_id' => $transactionId,
             'method' => $withdrawRequestData->method->value,
@@ -135,7 +135,7 @@ class WithdrawService
             'scheduled_for' => $withdrawRequestData->schedule,
             'status' => $status,
             'meta' => $withdrawRequestData->metadata
-        ]));
+        ]);
 
         // Cria dados PIX se necessário
         if ($this->shouldCreatePixData($withdrawRequestData)) {
