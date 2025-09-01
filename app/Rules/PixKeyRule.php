@@ -12,6 +12,13 @@ class PixKeyRule implements Rule
 
     public function passes(string $attribute, mixed $value): bool
     {
+        // Verificar se o valor é uma string
+        if (!is_string($value)) {
+            $this->errorMessage = 'Chave PIX deve ser uma string.';
+
+            return false;
+        }
+
         // Vamos assumir que a validação do tipo já foi feita pela PixTypeRule
         // Aqui vamos fazer uma validação básica do formato
         if (empty($value)) {

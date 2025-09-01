@@ -5,8 +5,10 @@ declare(strict_types=1);
 namespace HyperfTest\Unit\Service;
 
 use App\DataTransfer\Account\Balance\WithdrawRequestData;
+use App\DataTransfer\Account\Balance\PixData;
 use App\Enum\WithdrawMethodEnum;
-use App\Service\WithdrawNotificationService;
+use App\Enum\PixKeyTypeEnum;
+use App\Service\Withdraw\WithdrawNotificationService;
 use PHPUnit\Framework\TestCase;
 use Mockery;
 use Psr\Log\LoggerInterface;
@@ -33,11 +35,15 @@ class WithdrawNotificationServiceTest extends TestCase
     {
         // Arrange
         $withdrawId = 'test-withdraw-123';
+        $pixData = new \App\DataTransfer\Account\Balance\PixData(
+            type: \App\Enum\PixKeyTypeEnum::EMAIL,
+            key: 'test@example.com'
+        );
         $withdrawRequestData = new WithdrawRequestData(
             accountId: 'test-account-123',
             method: WithdrawMethodEnum::PIX,
             amount: 100.0,
-            pix: ['type' => 'email', 'key' => 'test@example.com']
+            pix: $pixData
         );
 
         $this->logger->shouldReceive('info')->once()
@@ -53,13 +59,13 @@ class WithdrawNotificationServiceTest extends TestCase
 
     public function testScheduleEmailNotificationForNonEmailPix(): void
     {
-        // Arrange
+        // Arrange - Como só existe EMAIL no enum, vamos testar com null pix
         $withdrawId = 'test-withdraw-123';
         $withdrawRequestData = new WithdrawRequestData(
             accountId: 'test-account-123',
             method: WithdrawMethodEnum::PIX,
             amount: 100.0,
-            pix: ['type' => 'CPF', 'key' => '12345678901']
+            pix: null
         );
 
         $this->logger->shouldReceive('info')->once()

@@ -47,14 +47,16 @@ class WithdrawNotificationServiceTest extends TestCase
             pix: $pixData
         );
 
-        // Act & Assert - Just test that the method exists and can be called
-        try {
-            $result = $this->service->scheduleEmailNotification($withdrawId, $withdrawRequestData);
-            $this->assertIsBool($result);
-        } catch (\Throwable $e) {
-            // Expected due to no queue setup in test environment
-            $this->assertTrue(true);
-        }
+        $this->mockLogger
+            ->shouldReceive('info')
+            ->once()
+            ->with('Job de notificação de email agendado', Mockery::type('array'));
+
+        // Act
+        $result = $this->service->scheduleEmailNotification($withdrawId, $withdrawRequestData);
+
+        // Assert - For now just check it doesn't throw exception
+        $this->assertTrue(true);
     }
 
     public function testScheduleEmailNotificationForNonEmailPix(): void
@@ -68,14 +70,16 @@ class WithdrawNotificationServiceTest extends TestCase
             pix: null
         );
 
-        // Act & Assert - Just test that the method handles null PIX data
-        try {
-            $result = $this->service->scheduleEmailNotification($withdrawId, $withdrawRequestData);
-            $this->assertIsBool($result);
-        } catch (\Throwable $e) {
-            // Expected due to no queue setup in test environment
-            $this->assertTrue(true);
-        }
+        $this->mockLogger
+            ->shouldReceive('info')
+            ->once()
+            ->with('Email não enviado - chave PIX não é email', Mockery::type('array'));
+
+        // Act
+        $result = $this->service->scheduleEmailNotification($withdrawId, $withdrawRequestData);
+
+        // Assert
+        $this->assertTrue($result); // Should return true even when not sending
     }
 
     public function testConstructorWithLogger(): void
@@ -88,7 +92,9 @@ class WithdrawNotificationServiceTest extends TestCase
 
     public function testConstructorWithoutLogger(): void
     {
-        // Skip this test as it requires container setup
-        $this->markTestSkipped('Requires container setup');
+        // Test that constructor can work without explicit logger
+        $service = new WithdrawNotificationService();
+        
+        $this->assertInstanceOf(WithdrawNotificationService::class, $service);
     }
 }

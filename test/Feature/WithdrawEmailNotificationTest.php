@@ -13,7 +13,12 @@ class WithdrawEmailNotificationTest extends TestCase
     public function testEmailJobIsScheduledAfterSuccessfulWithdraw(): void
     {
         // Arrange
-        $account = Account::factory()->create(['balance' => 100.00]);
+        $account = new Account([
+            'id' => '223e4567-e89b-12d3-a456-426614174001',
+            'name' => 'Test Account',
+            'balance' => 100.00
+        ]);
+        $account->save();
         
         // Act - Realiza saque com chave PIX email
         $response = $this->post("/account/{$account->id}/balance/withdraw", [
@@ -46,7 +51,12 @@ class WithdrawEmailNotificationTest extends TestCase
     public function testEmailIsNotScheduledForNonEmailPixKey(): void
     {
         // Arrange
-        $account = Account::factory()->create(['balance' => 100.00]);
+        $account = new Account([
+            'id' => '223e4567-e89b-12d3-a456-426614174002',
+            'name' => 'Test Account 2',
+            'balance' => 100.00
+        ]);
+        $account->save();
         
         // Act - Realiza saque com chave PIX CPF
         $response = $this->post("/account/{$account->id}/balance/withdraw", [

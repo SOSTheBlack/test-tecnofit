@@ -27,7 +27,7 @@ readonly class WithdrawRequestData
         if (isset($data['schedule']) && $data['schedule'] !== null) {
             $schedule = $data['schedule'] instanceof Carbon
                 ? $data['schedule']
-                : timezone()->parse($data['schedule']);
+                : Carbon::parse($data['schedule']);
         }
 
         $pix = null;
@@ -96,7 +96,7 @@ readonly class WithdrawRequestData
             return false;
         }
 
-        return $this->schedule->isAfter(timezone()->now());
+        return $this->schedule->isAfter(Carbon::now());
     }
 
     public function isImmediate(): bool
@@ -152,7 +152,7 @@ readonly class WithdrawRequestData
 
         // Validação de agendamento
         if ($this->schedule !== null && is_null($this->id)) {
-            $now = timezone()->now();
+            $now = Carbon::now();
             if ($this->schedule->isBefore($now)) {
                 $errors[] = 'A data de agendamento deve ser futura.';
             }
