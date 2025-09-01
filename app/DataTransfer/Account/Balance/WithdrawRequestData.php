@@ -134,7 +134,7 @@ readonly class WithdrawRequestData
 
         // Validação de agendamento
         if ($this->schedule !== null && is_null($this->id)) {
-            $now = Carbon::now('America/Sao_Paulo');
+            $now = timezone()->now();
             if ($this->schedule->isBefore($now)) {
                 $errors[] = 'A data de agendamento deve ser futura.';
             }
