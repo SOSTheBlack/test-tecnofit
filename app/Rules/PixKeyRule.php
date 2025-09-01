@@ -49,7 +49,8 @@ class PixKeyRule implements Rule
         }
 
         // Telefone brasileiro
-        if (preg_match('/^(\+55)?(\d{2})(\d{4,5})(\d{4})$/', preg_replace('/\D/', '', $value))) {
+        $cleanPhone = preg_replace('/\D/', '', $value) ?? '';
+        if (preg_match('/^(\+55)?(\d{2})(\d{4,5})(\d{4})$/', $cleanPhone)) {
             return true;
         }
 
