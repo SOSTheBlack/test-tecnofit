@@ -60,16 +60,6 @@ class Account extends Model
     }
 
     /**
-     * Verifica se a conta tem saldo suficiente considerando saques pendentes
-     */
-    public function hasSufficientAvailableBalance(float $amount): bool
-    {
-        $pendingAmount = $this->getTotalPendingWithdrawAmount();
-        $availableBalance = $this->balance - $pendingAmount;
-        return $availableBalance >= $amount;
-    }
-
-    /**
      * Obtém o saldo disponível (saldo atual - saques pendentes)
      */
     public function getAvailableBalance(): float
@@ -89,25 +79,5 @@ class Account extends Model
             ->sum('amount');
     }
 
-    /**
-     * Verifica se a conta tem saldo suficiente para um saque
-     */
-    public function hasSufficientBalance(float $amount): bool
-    {
-        return $this->balance >= $amount;
-    }
 
-    /**
-     * Debita um valor da conta
-     */
-    public function debit(float $amount): bool
-    {
-        if (!$this->hasSufficientBalance($amount)) {
-            return false;
-        }
-
-        return $this->update([
-            'balance' => $this->balance - $amount,
-        ]);
-    }
 }

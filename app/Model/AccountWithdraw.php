@@ -92,35 +92,5 @@ class AccountWithdraw extends Model
         return $this->hasOne(AccountWithdrawPix::class, 'account_withdraw_id', 'id');
     }
 
-        /**
-     * Scope para filtrar por status
-     */
-    public function scopeByStatus(\Hyperf\Database\Model\Builder $query, string $status): \Hyperf\Database\Model\Builder
-    {
-        return $query->where('status', $status);
-    }
 
-    /**
-     * Scope para filtrar saques agendados
-     */
-    public function scopeScheduled(\Hyperf\Database\Model\Builder $query): mixed
-    {
-        return $query->whereNotNull('scheduled_for');
-    }
-
-    /**
-     * Scope para filtrar saques imediatos
-     */
-    public function scopeImmediate(\Hyperf\Database\Model\Builder $query): mixed
-    {
-        return $query->whereNull('scheduled_for');
-    }
-
-    /**
-     * Scope para filtrar por método
-     */
-    public function scopeByMethod(\Hyperf\Database\Model\Builder $query, string $method): \Hyperf\Database\Model\Builder
-    {
-        return $query->where('method', $method);
-    }
 }

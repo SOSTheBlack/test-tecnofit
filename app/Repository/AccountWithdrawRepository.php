@@ -158,17 +158,6 @@ class AccountWithdrawRepository extends BaseRepository implements AccountWithdra
     /**
      * {@inheritdoc}
      */
-    public function markAsProcessing(string $id): bool
-    {
-        return $this->updateWithdraw($id, [
-            'status' => AccountWithdraw::STATUS_PROCESSING,
-            'updated_at' => timezone()->now(),
-        ]);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
     public function markAsCompleted(string $id, array $metadata = []): bool
     {
         $updateData = [
@@ -211,44 +200,6 @@ class AccountWithdrawRepository extends BaseRepository implements AccountWithdra
     /**
      * {@inheritdoc}
      */
-    public function listByAccount(string $accountId, array $criteria = [], int $page = 1, int $perPage = 15): array
-    {
-        $query = AccountWithdraw::query()->where('account_id', $accountId);
-
-        // Aplica critérios adicionais
-        foreach ($criteria as $field => $value) {
-            if (is_array($value)) {
-                $query->whereIn($field, $value);
-            } else {
-                $query->where($field, $value);
-            }
-        }
-
-        $offset = ($page - 1) * $perPage;
-        
-        /** @var \Hyperf\Database\Model\Collection $withdraws */
-        $withdraws = $query->offset($offset)
-            ->limit($perPage)
-            ->orderBy('created_at', 'desc')
-            ->get();
-
-        $total = $query->count();
-
-        return [
-            'data' => $withdraws->map(static function ($withdraw): AccountWithdrawData {
-                \assert($withdraw instanceof AccountWithdraw);
-                return AccountWithdrawData::fromModel($withdraw);
-            })->toArray(),
-            'total' => $total,
-            'page' => $page,
-            'per_page' => $perPage,
-            'total_pages' => (int) ceil($total / $perPage),
-        ];
-    }
-
-    /**
-     * {@inheritdoc}
-     */
     public function findScheduledReady(int $limit = 100): array
     {
         /** @var \Hyperf\Database\Model\Collection $withdraws */
@@ -259,74 +210,6 @@ class AccountWithdrawRepository extends BaseRepository implements AccountWithdra
             ->where('scheduled_for', '<=', timezone()->now())
             ->limit($limit)
             ->orderBy('scheduled_for', 'asc')
-            ->get();
-
-        return $withdraws->map(static function ($withdraw): AccountWithdrawData {
-            \assert($withdraw instanceof AccountWithdraw);
-            return AccountWithdrawData::fromModel($withdraw);
-        })->toArray();
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function countPendingByAccount(string $accountId): int
-    {
-        return AccountWithdraw::query()
-            ->where('account_id', $accountId)
-            ->whereIn('status', [AccountWithdraw::STATUS_PENDING, AccountWithdraw::STATUS_SCHEDULED])
-            ->where('done', false)
-            ->count();
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getTotalPendingAmountByAccount(string $accountId): float
-    {
-        return (float) AccountWithdraw::query()
-            ->where('account_id', $accountId)
-            ->whereIn('status', [AccountWithdraw::STATUS_PENDING, AccountWithdraw::STATUS_SCHEDULED])
-            ->where('done', false)
-            ->sum('amount');
-    }
-
-    /**
-     * Lista saques por método
-     * 
-     * @param string $method Método de saque
-     * @param int $limit Limite de resultados
-     * @return array Lista de DTOs de saques
-     */
-    public function findByMethod(string $method, int $limit = 100): array
-    {
-        /** @var \Hyperf\Database\Model\Collection $withdraws */
-        $withdraws = AccountWithdraw::query()
-            ->where('method', $method)
-            ->limit($limit)
-            ->orderBy('created_at', 'desc')
-            ->get();
-
-        return $withdraws->map(static function ($withdraw): AccountWithdrawData {
-            \assert($withdraw instanceof AccountWithdraw);
-            return AccountWithdrawData::fromModel($withdraw);
-        })->toArray();
-    }
-
-    /**
-     * Lista saques por status
-     * 
-     * @param string $status Status do saque
-     * @param int $limit Limite de resultados
-     * @return array Lista de DTOs de saques
-     */
-    public function findByStatus(string $status, int $limit = 100): array
-    {
-        /** @var \Hyperf\Database\Model\Collection $withdraws */
-        $withdraws = AccountWithdraw::query()
-            ->where('status', $status)
-            ->limit($limit)
-            ->orderBy('created_at', 'desc')
             ->get();
 
         return $withdraws->map(static function ($withdraw): AccountWithdrawData {

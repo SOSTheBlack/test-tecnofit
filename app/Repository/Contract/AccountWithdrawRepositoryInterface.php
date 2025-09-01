@@ -70,14 +70,7 @@ interface AccountWithdrawRepositoryInterface extends BaseRepositoryInterface
      */
     public function updateWithdraw(string $id, array $data): bool;
 
-    /**
-     * Marca um saque como processando
-     * 
-     * @param string $id ID do saque
-     * @return bool Verdadeiro se a atualização foi bem-sucedida
-     * @throws \App\Repository\Exceptions\RepositoryNotFoundException Quando saque não encontrado
-     */
-    public function markAsProcessing(string $id): bool;
+
 
     /**
      * Marca um saque como completado
@@ -100,16 +93,7 @@ interface AccountWithdrawRepositoryInterface extends BaseRepositoryInterface
      */
     public function markAsFailed(string $id, string $errorReason, array $metadata = []): bool;
 
-    /**
-     * Lista saques por conta com filtros opcionais
-     * 
-     * @param string $accountId ID da conta
-     * @param array $criteria Critérios de busca adicionais
-     * @param int $page Página para paginação
-     * @param int $perPage Itens por página
-     * @return array Array com dados paginados
-     */
-    public function listByAccount(string $accountId, array $criteria = [], int $page = 1, int $perPage = 15): array;
+
 
     /**
      * Lista saques agendados prontos para execução
@@ -119,19 +103,5 @@ interface AccountWithdrawRepositoryInterface extends BaseRepositoryInterface
      */
     public function findScheduledReady(int $limit = 100): array;
 
-    /**
-     * Conta saques pendentes por conta
-     * 
-     * @param string $accountId ID da conta
-     * @return int Número de saques pendentes
-     */
-    public function countPendingByAccount(string $accountId): int;
 
-    /**
-     * Obtém total de valores pendentes por conta
-     * 
-     * @param string $accountId ID da conta
-     * @return float Total de valores pendentes
-     */
-    public function getTotalPendingAmountByAccount(string $accountId): float;
 }

@@ -74,33 +74,6 @@ class AccountWithdrawPixRepository extends BaseRepository implements AccountWith
     }
 
     /**
-     * {@inheritdoc}
-     */
-    public function updatePixData(string $id, array $data): bool
-    {
-        /** @var AccountWithdrawPix|null $pixData */
-        $pixData = AccountWithdrawPix::query()->find($id);
-        
-        if (!$pixData) {
-            throw new RepositoryNotFoundException("Dados PIX com ID {$id} não encontrados.");
-        }
-
-        return $pixData->update($data);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function deleteByWithdrawId(string $withdrawId): bool
-    {
-        $deleted = AccountWithdrawPix::query()
-            ->where('account_withdraw_id', $withdrawId)
-            ->delete();
-
-        return $deleted > 0;
-    }
-
-    /**
      * Encontra dados PIX pelo ID retornando DTO
      * 
      * @param string $id

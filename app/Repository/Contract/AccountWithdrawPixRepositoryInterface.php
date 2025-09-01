@@ -33,21 +33,5 @@ interface AccountWithdrawPixRepositoryInterface extends BaseRepositoryInterface
      */
     public function createPixData(string $withdrawId, string $key, string $type, ?string $externalId = null): AccountWithdrawPixData;
 
-    /**
-     * Atualiza dados PIX
-     * 
-     * @param string $id ID dos dados PIX
-     * @param array $data Dados a serem atualizados
-     * @return bool
-     * @throws \App\Repository\Exceptions\RepositoryNotFoundException Quando não encontrado
-     */
-    public function updatePixData(string $id, array $data): bool;
 
-    /**
-     * Remove dados PIX pelo ID do saque
-     * 
-     * @param string $withdrawId ID do saque
-     * @return bool
-     */
-    public function deleteByWithdrawId(string $withdrawId): bool;
 }
