@@ -68,3 +68,10 @@ if (! function_exists('env')) {
         return $value;
     }
 }
+
+if (! function_exists('timezone')) {
+    function timezone(): \App\Helper\TimezoneHelper
+    {
+        return container()->get(\App\Helper\TimezoneHelper::class);
+    }
+}

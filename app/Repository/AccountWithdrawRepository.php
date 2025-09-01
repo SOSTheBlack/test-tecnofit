@@ -8,7 +8,6 @@ use App\Model\AccountWithdraw;
 use App\Model\AccountWithdrawPix;
 use App\Repository\Contract\AccountWithdrawRepositoryInterface;
 use App\Repository\Exceptions\RepositoryNotFoundException;
-use Carbon\Carbon;
 use Hyperf\DbConnection\Db;
 use Throwable;
 
@@ -86,7 +85,7 @@ class AccountWithdrawRepository implements AccountWithdrawRepositoryInterface
     {
         return $this->update($id, [
             'status' => AccountWithdraw::STATUS_PROCESSING,
-            'updated_at' => Carbon::now(),
+            'updated_at' => timezone()->now(),
         ]);
     }
 
@@ -100,7 +99,7 @@ class AccountWithdrawRepository implements AccountWithdrawRepositoryInterface
             'done' => true,
             'error' => false,
             'error_reason' => null,
-            'updated_at' => Carbon::now(),
+            'updated_at' => timezone()->now(),
         ];
 
         if (!empty($metadata)) {
@@ -121,7 +120,7 @@ class AccountWithdrawRepository implements AccountWithdrawRepositoryInterface
             'error' => true,
             'error_reason' => $errorReason,
             'done' => false,
-            'updated_at' => Carbon::now(),
+            'updated_at' => timezone()->now(),
         ];
 
         if (!empty($metadata)) {
