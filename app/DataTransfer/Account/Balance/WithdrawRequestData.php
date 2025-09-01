@@ -24,8 +24,8 @@ readonly class WithdrawRequestData
     {
         $schedule = null;
         if (isset($data['schedule']) && $data['schedule'] !== null) {
-            $schedule = $data['schedule'] instanceof Carbon 
-                ? $data['schedule'] 
+            $schedule = $data['schedule'] instanceof Carbon
+                ? $data['schedule']
                 : timezone()->parse($data['schedule']);
         }
 
@@ -74,7 +74,7 @@ readonly class WithdrawRequestData
         if ($this->schedule === null) {
             return false;
         }
-        
+
         return $this->schedule->isAfter(timezone()->now());
     }
 
@@ -120,7 +120,9 @@ readonly class WithdrawRequestData
                 $errors[] = 'Para saques PIX é necessário informar os dados PIX.';
             } else {
                 // Valida os dados PIX se estiverem presentes
-                $pixErrors = $this->pix->validate();
+                /** @var PixData $pixData */
+                $pixData = $this->pix;
+                $pixErrors = $pixData->validate();
                 foreach ($pixErrors as $error) {
                     $errors[] = "PIX: {$error}";
                 }

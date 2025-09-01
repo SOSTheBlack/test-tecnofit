@@ -32,7 +32,9 @@ class AccountWithdrawRepository extends BaseRepository implements AccountWithdra
      */
     public function findById(string $id): ?AccountWithdraw
     {
-        return AccountWithdraw::find($id);
+        /** @var AccountWithdraw|null $withdraw */
+        $withdraw = AccountWithdraw::query()->find($id);
+        return $withdraw;
     }
 
     /**
@@ -40,7 +42,9 @@ class AccountWithdrawRepository extends BaseRepository implements AccountWithdra
      */
     public function findByTransactionId(string $transactionId): ?AccountWithdraw
     {
-        return AccountWithdraw::where('transaction_id', $transactionId)->first();
+        /** @var AccountWithdraw|null $withdraw */
+        $withdraw = AccountWithdraw::query()->where('transaction_id', $transactionId)->first();
+        return $withdraw;
     }
 
     /**
@@ -69,7 +73,9 @@ class AccountWithdrawRepository extends BaseRepository implements AccountWithdra
 
         try {
             return $this->transaction(function () use ($data) {
-                return AccountWithdraw::create($data);
+                /** @var AccountWithdraw $withdraw */
+                $withdraw = AccountWithdraw::query()->create($data);
+                return $withdraw;
             });
         } catch (Throwable $e) {
             throw new \RuntimeException(
@@ -85,12 +91,14 @@ class AccountWithdrawRepository extends BaseRepository implements AccountWithdra
      */
     public function createPixData(string $withdrawId, string $key, string $type): AccountWithdrawPix
     {
-        return AccountWithdrawPix::create([
+        /** @var AccountWithdrawPix $pixData */
+        $pixData = AccountWithdrawPix::query()->create([
             'id' => (string) Str::uuid(),
             'account_withdraw_id' => $withdrawId,
             'key' => $key,
             'type' => $type,
         ]);
+        return $pixData;
     }
 
     /**

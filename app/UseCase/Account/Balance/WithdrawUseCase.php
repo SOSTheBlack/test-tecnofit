@@ -59,8 +59,7 @@ class WithdrawUseCase
             $accountWithdrawRepository,
             $this->businessRules,
             $notificationService,
-            $scheduledWithdrawService,
-            $this->logger
+            $scheduledWithdrawService
         );
     }
 

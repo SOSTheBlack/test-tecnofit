@@ -55,9 +55,10 @@ class IndexController
     private function checkDatabase(): array
     {
         try {
-            // Implementar verificação de conexão com banco
+            // Verificação real da conexão com banco
+            \Hyperf\DbConnection\Db::select('SELECT 1');
             return ['status' => 'ok', 'message' => 'Database connection successful'];
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             return ['status' => 'error', 'message' => $e->getMessage()];
         }
     }
@@ -65,9 +66,11 @@ class IndexController
     private function checkRedis(): array
     {
         try {
-            // Implementar verificação de conexão com Redis
+            // Verificação real da conexão com Redis
+            $redis = \Hyperf\Context\ApplicationContext::getContainer()->get(\Hyperf\Redis\Redis::class);
+            $redis->ping();
             return ['status' => 'ok', 'message' => 'Redis connection successful'];
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             return ['status' => 'error', 'message' => $e->getMessage()];
         }
     }

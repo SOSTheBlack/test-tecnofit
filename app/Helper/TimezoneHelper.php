@@ -34,7 +34,11 @@ class TimezoneHelper
 
     public function createFromFormat(string $format, string $datetime): Carbon
     {
-        return Carbon::createFromFormat($format, $datetime, $this->appTimezone);
+        $result = Carbon::createFromFormat($format, $datetime, $this->appTimezone);
+        if ($result === false) {
+            throw new \InvalidArgumentException("Invalid datetime format: {$datetime}");
+        }
+        return $result;
     }
 
     public function getTimezone(): string

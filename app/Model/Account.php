@@ -48,14 +48,15 @@ class Account extends Model
         return $this->hasMany(AccountWithdraw::class, 'account_id', 'id');
     }
 
-    /**
-     * Saques pendentes
+        /**
+     * Conta de saques pendentes
      */
-    public function pendingWithdraws(): HasMany
+    public function getPendingWithdrawsCount(): int
     {
-        return $this->hasMany(AccountWithdraw::class, 'account_id', 'id')
+        return $this->withdraws()
             ->whereIn('status', [AccountWithdraw::STATUS_PENDING, AccountWithdraw::STATUS_SCHEDULED])
-            ->where('done', false);
+            ->where('done', false)
+            ->count();
     }
 
     /**
@@ -82,7 +83,10 @@ class Account extends Model
      */
     public function getTotalPendingWithdrawAmount(): float
     {
-        return (float) $this->pendingWithdraws()->sum('amount');
+        return (float) $this->withdraws()
+            ->whereIn('status', [AccountWithdraw::STATUS_PENDING, AccountWithdraw::STATUS_SCHEDULED])
+            ->where('done', false)
+            ->sum('amount');
     }
 
     /**

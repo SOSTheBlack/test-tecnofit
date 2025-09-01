@@ -99,39 +99,39 @@ class AccountWithdraw extends Model
     {
         do {
             $transactionId = 'TXN_' . strtoupper(uniqid()) . '_' . time();
-        } while (static::where('transaction_id', $transactionId)->exists());
+        } while (self::query()->where('transaction_id', $transactionId)->exists());
 
         return $transactionId;
     }
 
-    /**
+        /**
      * Scope para filtrar por status
      */
-    public function scopeByStatus($query, string $status)
+    public function scopeByStatus(\Hyperf\Database\Model\Builder $query, string $status): \Hyperf\Database\Model\Builder
     {
         return $query->where('status', $status);
     }
 
     /**
-     * Scope para saques agendados
+     * Scope para filtrar saques agendados
      */
-    public function scopeScheduled($query)
+    public function scopeScheduled(\Hyperf\Database\Model\Builder $query): mixed
     {
-        return $query->where('scheduled', true);
+        return $query->whereNotNull('scheduled_for');
     }
 
     /**
-     * Scope para saques imediatos
+     * Scope para filtrar saques imediatos
      */
-    public function scopeImmediate($query)
+    public function scopeImmediate(\Hyperf\Database\Model\Builder $query): mixed
     {
-        return $query->where('scheduled', false);
+        return $query->whereNull('scheduled_for');
     }
 
     /**
-     * Scope para saques por método
+     * Scope para filtrar por método
      */
-    public function scopeByMethod($query, string $method)
+    public function scopeByMethod(\Hyperf\Database\Model\Builder $query, string $method): \Hyperf\Database\Model\Builder
     {
         return $query->where('method', $method);
     }

@@ -29,7 +29,9 @@ class AccountRepository extends BaseRepository implements AccountRepositoryInter
     public function findById(string $accountId): ?Account
     {
         try {
-            return $this->account->findOrFail($accountId);
+            /** @var Account $account */
+            $account = Account::query()->findOrFail($accountId);
+            return $account;
         } catch (ModelNotFoundException $e) {
             throw new RepositoryNotFoundException('Conta não encontrada.', previous: $e);
         }

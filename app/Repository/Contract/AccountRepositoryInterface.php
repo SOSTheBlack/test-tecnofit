@@ -13,7 +13,7 @@ interface AccountRepositoryInterface extends BaseRepositoryInterface
      * 
      * @param string $accountId
      * @return Account|null
-     * @throws RepositoryNotFoundException
+     * @throws \App\Repository\Exceptions\RepositoryNotFoundException
      */
     public function findById(string $accountId): ?Account;
 

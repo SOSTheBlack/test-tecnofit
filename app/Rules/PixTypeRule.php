@@ -9,7 +9,7 @@ use Hyperf\Validation\Contract\Rule;
 
 class PixTypeRule implements Rule
 {
-    public function passes(string $attribute, $value): bool
+    public function passes(string $attribute, mixed $value): bool
     {
         return PixKeyTypeEnum::isValid($value);
     }

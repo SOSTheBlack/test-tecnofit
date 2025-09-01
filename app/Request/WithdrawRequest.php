@@ -58,7 +58,7 @@ class WithdrawRequest extends FormRequest
     /**
      * Configure the validator instance.
      */
-    public function withValidator($validator)
+    public function withValidator(\Hyperf\Validation\Validator $validator): void
     {
         // Garantir que as regras customizadas sejam executadas
         // $validator->after(function ($validator) {

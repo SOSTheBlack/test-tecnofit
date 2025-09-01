@@ -27,10 +27,12 @@ class SendWithdrawNotificationJob extends Job
     public function handle(): void
     {
         try {
-            $withdraw = AccountWithdraw::with(['pixData', 'account'])
+            /** @var AccountWithdraw|null $withdraw */
+            $withdraw = AccountWithdraw::query()
+                ->with(['pixData', 'account'])
                 ->find($this->withdrawId);
 
-            if (!$withdraw) {
+            if ($withdraw === null) {
                 $this->logger->error("Saque não encontrado para notificação: {$this->withdrawId}");
                 return;
             }
@@ -44,12 +46,12 @@ class SendWithdrawNotificationJob extends Job
             $emailService = ApplicationContext::getContainer()->get(EmailService::class);
             
             // Envia email para a chave PIX (se for email)
-            if ($withdraw->pixData && $withdraw->pixData->type === 'email') {
+            if ($withdraw->pixData !== null && $withdraw->pixData->type === 'email') {
                 $emailService->sendWithdrawConfirmation($withdraw);
             } else {
                 $this->logger->info("Email não enviado - chave PIX não é email ou dados PIX não encontrados", [
                     'withdraw_id' => $this->withdrawId,
-                    'pix_type' => $withdraw->pixData?->type
+                    'pix_type' => $withdraw->pixData !== null ? $withdraw->pixData->type : null
                 ]);
             }
 

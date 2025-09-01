@@ -232,7 +232,7 @@ readonly class AccountWithdrawData
     // Time-related methods
     public function getProcessingTime(): ?int
     {
-        if ($this->updatedAt && $this->createdAt) {
+        if ($this->updatedAt !== null && $this->createdAt !== null) {
             return $this->createdAt->diffInSeconds($this->updatedAt);
         }
         return null;

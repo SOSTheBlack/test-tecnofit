@@ -9,7 +9,7 @@ use Hyperf\Validation\Contract\Rule;
 
 class WithdrawMethodRule implements Rule
 {
-    public function passes(string $attribute, $value): bool
+    public function passes(string $attribute, mixed $value): bool
     {
         return WithdrawMethodEnum::isValid($value);
     }

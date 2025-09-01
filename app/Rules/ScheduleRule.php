@@ -19,7 +19,7 @@ class ScheduleRule implements Rule
     private const MAX_FUTURE_DAYS = 7;
     private const DATE_FORMAT = 'Y-m-d H:i';
 
-    public function passes(string $attribute, $value): bool
+    public function passes(string $attribute, mixed $value): bool
     {
         if ($this->isEmpty($value)) {
             return true;
@@ -49,7 +49,7 @@ class ScheduleRule implements Rule
     /**
      * Verifica se o valor está vazio
      */
-    private function isEmpty($value): bool
+    private function isEmpty(mixed $value): bool
     {
         return empty($value);
     }
@@ -57,10 +57,10 @@ class ScheduleRule implements Rule
     /**
      * Converte string para Carbon
      */
-    private function parseDate($value): ?Carbon
+    private function parseDate(mixed $value): ?Carbon
     {
         try {
-            return timezone()->createFromFormat(self::DATE_FORMAT, $value);
+            return timezone()->createFromFormat(self::DATE_FORMAT, (string) $value);
         } catch (Throwable $e) {
             $this->errorMessage = sprintf(self::INVALID_FORMAT_MESSAGE, self::DATE_FORMAT);
             return null;

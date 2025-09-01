@@ -17,7 +17,6 @@ class EmailService
     private Mailer $mailer;
     private string $appName;
     private string $fromAddress;
-    private string $fromName;
 
     public function __construct(LoggerFactory $loggerFactory)
     {
@@ -31,16 +30,15 @@ class EmailService
         // Configurações obtidas diretamente do env() ou valores padrão
         $this->appName = env('APP_NAME', 'TecnofitPixAPI');
         $this->fromAddress = env('MAIL_FROM_ADDRESS', 'noreply@tecnofit.com');
-        $this->fromName = env('MAIL_FROM_NAME', 'Tecnofit PIX API');
     }
 
     public function sendWithdrawConfirmation(AccountWithdraw $withdraw): bool
     {
         try {
-            if (!$withdraw->pixData || $withdraw->pixData->type !== 'email') {
+            if ($withdraw->pixData === null || $withdraw->pixData->type !== 'email') {
                 $this->logger->warning("Tentativa de envio de email para chave PIX não-email", [
                     'withdraw_id' => $withdraw->id,
-                    'pix_type' => $withdraw->pixData?->type
+                    'pix_type' => $withdraw->pixData !== null ? $withdraw->pixData->type : null
                 ]);
                 return false;
             }
@@ -76,7 +74,7 @@ class EmailService
     private function buildEmailTemplate(AccountWithdraw $withdraw): string
     {
         $amount = number_format((float) $withdraw->amount, 2, ',', '.');
-        $processedAt = $withdraw->updated_at?->format('d/m/Y H:i:s') ?? 'N/A';
+        $processedAt = $withdraw->updated_at->format('d/m/Y H:i:s');
         $pixKey = $withdraw->pixData->key;
         $pixType = ucfirst($withdraw->pixData->type);
 

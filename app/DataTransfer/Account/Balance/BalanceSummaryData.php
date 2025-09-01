@@ -22,7 +22,7 @@ readonly class BalanceSummaryData
             name: $account->name,
             currentBalance: (float) $account->balance,
             availableBalance: (float) $account->getAvailableBalance(),
-            pendingWithdrawsCount: $account->pendingWithdraws()->count(),
+            pendingWithdrawsCount: $account->getPendingWithdrawsCount(),
             pendingWithdrawsAmount: (float) $account->getTotalPendingWithdrawAmount(),
         );
     }

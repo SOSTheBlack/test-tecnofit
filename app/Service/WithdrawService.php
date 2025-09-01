@@ -27,8 +27,7 @@ class WithdrawService
         private readonly AccountWithdrawRepositoryInterface $accountWithdrawRepository,
         private readonly WithdrawBusinessRules $businessRules,
         private readonly WithdrawNotificationService $notificationService,
-        private readonly ScheduledWithdrawService $scheduledWithdrawService,
-        private readonly LoggerInterface $logger
+        private readonly ScheduledWithdrawService $scheduledWithdrawService
     ) {
     }
 
@@ -86,7 +85,7 @@ class WithdrawService
         // Agenda job assíncrono para processar saque na data correta
         $jobScheduled = $this->scheduledWithdrawService->scheduleWithdrawJob(
             $accountWithdrawData->id,
-            $withdrawRequestData->schedule
+            $withdrawRequestData->schedule ?? throw new \InvalidArgumentException('Schedule date is required for scheduled withdraw')
         );
 
         if (!$jobScheduled) {
@@ -100,7 +99,7 @@ class WithdrawService
             'current_balance' => (float) number_format($accountData->balance, 2, '.', ''),
             'available_balance' => $newBalances['available_balance'],
             'method' => $withdrawRequestData->method->value,
-            'scheduled_for' => $withdrawRequestData->schedule?->toISOString(),
+            'scheduled_for' => $withdrawRequestData->schedule->toISOString(),
             'pix_key' => $withdrawRequestData->getPixKey(),
             'pix_type' => $withdrawRequestData->getPixType(),
             'type' => 'scheduled',
@@ -120,9 +119,11 @@ class WithdrawService
         $status = $scheduled ? AccountWithdraw::STATUS_PENDING : AccountWithdraw::STATUS_NEW;
 
         if (!is_null($withdrawRequestData->id)) {
-            return AccountWithdrawData::fromModel(
-                $this->accountWithdrawRepository->findById($withdrawRequestData->id)
-            );
+            $withdraw = $this->accountWithdrawRepository->findById($withdrawRequestData->id);
+            if ($withdraw === null) {
+                throw new \InvalidArgumentException('Withdraw not found');
+            }
+            return AccountWithdrawData::fromModel($withdraw);
         }
 
         $accountWithdrawData = AccountWithdrawData::fromModel($this->accountWithdrawRepository->create([
@@ -138,11 +139,16 @@ class WithdrawService
 
         // Cria dados PIX se necessário
         if ($this->shouldCreatePixData($withdrawRequestData)) {
-            $this->accountWithdrawRepository->createPixData(
-                $accountWithdrawData->id,
-                $withdrawRequestData->getPixKey(),
-                $withdrawRequestData->getPixType()
-            );
+            $pixKey = $withdrawRequestData->getPixKey();
+            $pixType = $withdrawRequestData->getPixType();
+            
+            if ($pixKey !== null && $pixType !== null) {
+                $this->accountWithdrawRepository->createPixData(
+                    $accountWithdrawData->id,
+                    $pixKey,
+                    $pixType
+                );
+            }
         }
 
         return $accountWithdrawData;
