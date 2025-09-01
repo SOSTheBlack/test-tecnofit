@@ -75,17 +75,18 @@ POST /account/{accountId}/balance/withdraw
 Exemplo para testar o endpoint de saque imediato:
 ```sh
 cd /home/garcia/code/tecnofit && docker-compose exec hyperf curl --request POST \
-  --url http://127.0.0.1/account/223e4567-e89b-12d3-a456-426614174001/balance/withdraw \
+  --url http://nginx/account/223e4567-e89b-12d3-a456-426614174001/balance/withdraw \
   --header 'content-type: application/json' \
   --data '{
     "method": "PIX",
     "pix": {
       "type": "email",
-      "key": "sucesso@email.com"
+      "key": "teste@example.com"
     },
-    "amount": 3.33,
+    "amount": 5.50,
     "schedule": null
-  }'
+  }' \
+  --verbose
 ```
 
 ## 🔒 REGRAS DE VALIDAÇÃO OBRIGATÓRIAS

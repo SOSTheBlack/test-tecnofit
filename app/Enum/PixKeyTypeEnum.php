@@ -7,19 +7,19 @@ namespace App\Enum;
 enum PixKeyTypeEnum: string
 {
     case EMAIL = 'email';
-    case PHONE = 'phone';
-    case CPF = 'CPF';
-    case CNPJ = 'CNPJ';
-    case RANDOM_KEY = 'random_key';
+    // case PHONE = 'phone';
+    // case CPF = 'CPF';
+    // case CNPJ = 'CNPJ';
+    // case RANDOM_KEY = 'random_key';
 
     public function getLabel(): string
     {
         return match ($this) {
             self::EMAIL => 'E-mail',
-            self::PHONE => 'Telefone',
-            self::CPF => 'CPF',
-            self::CNPJ => 'CNPJ',
-            self::RANDOM_KEY => 'Chave Aleatória',
+            // self::PHONE => 'Telefone',
+            // self::CPF => 'CPF',
+            // self::CNPJ => 'CNPJ',
+            // self::RANDOM_KEY => 'Chave Aleatória',
         };
     }
 

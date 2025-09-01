@@ -47,7 +47,6 @@ class SendWithdrawNotificationJob extends Job
             // Envia email para a chave PIX (se for email)
             if ($withdraw->pixData && $withdraw->pixData->type === 'email') {
                 $emailService->sendWithdrawConfirmation($withdraw);
-                $this->logger->info("Email de confirmação enviado para saque: {$this->withdrawId}");
             } else {
                 $this->logger->info("Email não enviado - chave PIX não é email ou dados PIX não encontrados", [
                     'withdraw_id' => $this->withdrawId,

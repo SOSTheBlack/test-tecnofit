@@ -4,6 +4,12 @@ FROM hyperf/hyperf:8.2-alpine-v3.18-swoole
 # Set working directory
 WORKDIR /opt/www
 
+# Set timezone to Brazil/São Paulo (UTC-3)
+ENV TZ=America/Sao_Paulo
+RUN apk add --no-cache tzdata && \
+    cp /usr/share/zoneinfo/America/Sao_Paulo /etc/localtime && \
+    echo "America/Sao_Paulo" > /etc/timezone
+
 # Install system dependencies and ensure PHP extensions are available
 RUN apk add --no-cache \
     git \

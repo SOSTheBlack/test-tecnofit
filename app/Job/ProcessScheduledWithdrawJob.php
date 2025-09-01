@@ -59,10 +59,10 @@ class ProcessScheduledWithdrawJob extends Job
                     "Falha na execução agendada: {$errorMessage}"
                 );
 
-                throw new \RuntimeException("Falha ao processar saque agendado: {$errorMessage}");
+                throw new \RuntimeException("Falha ao processar saque agendado: {$errorMessage} - " . json_encode($result));
             }
 
-            echo "Saque agendado processado com sucesso: {$this->withdrawId} (nova transação: {$result->transactionId})\n";
+            echo "Saque agendado processado com sucesso: {$this->withdrawId} (transação: {$result->transactionId})\n";
 
         } catch (Throwable $exception) {
             echo "Erro ao processar saque agendado {$this->withdrawId}: {$exception->getMessage()}\n";
