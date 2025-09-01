@@ -7,8 +7,11 @@ services:
       - "9501:9501"
     environment:
       - SCAN_CACHEABLE=false
+      - TZ=America/Sao_Paulo
     volumes:
       - .:/opt/www
+      - /etc/timezone:/etc/timezone:ro
+      - /etc/localtime:/etc/localtime:ro
     command: sh -c "git config --global --add safe.directory /opt/www && composer install --optimize-autoloader && composer run watch"
     depends_on:
       - mysql
@@ -25,11 +28,14 @@ services:
       MYSQL_DATABASE: tecnofit_pix
       MYSQL_USER: tecnofit
       MYSQL_PASSWORD: tecnofit123
+      TZ: America/Sao_Paulo
     ports:
       - "3306:3306"
     volumes:
       - mysql_data:/var/lib/mysql
       - ./docker/mysql/init.sql:/docker-entrypoint-initdb.d/init.sql
+      - /etc/timezone:/etc/timezone:ro
+      - /etc/localtime:/etc/localtime:ro
     networks:
       - tecnofit-network
 
@@ -37,10 +43,14 @@ services:
     image: redis:7-alpine
     container_name: tecnofit-redis
     restart: unless-stopped
+    environment:
+      - TZ=America/Sao_Paulo
     ports:
       - "6379:6379"
     volumes:
       - redis_data:/data
+      - /etc/timezone:/etc/timezone:ro
+      - /etc/localtime:/etc/localtime:ro
     networks:
       - tecnofit-network
 

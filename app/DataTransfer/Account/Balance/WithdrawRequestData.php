@@ -5,7 +5,10 @@ declare(strict_types=1);
 namespace App\DataTransfer\Account\Balance;
 
 use App\Enum\WithdrawMethodEnum;
+use App\Helper\TimezoneHelper;
+use App\Model\AccountWithdraw;
 use Carbon\Carbon;
+use Hyperf\Context\ApplicationContext;
 
 readonly class WithdrawRequestData
 {
@@ -16,15 +19,17 @@ readonly class WithdrawRequestData
         public ?PixData $pix = null,
         public ?Carbon $schedule = null,
         public ?array $metadata = null,
+        public ?string $id = null // existe quando é processado pelo cron
     ) {}
 
     public static function fromArray(array $data): self
     {
         $schedule = null;
         if (isset($data['schedule']) && $data['schedule'] !== null) {
+            $timezoneHelper = ApplicationContext::getContainer()->get(TimezoneHelper::class);
             $schedule = $data['schedule'] instanceof Carbon 
                 ? $data['schedule'] 
-                : Carbon::parse($data['schedule']);
+                : $timezoneHelper->parse($data['schedule']);
         }
 
         $pix = null;
@@ -54,9 +59,28 @@ readonly class WithdrawRequestData
         ]);
     }
 
+    public static function fromModel(AccountWithdraw $withdraw): self
+    {
+        return new self(
+            id: $withdraw->id ?? null,
+            accountId: $withdraw->account_id,
+            method: WithdrawMethodEnum::from($withdraw->method),
+            amount: (float) $withdraw->amount,
+            pix: $withdraw->pixData ? PixData::fromModel($withdraw->pixData) : null,
+            schedule: $withdraw->scheduled_for,
+            metadata: $withdraw->meta ?? []
+        );
+    }
+
     public function isScheduled(): bool
     {
-        return $this->schedule !== null && $this->schedule->isFuture();
+        if ($this->schedule === null) {
+            return false;
+        }
+        
+        // Garantir que usamos o timezone correto
+        $timezoneHelper = ApplicationContext::getContainer()->get(TimezoneHelper::class);
+        return $this->schedule->isAfter($timezoneHelper->now());
     }
 
     public function isImmediate(): bool
@@ -109,8 +133,11 @@ readonly class WithdrawRequestData
         }
 
         // Validação de agendamento
-        if ($this->schedule !== null && $this->schedule->isPast()) {
-            $errors[] = 'A data de agendamento deve ser futura.';
+        if ($this->schedule !== null && is_null($this->id)) {
+            $now = Carbon::now('America/Sao_Paulo');
+            if ($this->schedule->isBefore($now)) {
+                $errors[] = 'A data de agendamento deve ser futura.';
+            }
         }
 
         return $errors;

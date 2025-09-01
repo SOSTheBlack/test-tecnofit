@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Repository;
 
 use App\Model\AccountWithdraw;
+use App\Model\AccountWithdrawPix;
 use App\Repository\Contract\AccountWithdrawRepositoryInterface;
 use App\Repository\Exceptions\RepositoryNotFoundException;
 use Carbon\Carbon;
@@ -55,6 +56,16 @@ class AccountWithdrawRepository implements AccountWithdrawRepositoryInterface
                 $e
             );
         }
+    }
+
+    public function createPixData(string $withdrawId, string $key, string $type): AccountWithdrawPix
+    {
+        return AccountWithdrawPix::create([
+            'id' => (string) \Hyperf\Stringable\Str::uuid(),
+            'account_withdraw_id' => $withdrawId,
+            'key' => $key,
+            'type' => $type,
+        ]);
     }
 
     public function update(string $id, array $data): bool
