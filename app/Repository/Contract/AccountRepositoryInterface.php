@@ -15,22 +15,22 @@ use App\DataTransfer\Account\AccountData;
 interface AccountRepositoryInterface extends BaseRepositoryInterface
 {
     /**
-     * Encontra uma conta pelo ID
+     * Encontra uma conta pelo ID retornando DTO
      * 
      * @param string $accountId ID da conta
      * @return AccountData|null DTO da conta ou null se não encontrada
      * @throws \App\Repository\Exceptions\RepositoryNotFoundException Quando conta não encontrada
      */
-    public function findById(string $accountId): ?AccountData;
+    public function findAccountById(string $accountId): ?AccountData;
 
     /**
-     * Encontra uma conta pelo ID ou lança exceção
+     * Encontra uma conta pelo ID ou lança exceção retornando DTO
      * 
      * @param string $accountId ID da conta
      * @return AccountData DTO da conta
      * @throws \App\Repository\Exceptions\RepositoryNotFoundException Quando conta não encontrada
      */
-    public function findByIdOrFail(string $accountId): AccountData;
+    public function findAccountByIdOrFail(string $accountId): AccountData;
 
     /**
      * Debita um valor da conta

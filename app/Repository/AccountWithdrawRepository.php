@@ -40,7 +40,7 @@ class AccountWithdrawRepository extends BaseRepository implements AccountWithdra
     /**
      * {@inheritdoc}
      */
-    public function findById(string $id): ?AccountWithdrawData
+    public function findWithdrawById(string $id): ?AccountWithdrawData
     {
         /** @var AccountWithdraw|null $withdraw */
         $withdraw = AccountWithdraw::query()->find($id);
@@ -51,7 +51,7 @@ class AccountWithdrawRepository extends BaseRepository implements AccountWithdra
     /**
      * {@inheritdoc}
      */
-    public function findByIdOrFail(string $id): AccountWithdrawData
+    public function findWithdrawByIdOrFail(string $id): AccountWithdrawData
     {
         /** @var AccountWithdraw|null $withdraw */
         $withdraw = AccountWithdraw::query()->find($id);
@@ -77,7 +77,7 @@ class AccountWithdrawRepository extends BaseRepository implements AccountWithdra
     /**
      * {@inheritdoc}
      */
-    public function create(array $data): AccountWithdrawData
+    public function createWithdraw(array $data): AccountWithdrawData
     {
         try {
             return $this->transaction(function () use ($data) {
@@ -143,7 +143,7 @@ class AccountWithdrawRepository extends BaseRepository implements AccountWithdra
     /**
      * {@inheritdoc}
      */
-    public function update(string $id, array $data): bool
+    public function updateWithdraw(string $id, array $data): bool
     {
         /** @var AccountWithdraw|null $withdraw */
         $withdraw = AccountWithdraw::query()->find($id);
@@ -160,7 +160,7 @@ class AccountWithdrawRepository extends BaseRepository implements AccountWithdra
      */
     public function markAsProcessing(string $id): bool
     {
-        return $this->update($id, [
+        return $this->updateWithdraw($id, [
             'status' => AccountWithdraw::STATUS_PROCESSING,
             'updated_at' => timezone()->now(),
         ]);
@@ -180,11 +180,11 @@ class AccountWithdrawRepository extends BaseRepository implements AccountWithdra
         ];
 
         if (!empty($metadata)) {
-            $withdraw = $this->findById($id);
+            $withdraw = $this->findWithdrawById($id);
             $updateData['meta'] = array_merge($withdraw?->meta ?? [], $metadata);
         }
 
-        return $this->update($id, $updateData);
+        return $this->updateWithdraw($id, $updateData);
     }
 
     /**
@@ -201,11 +201,11 @@ class AccountWithdrawRepository extends BaseRepository implements AccountWithdra
         ];
 
         if (!empty($metadata)) {
-            $withdraw = $this->findById($id);
+            $withdraw = $this->findWithdrawById($id);
             $updateData['meta'] = array_merge($withdraw?->meta ?? [], $metadata);
         }
 
-        return $this->update($id, $updateData);
+        return $this->updateWithdraw($id, $updateData);
     }
 
     /**

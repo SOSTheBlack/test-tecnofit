@@ -58,7 +58,7 @@ class ProcessScheduledWithdrawJob extends Job
     {
         try {
             // Busca o saque agendado através do repositório (retorna DTO)
-            $withdrawData = $this->accountWithdrawRepository?->findById($this->withdrawId);
+            $withdrawData = $this->accountWithdrawRepository?->findWithdrawById($this->withdrawId);
             if (!$withdrawData) {
                 throw new \RuntimeException("Saque agendado não encontrado: {$this->withdrawId}");
             }

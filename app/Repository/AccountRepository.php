@@ -37,7 +37,7 @@ class AccountRepository extends BaseRepository implements AccountRepositoryInter
     /**
      * {@inheritdoc}
      */
-    public function findById(string $accountId): ?AccountData
+    public function findAccountById(string $accountId): ?AccountData
     {
         /** @var Account|null $account */
         $account = Account::query()->find($accountId);
@@ -48,7 +48,7 @@ class AccountRepository extends BaseRepository implements AccountRepositoryInter
     /**
      * {@inheritdoc}
      */
-    public function findByIdOrFail(string $accountId): AccountData
+    public function findAccountByIdOrFail(string $accountId): AccountData
     {
         try {
             /** @var Account $account */

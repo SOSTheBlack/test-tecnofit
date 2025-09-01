@@ -101,12 +101,12 @@ class AccountWithdrawPixRepository extends BaseRepository implements AccountWith
     }
 
     /**
-     * Encontra dados PIX pelo ID
+     * Encontra dados PIX pelo ID retornando DTO
      * 
      * @param string $id
      * @return AccountWithdrawPixData|null
      */
-    public function findById(string $id): ?AccountWithdrawPixData
+    public function findPixById(string $id): ?AccountWithdrawPixData
     {
         /** @var AccountWithdrawPix|null $pixData */
         $pixData = AccountWithdrawPix::query()->find($id);
@@ -115,15 +115,15 @@ class AccountWithdrawPixRepository extends BaseRepository implements AccountWith
     }
 
     /**
-     * Encontra dados PIX pelo ID ou lança exceção
+     * Encontra dados PIX pelo ID ou lança exceção retornando DTO
      * 
      * @param string $id
      * @return AccountWithdrawPixData
      * @throws RepositoryNotFoundException
      */
-    public function findByIdOrFail(string $id): AccountWithdrawPixData
+    public function findPixByIdOrFail(string $id): AccountWithdrawPixData
     {
-        $pixData = $this->findById($id);
+        $pixData = $this->findPixById($id);
         
         if (!$pixData) {
             throw new RepositoryNotFoundException("Dados PIX com ID '{$id}' não encontrados.");
@@ -175,7 +175,7 @@ class AccountWithdrawPixRepository extends BaseRepository implements AccountWith
      * @param int $perPage
      * @return array
      */
-    public function paginate(int $page = 1, int $perPage = 15): array
+    public function paginatePixData(int $page = 1, int $perPage = 15): array
     {
         $offset = ($page - 1) * $perPage;
 

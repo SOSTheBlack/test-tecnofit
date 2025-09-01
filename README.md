@@ -516,36 +516,6 @@ curl -X POST http://localhost/account/123e4567-e89b-12d3-a456-426614174000/balan
   --verbose
 ```
 
-### 📱 Saque com Telefone
-
-```bash
-curl -X POST http://localhost/account/223e4567-e89b-12d3-a456-426614174001/balance/withdraw \
-  -H "Content-Type: application/json" \
-  -d '{
-    "method": "PIX",
-    "pix": {
-      "type": "phone", 
-      "key": "11999999999"
-    },
-    "amount": 100.00
-  }'
-```
-
-### 🆔 Saque com CPF
-
-```bash
-curl -X POST http://localhost/account/123e4567-e89b-12d3-a456-426614174000/balance/withdraw \
-  -H "Content-Type: application/json" \
-  -d '{
-    "method": "PIX",
-    "pix": {
-      "type": "CPF",
-      "key": "11144477735"
-    },
-    "amount": 75.50
-  }'
-```
-
 ### 📅 Saque Agendado
 
 ```bash

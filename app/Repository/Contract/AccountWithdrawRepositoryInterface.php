@@ -16,21 +16,21 @@ use App\DataTransfer\Account\Balance\AccountWithdrawPixData;
 interface AccountWithdrawRepositoryInterface extends BaseRepositoryInterface
 {
     /**
-     * Encontra um saque pelo ID
+     * Encontra um saque pelo ID retornando DTO
      * 
      * @param string $id ID do saque
      * @return AccountWithdrawData|null DTO do saque ou null se não encontrado
      */
-    public function findById(string $id): ?AccountWithdrawData;
+    public function findWithdrawById(string $id): ?AccountWithdrawData;
 
     /**
-     * Encontra um saque pelo ID ou lança exceção
+     * Encontra um saque pelo ID ou lança exceção retornando DTO
      * 
      * @param string $id ID do saque
      * @return AccountWithdrawData DTO do saque
      * @throws \App\Repository\Exceptions\RepositoryNotFoundException Quando saque não encontrado
      */
-    public function findByIdOrFail(string $id): AccountWithdrawData;
+    public function findWithdrawByIdOrFail(string $id): AccountWithdrawData;
 
     /**
      * Encontra um saque pelo transaction_id
@@ -47,7 +47,7 @@ interface AccountWithdrawRepositoryInterface extends BaseRepositoryInterface
      * @return AccountWithdrawData DTO do saque criado
      * @throws \RuntimeException Quando falha ao criar
      */
-    public function create(array $data): AccountWithdrawData;
+    public function createWithdraw(array $data): AccountWithdrawData;
 
     /**
      * Cria dados PIX para um saque
@@ -68,7 +68,7 @@ interface AccountWithdrawRepositoryInterface extends BaseRepositoryInterface
      * @return bool Verdadeiro se a atualização foi bem-sucedida
      * @throws \App\Repository\Exceptions\RepositoryNotFoundException Quando saque não encontrado
      */
-    public function update(string $id, array $data): bool;
+    public function updateWithdraw(string $id, array $data): bool;
 
     /**
      * Marca um saque como processando

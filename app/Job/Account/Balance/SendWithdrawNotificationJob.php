@@ -60,7 +60,7 @@ class SendWithdrawNotificationJob extends Job
     {
         try {
             // Busca o saque através do repositório (retorna DTO)
-            $withdrawData = $this->withdrawRepository->findById($this->withdrawId);
+            $withdrawData = $this->withdrawRepository->findWithdrawById($this->withdrawId);
 
             if ($withdrawData === null) {
                 $this->logger->error("Saque não encontrado para notificação: {$this->withdrawId}");
@@ -74,7 +74,7 @@ class SendWithdrawNotificationJob extends Job
             }
 
             // Busca dados da conta
-            $accountData = $this->accountRepository->findById($withdrawData->accountId);
+            $accountData = $this->accountRepository->findAccountById($withdrawData->accountId);
             if ($accountData === null) {
                 $this->logger->error("Conta não encontrada para notificação: {$withdrawData->accountId}");
                 return;

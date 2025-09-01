@@ -119,14 +119,14 @@ class WithdrawService
         $status = $scheduled ? WithdrawStatusEnum::PENDING->value : WithdrawStatusEnum::NEW->value;
 
         if (!is_null($withdrawRequestData->id)) {
-            $withdraw = $this->accountWithdrawRepository->findById($withdrawRequestData->id);
+            $withdraw = $this->accountWithdrawRepository->findWithdrawById($withdrawRequestData->id);
             if ($withdraw === null) {
                 throw new \InvalidArgumentException('Withdraw not found');
             }
-            return AccountWithdrawData::fromModel($withdraw);
+            return $withdraw;
         }
 
-        $accountWithdrawData = AccountWithdrawData::fromModel($this->accountWithdrawRepository->create([
+        $accountWithdrawData = $this->accountWithdrawRepository->createWithdraw([
             'account_id' => $accountData->id,
             'transaction_id' => $transactionId,
             'method' => $withdrawRequestData->method->value,
@@ -135,7 +135,7 @@ class WithdrawService
             'scheduled_for' => $withdrawRequestData->schedule,
             'status' => $status,
             'meta' => $withdrawRequestData->metadata
-        ]));
+        ]);
 
         // Cria dados PIX se necessário
         if ($this->shouldCreatePixData($withdrawRequestData)) {

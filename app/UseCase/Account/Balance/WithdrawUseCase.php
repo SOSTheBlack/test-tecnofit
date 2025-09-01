@@ -85,7 +85,7 @@ class WithdrawUseCase
     {
         try {
             // 1. Busca e valida existência da conta através do repositório
-            $accountData = $this->accountRepository->findById($withdrawRequestData->accountId);
+            $accountData = $this->accountRepository->findAccountById($withdrawRequestData->accountId);
             if (!$accountData) {
                 return WithdrawResultData::processingError('Conta não encontrada para o ID fornecido.');
             }
