@@ -17,4 +17,7 @@ require BASE_PATH . '/vendor/autoload.php';
 putenv('APP_ENV=testing');
 putenv('DB_DATABASE=tecnofit_pix_test');
 
-Hyperf\Di\ClassLoader::init();
+// Try to initialize Hyperf ClassLoader if available
+if (class_exists('Hyperf\Di\ClassLoader')) {
+    Hyperf\Di\ClassLoader::init();
+}
