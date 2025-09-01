@@ -72,9 +72,7 @@ class ScheduleRule implements Rule
      */
     private function isValidFutureDate(Carbon $scheduleDate): bool
     {
-        $now = timezone()->now();
-        
-        if ($scheduleDate->lte($now)) {
+        if (timezone()->isInPast($scheduleDate)) {
             $this->errorMessage = self::PAST_DATE_MESSAGE;
             return false;
         }

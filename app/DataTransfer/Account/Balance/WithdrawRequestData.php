@@ -76,7 +76,7 @@ readonly class WithdrawRequestData
         }
         
         // Garantir que usamos o timezone correto
-        return $this->schedule->isAfter(timezone()->now());
+        return timezone()->isInFuture($this->schedule);
     }
 
     public function isImmediate(): bool
@@ -130,8 +130,7 @@ readonly class WithdrawRequestData
 
         // Validação de agendamento
         if ($this->schedule !== null && is_null($this->id)) {
-            $now = timezone()->now();
-            if ($this->schedule->isBefore($now)) {
+            if (timezone()->isInPast($this->schedule)) {
                 $errors[] = 'A data de agendamento deve ser futura.';
             }
         }
