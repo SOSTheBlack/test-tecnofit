@@ -92,18 +92,6 @@ class AccountWithdraw extends Model
         return $this->hasOne(AccountWithdrawPix::class, 'account_withdraw_id', 'id');
     }
 
-    /**
-     * Gera um novo transaction_id único
-     */
-    public static function generateTransactionId(): string
-    {
-        do {
-            $transactionId = 'TXN_' . strtoupper(uniqid()) . '_' . time();
-        } while (self::query()->where('transaction_id', $transactionId)->exists());
-
-        return $transactionId;
-    }
-
         /**
      * Scope para filtrar por status
      */
