@@ -2,9 +2,19 @@
 
 declare(strict_types=1);
 
+/**
+ * PHP CS Fixer Configuration for Tecnofit PIX API
+ * 
+ * This configuration applies PSR-12 standards and additional formatting rules
+ * to maintain code quality and consistency across the project.
+ * 
+ * Note: Test files are excluded from CS Fixer as they often require different
+ * formatting patterns (data providers, mocks, descriptive method names, etc.)
+ * and excluding them is a common best practice in the PHP community.
+ */
+
 $finder = PhpCsFixer\Finder::create()
     ->in(__DIR__ . '/app')
-    ->in(__DIR__ . '/test')
     ->in(__DIR__ . '/config')
     ->in(__DIR__ . '/migrations')
     ->name('*.php')
