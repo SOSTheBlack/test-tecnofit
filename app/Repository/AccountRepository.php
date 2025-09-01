@@ -9,13 +9,23 @@ use App\Repository\Contract\AccountRepositoryInterface;
 use App\Repository\Exceptions\RepositoryNotFoundException;
 use Hyperf\Database\Model\ModelNotFoundException;
 
-class AccountRepository implements AccountRepositoryInterface
+class AccountRepository extends BaseRepository implements AccountRepositoryInterface
 {
     public function __construct(private Account $account = new Account())
     {
-
     }
 
+    /**
+     * Retorna o modelo que este repositório gerencia
+     */
+    protected function getModel(): Account
+    {
+        return $this->account;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function findById(string $accountId): ?Account
     {
         try {
@@ -25,6 +35,9 @@ class AccountRepository implements AccountRepositoryInterface
         }
     }
 
+    /**
+     * Debita um valor da conta
+     */
     public function debitAmount(string $accountId, float $amount): bool
     {
         $account = $this->findById($accountId);

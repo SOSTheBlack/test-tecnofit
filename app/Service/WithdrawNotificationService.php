@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Service;
 
 use App\DataTransfer\Account\Balance\WithdrawRequestData;
-use App\Job\SendWithdrawNotificationJob;
+use App\Job\Account\Balance\SendWithdrawNotificationJob;
 use Hyperf\AsyncQueue\Driver\DriverFactory;
 use Hyperf\Context\ApplicationContext;
 use Psr\Log\LoggerInterface;

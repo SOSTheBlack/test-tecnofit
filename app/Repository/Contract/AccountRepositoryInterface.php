@@ -4,19 +4,25 @@ declare(strict_types=1);
 
 namespace App\Repository\Contract;
 
-use App\DataTransfer\Account\AccountData;
 use App\Model\Account;
 
-interface AccountRepositoryInterface
+interface AccountRepositoryInterface extends BaseRepositoryInterface
 {
     /**
+     * Encontra uma conta pelo ID
+     * 
      * @param string $accountId
-     * 
      * @return Account|null
-     * 
      * @throws RepositoryNotFoundException
      */
     public function findById(string $accountId): ?Account;
 
+    /**
+     * Debita um valor da conta
+     * 
+     * @param string $accountId
+     * @param float $amount
+     * @return bool
+     */
     public function debitAmount(string $accountId, float $amount): bool;
 }

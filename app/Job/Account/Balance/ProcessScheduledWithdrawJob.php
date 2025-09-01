@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Job;
+namespace App\Job\Account\Balance;
 
 use App\DataTransfer\Account\Balance\WithdrawRequestData;
 use App\Repository\AccountWithdrawRepository;
@@ -40,7 +40,7 @@ class ProcessScheduledWithdrawJob extends Job
     {
         try {
             // Busca o saque agendado
-            $withdraw = $this->accountWithdrawRepository->findById($this->withdrawId);
+            $withdraw = $this->accountWithdrawRepository?->findById($this->withdrawId);
             if (!$withdraw) {
                 throw new \RuntimeException("Saque agendado não encontrado: {$this->withdrawId}");
             }
@@ -54,7 +54,7 @@ class ProcessScheduledWithdrawJob extends Job
                 $errorMessage = $result->message ?? 'Erro desconhecido no processamento';
                 
                 // Marca o saque original como falha
-                $this->accountWithdrawRepository->markAsFailed(
+                $this->accountWithdrawRepository?->markAsFailed(
                     $this->withdrawId,
                     "Falha na execução agendada: {$errorMessage}"
                 );
@@ -69,7 +69,7 @@ class ProcessScheduledWithdrawJob extends Job
             
             // Marca como falha se não conseguir processar
             try {
-                $withdrawRepository = $withdrawRepository ?? new AccountWithdrawRepository();
+                $withdrawRepository = $this->accountWithdrawRepository ?? new AccountWithdrawRepository();
                 $withdrawRepository->markAsFailed(
                     $this->withdrawId,
                     "Erro no job assíncrono: {$exception->getMessage()}"

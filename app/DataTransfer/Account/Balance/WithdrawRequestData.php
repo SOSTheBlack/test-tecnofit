@@ -75,7 +75,6 @@ readonly class WithdrawRequestData
             return false;
         }
         
-        // Garantir que usamos o timezone correto
         return $this->schedule->isAfter(timezone()->now());
     }
 
@@ -144,7 +143,6 @@ readonly class WithdrawRequestData
         return empty($this->validate());
     }
 
-    // Métodos de conveniência para acessar dados PIX
     public function getPixType(): ?string
     {
         return $this->pix?->type->value;
@@ -153,10 +151,5 @@ readonly class WithdrawRequestData
     public function getPixKey(): ?string
     {
         return $this->pix?->key;
-    }
-
-    public function getMaskedPixKey(): ?string
-    {
-        return $this->pix?->getMaskedKey();
     }
 }

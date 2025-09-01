@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Service;
 
-use App\Job\ProcessScheduledWithdrawJob;
+use App\Job\Account\Balance\ProcessScheduledWithdrawJob;
 use Carbon\Carbon;
 use Hyperf\AsyncQueue\Driver\DriverFactory;
 use Hyperf\Context\ApplicationContext;

@@ -3,9 +3,6 @@
 declare(strict_types=1);
 
 use Hyperf\Database\Migrations\Migration;
-use Hyperf\Database\Schema\Blueprint;
-use Hyperf\Database\Schema\Schema;
-use Hyperf\Database\Seeders\Seeder;
 use Hyperf\DbConnection\Db;
 
 class SeedAccountsTable extends Migration

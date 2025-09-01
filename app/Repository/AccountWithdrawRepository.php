@@ -10,25 +10,47 @@ use App\Repository\Contract\AccountWithdrawRepositoryInterface;
 use App\Repository\Exceptions\RepositoryNotFoundException;
 use Carbon\Carbon;
 use Hyperf\DbConnection\Db;
+use Hyperf\Stringable\Str;
 use Throwable;
 
-class AccountWithdrawRepository implements AccountWithdrawRepositoryInterface
+class AccountWithdrawRepository extends BaseRepository implements AccountWithdrawRepositoryInterface
 {
+    public function __construct(private AccountWithdraw $accountWithdraw = new AccountWithdraw())
+    {
+    }
+
+    /**
+     * Retorna o modelo que este repositório gerencia
+     */
+    protected function getModel(): AccountWithdraw
+    {
+        return $this->accountWithdraw;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function findById(string $id): ?AccountWithdraw
     {
         return AccountWithdraw::find($id);
     }
 
+    /**
+     * Encontra um saque pelo transaction_id
+     */
     public function findByTransactionId(string $transactionId): ?AccountWithdraw
     {
         return AccountWithdraw::where('transaction_id', $transactionId)->first();
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function create(array $data): AccountWithdraw
     {
         // Gera UUID se não fornecido
         if (!isset($data['id'])) {
-            $data['id'] = (string) \Hyperf\Stringable\Str::uuid();
+            $data['id'] = (string) Str::uuid();
         }
 
         // Gera transaction_id se não fornecido
@@ -46,7 +68,7 @@ class AccountWithdrawRepository implements AccountWithdrawRepositoryInterface
         ], $data);
 
         try {
-            return Db::transaction(function () use ($data) {
+            return $this->transaction(function () use ($data) {
                 return AccountWithdraw::create($data);
             });
         } catch (Throwable $e) {
@@ -58,16 +80,22 @@ class AccountWithdrawRepository implements AccountWithdrawRepositoryInterface
         }
     }
 
+    /**
+     * Cria dados PIX para um saque
+     */
     public function createPixData(string $withdrawId, string $key, string $type): AccountWithdrawPix
     {
         return AccountWithdrawPix::create([
-            'id' => (string) \Hyperf\Stringable\Str::uuid(),
+            'id' => (string) Str::uuid(),
             'account_withdraw_id' => $withdrawId,
             'key' => $key,
             'type' => $type,
         ]);
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function update(string $id, array $data): bool
     {
         $withdraw = $this->findById($id);

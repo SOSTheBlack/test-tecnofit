@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\DataTransfer\Account\Balance;
 
-readonly class AccountSummaryData
+readonly class BalanceSummaryData
 {
     public function __construct(
         public string $id,

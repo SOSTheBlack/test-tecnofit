@@ -7,10 +7,6 @@ namespace App\Enum;
 enum WithdrawMethodEnum: string
 {
     case PIX = 'PIX';
-    // Preparado para expansão futura
-    // case BANK_TRANSFER = 'BANK_TRANSFER';
-    // case TED = 'TED';
-    // case DOC = 'DOC';
 
     public function getLabel(): string
     {

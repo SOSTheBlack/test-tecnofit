@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Job;
+namespace App\Job\Account\Balance;
 
 use App\Model\AccountWithdraw;
 use App\Service\EmailService;
@@ -28,8 +28,7 @@ class SendWithdrawNotificationJob extends Job
     {
         try {
             $withdraw = AccountWithdraw::with(['pixData', 'account'])
-                ->where('id', $this->withdrawId)
-                ->first();
+                ->find($this->withdrawId);
 
             if (!$withdraw) {
                 $this->logger->error("Saque não encontrado para notificação: {$this->withdrawId}");

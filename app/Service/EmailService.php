@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Service;
 
 use App\Model\AccountWithdraw;
-use Hyperf\Config\Annotation\Value;
 use Hyperf\Logger\LoggerFactory;
 use Psr\Log\LoggerInterface;
 use Swift_Mailer;
