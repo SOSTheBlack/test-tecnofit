@@ -5,10 +5,8 @@ declare(strict_types=1);
 namespace App\DataTransfer\Account\Balance;
 
 use App\Enum\WithdrawMethodEnum;
-use App\Helper\TimezoneHelper;
 use App\Model\AccountWithdraw;
 use Carbon\Carbon;
-use Hyperf\Context\ApplicationContext;
 
 readonly class WithdrawRequestData
 {
@@ -26,10 +24,9 @@ readonly class WithdrawRequestData
     {
         $schedule = null;
         if (isset($data['schedule']) && $data['schedule'] !== null) {
-            $timezoneHelper = ApplicationContext::getContainer()->get(TimezoneHelper::class);
             $schedule = $data['schedule'] instanceof Carbon 
                 ? $data['schedule'] 
-                : $timezoneHelper->parse($data['schedule']);
+                : timezone()->parse($data['schedule']);
         }
 
         $pix = null;
@@ -79,8 +76,7 @@ readonly class WithdrawRequestData
         }
         
         // Garantir que usamos o timezone correto
-        $timezoneHelper = ApplicationContext::getContainer()->get(TimezoneHelper::class);
-        return $this->schedule->isAfter($timezoneHelper->now());
+        return $this->schedule->isAfter(timezone()->now());
     }
 
     public function isImmediate(): bool
@@ -134,7 +130,7 @@ readonly class WithdrawRequestData
 
         // Validação de agendamento
         if ($this->schedule !== null && is_null($this->id)) {
-            $now = Carbon::now('America/Sao_Paulo');
+            $now = timezone()->now();
             if ($this->schedule->isBefore($now)) {
                 $errors[] = 'A data de agendamento deve ser futura.';
             }

@@ -60,7 +60,7 @@ class ScheduleRule implements Rule
     private function parseDate($value): ?Carbon
     {
         try {
-            return Carbon::createFromFormat(self::DATE_FORMAT, $value);
+            return timezone()->createFromFormat(self::DATE_FORMAT, $value);
         } catch (Throwable $e) {
             $this->errorMessage = sprintf(self::INVALID_FORMAT_MESSAGE, self::DATE_FORMAT);
             return null;
@@ -72,7 +72,7 @@ class ScheduleRule implements Rule
      */
     private function isValidFutureDate(Carbon $scheduleDate): bool
     {
-        $now = Carbon::now();
+        $now = timezone()->now();
         
         if ($scheduleDate->lte($now)) {
             $this->errorMessage = self::PAST_DATE_MESSAGE;
@@ -87,7 +87,7 @@ class ScheduleRule implements Rule
      */
     private function isWithinMaxFuture(Carbon $scheduleDate): bool
     {
-        $now = Carbon::now();
+        $now = timezone()->now();
         $maxFuture = $now->copy()->addDays(self::MAX_FUTURE_DAYS);
 
         if ($scheduleDate->isAfter($maxFuture)) {
