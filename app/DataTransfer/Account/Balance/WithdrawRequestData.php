@@ -17,8 +17,9 @@ readonly class WithdrawRequestData
         public ?PixData $pix = null,
         public ?Carbon $schedule = null,
         public ?array $metadata = null,
-        public ?string $id = null // existe quando é processado pelo cron
-    ) {}
+        public ?string $id = null, // existe quando é processado pelo cron
+    ) {
+    }
 
     public static function fromArray(array $data): self
     {
@@ -65,13 +66,13 @@ readonly class WithdrawRequestData
             amount: (float) $withdraw->amount,
             pix: $withdraw->pixData ? PixData::fromModel($withdraw->pixData) : null,
             schedule: $withdraw->scheduled_for,
-            metadata: $withdraw->meta ?? []
+            metadata: $withdraw->meta ?? [],
         );
     }
 
     /**
      * Cria instância a partir de AccountWithdrawData DTO
-     * 
+     *
      * @param AccountWithdrawData $withdrawData DTO do saque
      * @param PixData|null $pixData Dados PIX (opcional)
      * @return self
@@ -85,7 +86,7 @@ readonly class WithdrawRequestData
             amount: $withdrawData->amount,
             pix: $pixData,
             schedule: $withdrawData->scheduledFor,
-            metadata: $withdrawData->meta ?? []
+            metadata: $withdrawData->meta ?? [],
         );
     }
 
@@ -100,7 +101,7 @@ readonly class WithdrawRequestData
 
     public function isImmediate(): bool
     {
-        return !$this->isScheduled();
+        return ! $this->isScheduled();
     }
 
     public function isPixMethod(): bool
@@ -136,7 +137,7 @@ readonly class WithdrawRequestData
 
         // Validação específica para PIX
         if ($this->isPixMethod()) {
-            if (!$this->hasPixData()) {
+            if (! $this->hasPixData()) {
                 $errors[] = 'Para saques PIX é necessário informar os dados PIX.';
             } else {
                 // Valida os dados PIX se estiverem presentes

@@ -8,14 +8,14 @@ use App\DataTransfer\Account\Balance\AccountWithdrawPixData;
 
 /**
  * Interface para repositório de dados PIX de saques
- * 
+ *
  * Gerencia as operações de dados PIX específicos vinculados aos saques
  */
 interface AccountWithdrawPixRepositoryInterface extends BaseRepositoryInterface
 {
     /**
      * Encontra dados PIX pelo ID do saque
-     * 
+     *
      * @param string $withdrawId ID do saque
      * @return AccountWithdrawPixData|null
      */
@@ -23,7 +23,7 @@ interface AccountWithdrawPixRepositoryInterface extends BaseRepositoryInterface
 
     /**
      * Cria dados PIX para um saque
-     * 
+     *
      * @param string $withdrawId ID do saque
      * @param string $key Chave PIX
      * @param string $type Tipo da chave PIX

@@ -16,7 +16,7 @@ use Throwable;
 
 /**
  * Job assíncrono para processamento de saques agendados
- * 
+ *
  * Responsável por executar saques que foram agendados para uma data/hora específica.
  * Segue o padrão de não utilizar models diretamente, apenas DTOs e repositórios.
  */
@@ -33,13 +33,14 @@ class ProcessScheduledWithdrawJob extends Job
     public int $maxAttempts = 3;
 
     public function __construct(
-        string $withdrawId, 
+        string $withdrawId,
         private ?AccountWithdrawRepositoryInterface $accountWithdrawRepository = null,
-        private ?AccountWithdrawPixRepositoryInterface $accountWithdrawPixRepository = null
+        private ?AccountWithdrawPixRepositoryInterface $accountWithdrawPixRepository = null,
     ) {
         $this->withdrawId = $withdrawId;
 
         $container = ApplicationContext::getContainer();
+
         try {
             $this->accountWithdrawRepository = $container->get(AccountWithdrawRepositoryInterface::class);
             $this->accountWithdrawPixRepository = $container->get(AccountWithdrawPixRepositoryInterface::class);
@@ -51,7 +52,7 @@ class ProcessScheduledWithdrawJob extends Job
 
     /**
      * Executa o processamento do saque agendado
-     * 
+     *
      * @throws \RuntimeException Quando o processamento falha
      */
     public function handle(): void
@@ -59,7 +60,7 @@ class ProcessScheduledWithdrawJob extends Job
         try {
             // Busca o saque agendado através do repositório (retorna DTO)
             $withdrawData = $this->accountWithdrawRepository?->findWithdrawById($this->withdrawId);
-            if (!$withdrawData) {
+            if (! $withdrawData) {
                 throw new \RuntimeException("Saque agendado não encontrado: {$this->withdrawId}");
             }
 
@@ -78,13 +79,13 @@ class ProcessScheduledWithdrawJob extends Job
             $result = $useCase->execute($withdrawRequestData);
 
             // Interpreta o resultado e age conforme necessário
-            if (!$result->success) {
+            if (! $result->success) {
                 $errorMessage = $result->message ?? 'Erro desconhecido no processamento';
-                
+
                 // Marca o saque original como falha
                 $this->accountWithdrawRepository?->markAsFailed(
                     $this->withdrawId,
-                    "Falha na execução agendada: {$errorMessage}"
+                    "Falha na execução agendada: {$errorMessage}",
                 );
 
                 throw new \RuntimeException("Falha ao processar saque agendado: {$errorMessage} - " . json_encode($result));
@@ -94,13 +95,13 @@ class ProcessScheduledWithdrawJob extends Job
 
         } catch (Throwable $exception) {
             echo "Erro ao processar saque agendado {$this->withdrawId}: {$exception->getMessage()}\n";
-            
+
             // Marca como falha se não conseguir processar
             try {
                 $withdrawRepository = $this->accountWithdrawRepository ?? new AccountWithdrawRepository();
                 $withdrawRepository->markAsFailed(
                     $this->withdrawId,
-                    "Erro no job assíncrono: {$exception->getMessage()}"
+                    "Erro no job assíncrono: {$exception->getMessage()}",
                 );
             } catch (Throwable $markFailError) {
                 echo "Erro ao marcar saque como falha: {$markFailError->getMessage()}\n";
@@ -112,18 +113,18 @@ class ProcessScheduledWithdrawJob extends Job
 
     /**
      * Método chamado quando o job falha após todas as tentativas
-     * 
+     *
      * @param Throwable $exception Exceção que causou a falha
      */
     public function failed(Throwable $exception): void
     {
         echo "Job falhou após {$this->maxAttempts} tentativas: {$exception->getMessage()}\n";
-        
+
         try {
             $withdrawRepository = new AccountWithdrawRepository();
             $withdrawRepository->markAsFailed(
                 $this->withdrawId,
-                "Job falhou após {$this->maxAttempts} tentativas: {$exception->getMessage()}"
+                "Job falhou após {$this->maxAttempts} tentativas: {$exception->getMessage()}",
             );
         } catch (Throwable $e) {
             echo "Erro ao marcar saque como falha no método failed(): {$e->getMessage()}\n";

@@ -32,9 +32,7 @@ return (new PhpCsFixer\Config())
         'no_unused_imports' => true,
         'not_operator_with_successor_space' => true,
         'trailing_comma_in_multiline' => [
-            'arrays' => true,
-            'arguments' => true,
-            'parameters' => true,
+            'elements' => ['arrays', 'arguments', 'parameters'],
         ],
         'phpdoc_scalar' => true,
         'unary_operator_spaces' => true,

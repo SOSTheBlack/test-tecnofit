@@ -26,8 +26,8 @@ class CreateAccountWithdrawTable extends Migration
             $table->boolean('done')->default(false);
             $table->boolean('error')->default(false);
             $table->string('error_reason')->nullable();
-            $table->json('meta')->nullable();            
-        
+            $table->json('meta')->nullable();
+
             $table->dateTime('scheduled_for')->nullable();
             $table->timestamps();
             $table->softDeletes();

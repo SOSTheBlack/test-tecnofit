@@ -18,7 +18,7 @@ use Psr\Log\LoggerInterface;
 
 /**
  * Job assíncrono para envio de notificações de saque
- * 
+ *
  * Responsável por enviar notificações por email quando um saque é processado com sucesso.
  * Segue o padrão de não utilizar models diretamente, apenas DTOs e repositórios.
  */
@@ -33,7 +33,7 @@ class SendWithdrawNotificationJob extends Job
     public function __construct(string $withdrawId)
     {
         $this->withdrawId = $withdrawId;
-        
+
         $container = ApplicationContext::getContainer();
         $this->logger = $container
             ->get(LoggerFactory::class)
@@ -53,7 +53,7 @@ class SendWithdrawNotificationJob extends Job
 
     /**
      * Executa o envio da notificação
-     * 
+     *
      * @throws \Throwable Quando o envio falha
      */
     public function handle(): void
@@ -64,12 +64,14 @@ class SendWithdrawNotificationJob extends Job
 
             if ($withdrawData === null) {
                 $this->logger->error("Saque não encontrado para notificação: {$this->withdrawId}");
+
                 return;
             }
 
             // Só envia email se o saque foi processado com sucesso
-            if (!$withdrawData->isCompleted()) {
+            if (! $withdrawData->isCompleted()) {
                 $this->logger->warning("Tentativa de envio de email para saque não processado: {$this->withdrawId}");
+
                 return;
             }
 
@@ -77,22 +79,23 @@ class SendWithdrawNotificationJob extends Job
             $accountData = $this->accountRepository->findAccountById($withdrawData->accountId);
             if ($accountData === null) {
                 $this->logger->error("Conta não encontrada para notificação: {$withdrawData->accountId}");
+
                 return;
             }
 
             $emailService = ApplicationContext::getContainer()->get(EmailService::class);
-            
+
             // Verifica se é um saque PIX e busca os dados PIX
             if ($withdrawData->isPixMethod()) {
                 $pixData = $this->pixRepository->findByWithdrawId($this->withdrawId);
-                
+
                 if ($pixData !== null && $pixData->type->value === 'email') {
                     // Envia email para a chave PIX (se for email)
                     $emailService->sendWithdrawConfirmationFromDTOs($withdrawData, $accountData, $pixData);
                 } else {
                     $this->logger->info("Email não enviado - chave PIX não é email ou dados PIX não encontrados", [
                         'withdraw_id' => $this->withdrawId,
-                        'pix_type' => $pixData?->type->value ?? null
+                        'pix_type' => $pixData?->type->value ?? null,
                     ]);
                 }
             } else {
@@ -103,9 +106,9 @@ class SendWithdrawNotificationJob extends Job
         } catch (\Throwable $e) {
             $this->logger->error("Erro ao enviar notificação de saque {$this->withdrawId}: {$e->getMessage()}", [
                 'exception' => $e,
-                'withdraw_id' => $this->withdrawId
+                'withdraw_id' => $this->withdrawId,
             ]);
-            
+
             // Re-lança a exceção para que o job seja reprocessado
             throw $e;
         }
@@ -113,7 +116,7 @@ class SendWithdrawNotificationJob extends Job
 
     /**
      * Obtém o número máximo de tentativas
-     * 
+     *
      * @return int Máximo de tentativas
      */
     public function getMaxAttempts(): int
@@ -123,7 +126,7 @@ class SendWithdrawNotificationJob extends Job
 
     /**
      * Obtém os intervalos de retry em segundos
-     * 
+     *
      * @return array Intervalos de retry
      */
     public function getRetrySeconds(): array

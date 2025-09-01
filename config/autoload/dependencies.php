@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-use App\Repository\Contract\AccountRepositoryInterface;
-use App\Repository\Contract\AccountWithdrawRepositoryInterface;
 use App\Repository\AccountRepository;
 use App\Repository\AccountWithdrawRepository;
+use App\Repository\Contract\AccountRepositoryInterface;
+use App\Repository\Contract\AccountWithdrawRepositoryInterface;
 use App\Service\ScheduledWithdrawService;
 
 return [
@@ -17,11 +17,11 @@ return [
             'mixin',
         ],
     ],
-    
+
     // Repository bindings
     AccountRepositoryInterface::class => AccountRepository::class,
     AccountWithdrawRepositoryInterface::class => AccountWithdrawRepository::class,
-    
+
     // Service bindings
     ScheduledWithdrawService::class => ScheduledWithdrawService::class,
 ];

@@ -6,7 +6,7 @@ return [
     'default' => [
         'driver' => Hyperf\AsyncQueue\Driver\RedisDriver::class,
         'redis' => [
-            'pool' => 'default'
+            'pool' => 'default',
         ],
         'channel' => 'queue',
         'timeout' => 2,

@@ -6,7 +6,7 @@ namespace App\Enum;
 
 /**
  * Enum para status de saques
- * 
+ *
  * Define os possíveis status que um saque pode ter durante seu ciclo de vida,
  * centralizando essas constantes em um local apropriado fora do modelo
  */
@@ -22,7 +22,7 @@ enum WithdrawStatusEnum: string
 
     /**
      * Obtém rótulo legível do status
-     * 
+     *
      * @return string Rótulo em português
      */
     public function getLabel(): string
@@ -40,7 +40,7 @@ enum WithdrawStatusEnum: string
 
     /**
      * Verifica se o status indica que o saque está em andamento
-     * 
+     *
      * @return bool Verdadeiro se está em processamento
      */
     public function isInProgress(): bool
@@ -50,7 +50,7 @@ enum WithdrawStatusEnum: string
 
     /**
      * Verifica se o status indica que o saque foi finalizado
-     * 
+     *
      * @return bool Verdadeiro se foi finalizado (sucesso ou falha)
      */
     public function isFinalized(): bool
@@ -60,7 +60,7 @@ enum WithdrawStatusEnum: string
 
     /**
      * Verifica se o status indica sucesso
-     * 
+     *
      * @return bool Verdadeiro se foi bem-sucedido
      */
     public function isSuccessful(): bool
@@ -70,7 +70,7 @@ enum WithdrawStatusEnum: string
 
     /**
      * Verifica se o status indica falha
-     * 
+     *
      * @return bool Verdadeiro se falhou
      */
     public function isFailed(): bool
@@ -80,7 +80,7 @@ enum WithdrawStatusEnum: string
 
     /**
      * Verifica se o saque pode ser cancelado
-     * 
+     *
      * @return bool Verdadeiro se pode ser cancelado
      */
     public function canBeCancelled(): bool
@@ -90,7 +90,7 @@ enum WithdrawStatusEnum: string
 
     /**
      * Verifica se o saque pode ser reprocessado
-     * 
+     *
      * @return bool Verdadeiro se pode ser reprocessado
      */
     public function canBeRetried(): bool
@@ -100,7 +100,7 @@ enum WithdrawStatusEnum: string
 
     /**
      * Obtém próximos status possíveis
-     * 
+     *
      * @return array<WithdrawStatusEnum> Lista de status possíveis
      */
     public function getNextPossibleStatuses(): array
@@ -116,7 +116,7 @@ enum WithdrawStatusEnum: string
 
     /**
      * Lista todos os status ativos (que podem ter ações)
-     * 
+     *
      * @return array<WithdrawStatusEnum>
      */
     public static function getActiveStatuses(): array
@@ -126,7 +126,7 @@ enum WithdrawStatusEnum: string
 
     /**
      * Lista todos os status finalizados
-     * 
+     *
      * @return array<WithdrawStatusEnum>
      */
     public static function getFinalizedStatuses(): array
@@ -136,7 +136,7 @@ enum WithdrawStatusEnum: string
 
     /**
      * Obtém cor para exibição do status
-     * 
+     *
      * @return string Código de cor hexadecimal
      */
     public function getColor(): string
@@ -154,7 +154,7 @@ enum WithdrawStatusEnum: string
 
     /**
      * Obtém ícone para exibição do status
-     * 
+     *
      * @return string Nome do ícone
      */
     public function getIcon(): string

@@ -16,11 +16,13 @@ class PixKeyRule implements Rule
         // Aqui vamos fazer uma validação básica do formato
         if (empty($value)) {
             $this->errorMessage = 'Chave PIX não pode estar vazia.';
+
             return false;
         }
 
         if (strlen($value) > 255) {
             $this->errorMessage = 'Chave PIX não pode ter mais de 255 caracteres.';
+
             return false;
         }
 
@@ -50,6 +52,7 @@ class PixKeyRule implements Rule
         }
 
         $this->errorMessage = 'Formato de chave PIX inválido.';
+
         return false;
     }
 

@@ -26,19 +26,20 @@ class ScheduledWithdrawService
 
             // Cria e agenda o job
             $job = new ProcessScheduledWithdrawJob($withdrawId);
-            
+
             // Agenda o job para execução no momento correto
             $driver->push($job, $delayInSeconds);
 
             $logger = $container->get(\Psr\Log\LoggerInterface::class);
             $logger->info("Job agendado para saque {$withdrawId} em {$scheduledFor->toISOString()} (delay: {$delayInSeconds}s)");
-            
+
             return true;
 
         } catch (\Throwable $e) {
             $container = ApplicationContext::getContainer();
             $logger = $container->get(\Psr\Log\LoggerInterface::class);
             $logger->error("Erro ao agendar job para saque {$withdrawId}: {$e->getMessage()}");
+
             return false;
         }
     }

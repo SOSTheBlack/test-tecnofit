@@ -13,7 +13,7 @@ use Throwable;
 
 /**
  * Repositório para dados PIX de saques
- * 
+ *
  * Gerencia as operações de persistência dos dados PIX específicos vinculados aos saques,
  * seguindo o padrão estabelecido de retornar apenas DTOs
  */
@@ -25,7 +25,7 @@ class AccountWithdrawPixRepository extends BaseRepository implements AccountWith
 
     /**
      * Retorna o modelo que este repositório gerencia
-     * 
+     *
      * @return AccountWithdrawPix
      */
     protected function getModel(): AccountWithdrawPix
@@ -68,14 +68,14 @@ class AccountWithdrawPixRepository extends BaseRepository implements AccountWith
             throw new \RuntimeException(
                 "Erro ao criar dados PIX: {$e->getMessage()}",
                 0,
-                $e
+                $e,
             );
         }
     }
 
     /**
      * Encontra dados PIX pelo ID retornando DTO
-     * 
+     *
      * @param string $id
      * @return AccountWithdrawPixData|null
      */
@@ -89,7 +89,7 @@ class AccountWithdrawPixRepository extends BaseRepository implements AccountWith
 
     /**
      * Encontra dados PIX pelo ID ou lança exceção retornando DTO
-     * 
+     *
      * @param string $id
      * @return AccountWithdrawPixData
      * @throws RepositoryNotFoundException
@@ -97,8 +97,8 @@ class AccountWithdrawPixRepository extends BaseRepository implements AccountWith
     public function findPixByIdOrFail(string $id): AccountWithdrawPixData
     {
         $pixData = $this->findPixById($id);
-        
-        if (!$pixData) {
+
+        if (! $pixData) {
             throw new RepositoryNotFoundException("Dados PIX com ID '{$id}' não encontrados.");
         }
 
@@ -107,7 +107,7 @@ class AccountWithdrawPixRepository extends BaseRepository implements AccountWith
 
     /**
      * Verifica se existem dados PIX para um saque
-     * 
+     *
      * @param string $withdrawId
      * @return bool
      */
@@ -120,7 +120,7 @@ class AccountWithdrawPixRepository extends BaseRepository implements AccountWith
 
     /**
      * Busca dados PIX por chave
-     * 
+     *
      * @param string $key
      * @param string|null $type
      * @return array Lista de AccountWithdrawPixData
@@ -128,7 +128,7 @@ class AccountWithdrawPixRepository extends BaseRepository implements AccountWith
     public function findByKey(string $key, ?string $type = null): array
     {
         $query = AccountWithdrawPix::query()->where('key', $key);
-        
+
         if ($type !== null) {
             $query->where('type', $type);
         }
@@ -138,13 +138,14 @@ class AccountWithdrawPixRepository extends BaseRepository implements AccountWith
 
         return $pixDataCollection->map(static function ($pixData): AccountWithdrawPixData {
             \assert($pixData instanceof AccountWithdrawPix);
+
             return AccountWithdrawPixData::fromModel($pixData);
         })->toArray();
     }
 
     /**
      * Lista todos os dados PIX com paginação
-     * 
+     *
      * @param int $page
      * @param int $perPage
      * @return array
@@ -165,6 +166,7 @@ class AccountWithdrawPixRepository extends BaseRepository implements AccountWith
         return [
             'data' => $pixDataCollection->map(static function ($pixData): AccountWithdrawPixData {
                 \assert($pixData instanceof AccountWithdrawPix);
+
                 return AccountWithdrawPixData::fromModel($pixData);
             })->toArray(),
             'total' => $total,

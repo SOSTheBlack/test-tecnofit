@@ -4,13 +4,11 @@ declare(strict_types=1);
 
 namespace App\Model;
 
-use App\Enum\WithdrawMethodEnum;
 use Carbon\Carbon;
 use Hyperf\Database\Model\Relations\BelongsTo;
 use Hyperf\Database\Model\Relations\HasOne;
 use Hyperf\Database\Model\SoftDeletes;
 use Hyperf\DbConnection\Model\Model;
-use Hyperf\Stringable\Str;
 
 /**
  * @property string $id
@@ -36,7 +34,7 @@ class AccountWithdraw extends Model
     use SoftDeletes;
 
     protected ?string $table = 'account_withdraw';
-    
+
     public bool $incrementing = false;
     protected string $keyType = 'string';
 

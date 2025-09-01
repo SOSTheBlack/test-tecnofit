@@ -12,7 +12,8 @@ readonly class PixData
     public function __construct(
         public PixKeyTypeEnum $type,
         public string $key,
-    ) {}
+    ) {
+    }
 
     public static function fromArray(array $data): self
     {
@@ -45,9 +46,10 @@ readonly class PixData
         // Validações específicas por tipo de chave PIX
         switch ($this->type) {
             case PixKeyTypeEnum::EMAIL:
-                if (!filter_var($this->key, FILTER_VALIDATE_EMAIL)) {
+                if (! filter_var($this->key, FILTER_VALIDATE_EMAIL)) {
                     $errors[] = 'Email PIX inválido.';
                 }
+
                 break;
         }
 

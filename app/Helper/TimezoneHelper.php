@@ -14,10 +14,10 @@ class TimezoneHelper
     {
         // Obtém timezone da configuração ou usa padrão
         $this->appTimezone = env('APP_TIMEZONE', 'America/Sao_Paulo');
-        
+
         // Configura o timezone padrão do Carbon
         Carbon::setTestNow(); // Reset test time
-        
+
         // Configura o timezone do PHP
         date_default_timezone_set($this->appTimezone);
     }
@@ -38,6 +38,7 @@ class TimezoneHelper
         if ($result === false) {
             throw new \InvalidArgumentException("Invalid datetime format: {$datetime}");
         }
+
         return $result;
     }
 

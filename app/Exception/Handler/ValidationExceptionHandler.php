@@ -14,24 +14,24 @@ use Throwable;
 class ValidationExceptionHandler extends ExceptionHandler
 {
     public const VALIDATION_DEFAULT_MESSAGE = 'Dados da requisição inválidos.';
-    
+
     public function handle(Throwable $throwable, ResponseInterface $response): ResponseInterface
     {
         if ($throwable instanceof ValidationException) {
             // Log para debug
             error_log('ValidationException caught: ' . json_encode($throwable->validator->errors()->getMessages()));
-            
+
             $data = [
                 'status' => 'error',
                 'message' => self::VALIDATION_DEFAULT_MESSAGE,
-                'errors' => $throwable->validator->errors()->getMessages()
+                'errors' => $throwable->validator->errors()->getMessages(),
             ];
 
             $jsonContent = json_encode($data);
             if ($jsonContent === false) {
                 $jsonContent = '{"success":false,"message":"JSON encoding error"}';
             }
-            
+
             return $response
                 ->withStatus(Response::HTTP_UNPROCESSABLE_ENTITY)
                 ->withAddedHeader('content-type', 'application/json')

@@ -26,12 +26,13 @@ readonly class WithdrawResultData
         public ?string $transactionId = null,
         public ?Carbon $processedAt = null,
         public ?array $errors = null,
-    ) {}
+    ) {
+    }
 
     public static function success(
-        array $data, 
-        string $transactionId, 
-        string $message = 'Saque processado com sucesso.'
+        array $data,
+        string $transactionId,
+        string $message = 'Saque processado com sucesso.',
     ): self {
         return new self(
             success: true,
@@ -43,9 +44,9 @@ readonly class WithdrawResultData
     }
 
     public static function scheduled(
-        array $data, 
+        array $data,
         string $transactionId,
-        string $message = 'Saque agendado com sucesso.'
+        string $message = 'Saque agendado com sucesso.',
     ): self {
         return new self(
             success: true,

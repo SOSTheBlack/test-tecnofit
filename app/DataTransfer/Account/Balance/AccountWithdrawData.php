@@ -10,34 +10,34 @@ use Carbon\Carbon;
 
 /**
  * DTO (Data Transfer Object) para dados de saque da conta
- * 
+ *
  * Representa um saque de conta bancária com todos os seus atributos e metadados.
  * Esta classe implementa o padrão DTO (Data Transfer Object) e segue os princípios
  * de immutability através do uso da palavra-chave readonly.
- * 
+ *
  * A classe fornece métodos utilitários para verificação de status, formatação
  * de dados para exibição e conversão entre diferentes formatos de representação.
- * 
+ *
  * @package App\DataTransfer\Account\Balance
  * @version 1.0.0
  * @since 1.0.0
- * 
+ *
  * @example
  * ```php
  * $withdrawData = AccountWithdrawData::fromModel($accountWithdrawModel);
- * 
+ *
  * if ($withdrawData->isCompleted()) {
  *     echo "Saque concluído: " . $withdrawData->getFormattedAmount();
  * }
- * 
+ *
  * // Converte para array para API response
  * $apiResponse = $withdrawData->toDetailedResponse();
  * ```
- * 
+ *
  * @see WithdrawRequestData Para dados de requisição de saque
  * @see WithdrawResultData Para resultado de operações de saque
  * @see AccountData Para dados da conta associada
- * 
+ *
  * @author Sistema Tecnofit PIX API
  */
 readonly class AccountWithdrawData
@@ -57,7 +57,8 @@ readonly class AccountWithdrawData
         public Carbon $createdAt,
         public bool $done = false,
         public ?Carbon $updatedAt = null,
-    ) {}
+    ) {
+    }
 
     public static function fromModel(AccountWithdraw $model): self
     {
@@ -83,8 +84,8 @@ readonly class AccountWithdrawData
     {
         $scheduledFor = null;
         if (isset($data['scheduled_for']) && $data['scheduled_for'] !== null) {
-            $scheduledFor = $data['scheduled_for'] instanceof Carbon 
-                ? $data['scheduled_for'] 
+            $scheduledFor = $data['scheduled_for'] instanceof Carbon
+                ? $data['scheduled_for']
                 : timezone()->parse($data['scheduled_for']);
         }
 
@@ -154,7 +155,7 @@ readonly class AccountWithdrawData
 
     public function isReadyForExecution(): bool
     {
-        return $this->isScheduled() 
+        return $this->isScheduled()
             && $this->scheduledFor <= timezone()->now()
             && $this->isPending();
     }
@@ -245,7 +246,7 @@ readonly class AccountWithdrawData
     // Validation methods
     public function canBeProcessed(): bool
     {
-        return $this->isPending() && !$this->error;
+        return $this->isPending() && ! $this->error;
     }
 
     public function canBeCancelled(): bool
@@ -253,12 +254,12 @@ readonly class AccountWithdrawData
         return in_array($this->status, [
             AccountWithdraw::STATUS_PENDING,
             AccountWithdraw::STATUS_SCHEDULED,
-        ]) && !$this->done;
+        ]) && ! $this->done;
     }
 
     public function canBeRetried(): bool
     {
-        return $this->isFailed() && !$this->done;
+        return $this->isFailed() && ! $this->done;
     }
 
     // Time-related methods
@@ -267,6 +268,7 @@ readonly class AccountWithdrawData
         if ($this->updatedAt !== null && $this->createdAt !== null) {
             return $this->createdAt->diffInSeconds($this->updatedAt);
         }
+
         return null;
     }
 
@@ -275,13 +277,13 @@ readonly class AccountWithdrawData
         if ($this->isScheduled() && $this->scheduledFor) {
             return timezone()->now()->isAfter($this->scheduledFor->addHours($hoursToExpire));
         }
-        
+
         return timezone()->now()->isAfter($this->createdAt->addHours($hoursToExpire));
     }
 
     public function getDaysUntilScheduled(): ?int
     {
-        if (!$this->isScheduled()) {
+        if (! $this->isScheduled()) {
             return null;
         }
 

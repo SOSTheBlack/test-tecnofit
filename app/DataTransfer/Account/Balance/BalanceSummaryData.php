@@ -13,7 +13,8 @@ readonly class BalanceSummaryData
         public float $availableBalance,
         public int $pendingWithdrawsCount,
         public float $pendingWithdrawsAmount,
-    ) {}
+    ) {
+    }
 
     public static function fromModel(\App\Model\Account $account): self
     {

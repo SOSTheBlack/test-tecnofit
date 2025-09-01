@@ -57,6 +57,7 @@ class IndexController
         try {
             // Verificação real da conexão com banco
             \Hyperf\DbConnection\Db::select('SELECT 1');
+
             return ['status' => 'ok', 'message' => 'Database connection successful'];
         } catch (\Throwable $e) {
             return ['status' => 'error', 'message' => $e->getMessage()];
@@ -69,6 +70,7 @@ class IndexController
             // Verificação real da conexão com Redis
             $redis = \Hyperf\Context\ApplicationContext::getContainer()->get(\Hyperf\Redis\Redis::class);
             $redis->ping();
+
             return ['status' => 'ok', 'message' => 'Redis connection successful'];
         } catch (\Throwable $e) {
             return ['status' => 'error', 'message' => $e->getMessage()];
