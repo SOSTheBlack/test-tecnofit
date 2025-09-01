@@ -73,7 +73,7 @@ class ScheduleRuleTest extends TestCase
             $this->assertFalse($result, "Date format '{$format}' should be invalid");
             
             $message = $this->rule->message();
-            $this->assertStringContainsString('inválid', $message);
+            $this->assertStringContainsString('inválida', $message);
         }
     }
 
