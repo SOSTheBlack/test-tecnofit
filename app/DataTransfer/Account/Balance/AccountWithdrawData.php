@@ -53,7 +53,7 @@ readonly class AccountWithdrawData
         if (isset($data['scheduled_for']) && $data['scheduled_for'] !== null) {
             $scheduledFor = $data['scheduled_for'] instanceof Carbon 
                 ? $data['scheduled_for'] 
-                : Carbon::parse($data['scheduled_for']);
+                : timezone()->parse($data['scheduled_for']);
         }
 
         return new self(
@@ -69,8 +69,8 @@ readonly class AccountWithdrawData
             errorReason: $data['error_reason'] ?? null,
             meta: $data['meta'] ?? null,
             scheduledFor: $scheduledFor,
-            createdAt: Carbon::parse($data['created_at']),
-            updatedAt: isset($data['updated_at']) ? Carbon::parse($data['updated_at']) : null,
+            createdAt: timezone()->parse($data['created_at']),
+            updatedAt: isset($data['updated_at']) ? timezone()->parse($data['updated_at']) : null,
         );
     }
 
@@ -123,7 +123,7 @@ readonly class AccountWithdrawData
     public function isReadyForExecution(): bool
     {
         return $this->isScheduled() 
-            && $this->scheduledFor <= Carbon::now()
+            && $this->scheduledFor <= timezone()->now()
             && $this->isPending();
     }
 
@@ -241,10 +241,10 @@ readonly class AccountWithdrawData
     public function isExpired(int $hoursToExpire = 24): bool
     {
         if ($this->isScheduled() && $this->scheduledFor) {
-            return Carbon::now()->isAfter($this->scheduledFor->addHours($hoursToExpire));
+            return timezone()->now()->isAfter($this->scheduledFor->addHours($hoursToExpire));
         }
         
-        return Carbon::now()->isAfter($this->createdAt->addHours($hoursToExpire));
+        return timezone()->now()->isAfter($this->createdAt->addHours($hoursToExpire));
     }
 
     public function getDaysUntilScheduled(): ?int
@@ -253,6 +253,6 @@ readonly class AccountWithdrawData
             return null;
         }
 
-        return Carbon::now()->diffInDays($this->scheduledFor, false);
+        return timezone()->now()->diffInDays($this->scheduledFor, false);
     }
 }
