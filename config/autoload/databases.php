@@ -29,4 +29,30 @@ return [
             ],
         ],
     ],
+    'test' => [
+        'driver' => 'mysql',
+        'host' => 'mysql',
+        'port' => 3306,
+        'database' => 'tecnofit_pix_test',
+        'username' => 'root',
+        'password' => 'root',
+        'charset' => 'utf8mb4',
+        'collation' => 'utf8mb4_unicode_ci',
+        'prefix' => '',
+        'pool' => [
+            'min_connections' => 1,
+            'max_connections' => 10,
+            'connect_timeout' => 10.0,
+            'wait_timeout' => 3.0,
+            'heartbeat' => -1,
+            'max_idle_time' => 60.0,
+        ],
+        'commands' => [
+            'gen:model' => [
+                'path' => 'app/Model',
+                'force_casts' => true,
+                'inheritance' => 'Model',
+            ],
+        ],
+    ],
 ];

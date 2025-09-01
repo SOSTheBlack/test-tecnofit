@@ -12,15 +12,24 @@ class PixKeyRule implements Rule
 
     public function passes(string $attribute, mixed $value): bool
     {
+        // Verificar se o valor é uma string
+        if (! is_string($value)) {
+            $this->errorMessage = 'Chave PIX deve ser uma string.';
+
+            return false;
+        }
+
         // Vamos assumir que a validação do tipo já foi feita pela PixTypeRule
         // Aqui vamos fazer uma validação básica do formato
         if (empty($value)) {
             $this->errorMessage = 'Chave PIX não pode estar vazia.';
+
             return false;
         }
 
         if (strlen($value) > 255) {
             $this->errorMessage = 'Chave PIX não pode ter mais de 255 caracteres.';
+
             return false;
         }
 
@@ -40,7 +49,8 @@ class PixKeyRule implements Rule
         }
 
         // Telefone brasileiro
-        if (preg_match('/^(\+55)?(\d{2})(\d{4,5})(\d{4})$/', preg_replace('/\D/', '', $value))) {
+        $cleanPhone = preg_replace('/\D/', '', $value) ?? '';
+        if (preg_match('/^(\+55)?(\d{2})(\d{4,5})(\d{4})$/', $cleanPhone)) {
             return true;
         }
 
@@ -50,6 +60,7 @@ class PixKeyRule implements Rule
         }
 
         $this->errorMessage = 'Formato de chave PIX inválido.';
+
         return false;
     }
 

@@ -17,7 +17,7 @@ enum WithdrawMethodEnum: string
 
     public static function getAvailableMethods(): array
     {
-        return array_map(fn($case) => $case->value, self::cases());
+        return array_map(fn ($case) => $case->value, self::cases());
     }
 
     public static function getValues(): array

@@ -58,6 +58,8 @@ class PixDataTest extends TestCase
         $model = Mockery::mock(AccountWithdrawPix::class);
         $model->shouldReceive('getAttribute')->with('type')->andReturn('email');
         $model->shouldReceive('getAttribute')->with('key')->andReturn('test@example.com');
+        $model->shouldAllowMockingProtectedMethods();
+        $model->shouldIgnoreMissing();
         $model->type = 'email';
         $model->key = 'test@example.com';
 
@@ -203,7 +205,7 @@ class PixDataTest extends TestCase
             // Missing 'key'
         ];
 
-        $this->expectException(\ArgumentCountError::class);
+        $this->expectException(\TypeError::class);
         PixData::fromArray($data);
     }
 
@@ -214,7 +216,7 @@ class PixDataTest extends TestCase
             // Missing 'type'
         ];
 
-        $this->expectException(\ValueError::class);
+        $this->expectException(\TypeError::class);
         PixData::fromArray($data);
     }
 

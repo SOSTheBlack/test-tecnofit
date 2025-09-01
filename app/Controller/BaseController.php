@@ -6,5 +6,7 @@ namespace App\Controller;
 
 abstract class BaseController
 {
-    public function __construct() {}
+    public function __construct()
+    {
+    }
 }

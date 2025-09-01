@@ -57,7 +57,7 @@ class GlobalExceptionHandler extends ExceptionHandler
     public function handle(Throwable $throwable, ResponseInterface $response): ResponseInterface
     {
         $handledResponse = $this->handleException($throwable, $response);
-        
+
         if ($handledResponse !== null) {
             return $handledResponse;
         }
@@ -77,22 +77,23 @@ class GlobalExceptionHandler extends ExceptionHandler
     private function handleException(Throwable $throwable, ResponseInterface $response): ?ResponseInterface
     {
         $exceptionClass = get_class($throwable);
-        
+
         // Verificar se existe configuração para esta exceção
-        if (!isset(self::EXCEPTION_MAP[$exceptionClass])) {
+        if (! isset(self::EXCEPTION_MAP[$exceptionClass])) {
             error_log("Unhandled exception: {$exceptionClass} - {$throwable->getMessage()}");
+
             return null;
         }
 
         $config = self::EXCEPTION_MAP[$exceptionClass];
-        
+
         return $this->buildErrorResponse(
-            $throwable, 
-            $response, 
+            $throwable,
+            $response,
             $config['message'] ?? $throwable->getMessage(),
             $config['status'],
             $config['code'] ?? $throwable->getCode(),
-            $config['include_error'] ?? false
+            $config['include_error'] ?? false,
         );
     }
 
@@ -100,12 +101,12 @@ class GlobalExceptionHandler extends ExceptionHandler
      * Constrói resposta de erro padronizada
      */
     private function buildErrorResponse(
-        Throwable $throwable, 
-        ResponseInterface $response, 
-        string $message, 
+        Throwable $throwable,
+        ResponseInterface $response,
+        string $message,
         int $status,
         ?int $code = null,
-        bool $includeError = false
+        bool $includeError = false,
     ): ResponseInterface {
         $data = [
             'status' => 'error',
@@ -118,13 +119,13 @@ class GlobalExceptionHandler extends ExceptionHandler
         }
 
         if ($includeError) {
-            if (!is_array($data)) {
+            if (! is_array($data)) {
                 $data = [];
             }
-            if (!isset($data['errors']) || !is_array($data['errors'])) {
+            if (! isset($data['errors']) || ! is_array($data['errors'])) {
                 $data['errors'] = [];
             }
-            if (!isset($data['errors']['general']) || !is_array($data['errors']['general'])) {
+            if (! isset($data['errors']['general']) || ! is_array($data['errors']['general'])) {
                 $data['errors']['general'] = [];
             }
             $data['errors']['general'][] = $throwable->getMessage();
@@ -154,7 +155,7 @@ class GlobalExceptionHandler extends ExceptionHandler
         if ($jsonContent === false) {
             $jsonContent = '{"success":false,"message":"JSON encoding error"}';
         }
-        
+
         return $response
             ->withStatus($statusCode)
             ->withAddedHeader('content-type', 'application/json')
@@ -167,6 +168,7 @@ class GlobalExceptionHandler extends ExceptionHandler
     private function isLocalEnvironment(): bool
     {
         $environment = env('APP_ENV', 'production');
+
         return in_array($environment, ['local', 'dev', 'development', 'testing']) && env('APP_DEBUG', true);
     }
 
@@ -178,7 +180,7 @@ class GlobalExceptionHandler extends ExceptionHandler
         return [
             'file' => $throwable->getFile(),
             'line' => $throwable->getLine(),
-            'trace' => array_slice($throwable->getTrace(), 0, 10)
+            'trace' => array_slice($throwable->getTrace(), 0, 10),
         ];
     }
 }

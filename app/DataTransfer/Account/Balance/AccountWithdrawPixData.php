@@ -10,7 +10,7 @@ use Carbon\Carbon;
 
 /**
  * DTO para dados PIX de saques
- * 
+ *
  * Representa os dados específicos do PIX vinculados a um saque,
  * fornecendo uma camada de abstração sobre o modelo AccountWithdrawPix
  */
@@ -24,11 +24,12 @@ readonly class AccountWithdrawPixData
         public string $key,
         public Carbon $createdAt,
         public ?Carbon $updatedAt = null,
-    ) {}
+    ) {
+    }
 
     /**
      * Cria instância a partir do modelo
-     * 
+     *
      * @param AccountWithdrawPix $model
      * @return self
      */
@@ -47,7 +48,7 @@ readonly class AccountWithdrawPixData
 
     /**
      * Cria instância a partir de array
-     * 
+     *
      * @param array $data
      * @return self
      */
@@ -66,7 +67,7 @@ readonly class AccountWithdrawPixData
 
     /**
      * Converte para array
-     * 
+     *
      * @return array
      */
     public function toArray(): array
@@ -84,20 +85,20 @@ readonly class AccountWithdrawPixData
 
     /**
      * Converte para PixData simples
-     * 
+     *
      * @return PixData
      */
     public function toPixData(): PixData
     {
         return new PixData(
             type: $this->type,
-            key: $this->key
+            key: $this->key,
         );
     }
 
     /**
      * Valida os dados PIX
-     * 
+     *
      * @return array Lista de erros de validação
      */
     public function validate(): array
@@ -107,9 +108,10 @@ readonly class AccountWithdrawPixData
         // Validação da chave baseada no tipo
         switch ($this->type) {
             case PixKeyTypeEnum::EMAIL:
-                if (!filter_var($this->key, FILTER_VALIDATE_EMAIL)) {
+                if (! filter_var($this->key, FILTER_VALIDATE_EMAIL)) {
                     $errors[] = 'Email PIX inválido.';
                 }
+
                 break;
         }
 
@@ -118,7 +120,7 @@ readonly class AccountWithdrawPixData
 
     /**
      * Verifica se os dados são válidos
-     * 
+     *
      * @return bool
      */
     public function isValid(): bool
@@ -128,7 +130,7 @@ readonly class AccountWithdrawPixData
 
     /**
      * Obtém rótulo legível do tipo
-     * 
+     *
      * @return string
      */
     public function getTypeLabel(): string
@@ -140,7 +142,7 @@ readonly class AccountWithdrawPixData
 
     /**
      * Formata a chave para exibição
-     * 
+     *
      * @return string
      */
     public function getFormattedKey(): string

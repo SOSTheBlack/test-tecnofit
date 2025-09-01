@@ -12,11 +12,10 @@ use App\Enum\PixKeyTypeEnum;
 use App\Enum\WithdrawStatusEnum;
 use App\Repository\Contract\AccountRepositoryInterface;
 use App\Repository\Contract\AccountWithdrawRepositoryInterface;
-use Psr\Log\LoggerInterface;
 
 /**
  * Serviço de domínio responsável pelas operações centrais de saque
- * 
+ *
  * Coordena as operações relacionadas a saques, mantendo a lógica de negócio
  * separada da orquestração do caso de uso
  */
@@ -27,7 +26,7 @@ class WithdrawService
         private readonly AccountWithdrawRepositoryInterface $accountWithdrawRepository,
         private readonly WithdrawBusinessRules $businessRules,
         private readonly WithdrawNotificationService $notificationService,
-        private readonly ScheduledWithdrawService $scheduledWithdrawService
+        private readonly ScheduledWithdrawService $scheduledWithdrawService,
     ) {
     }
 
@@ -38,12 +37,12 @@ class WithdrawService
         AccountData $accountData,
         WithdrawRequestData $withdrawRequestData,
         AccountWithdrawData $accountWithdrawData,
-        string $transactionId
+        string $transactionId,
     ): WithdrawResultData {
         // Processa o débito na conta de forma atômica
         $debitSuccess = $this->accountRepository->debitAmount($accountData->id, $withdrawRequestData->amount);
 
-        if (!$debitSuccess) {
+        if (! $debitSuccess) {
             return $this->handleDebitFailure($accountWithdrawData);
         }
 
@@ -77,7 +76,7 @@ class WithdrawService
         AccountData $accountData,
         WithdrawRequestData $withdrawRequestData,
         AccountWithdrawData $accountWithdrawData,
-        string $transactionId
+        string $transactionId,
     ): WithdrawResultData {
         // Calcula saldo disponível após reserva do valor agendado
         $newBalances = $this->businessRules->calculateNewBalanceAfterWithdraw($accountData, $withdrawRequestData->amount);
@@ -85,10 +84,10 @@ class WithdrawService
         // Agenda job assíncrono para processar saque na data correta
         $jobScheduled = $this->scheduledWithdrawService->scheduleWithdrawJob(
             $accountWithdrawData->id,
-            $withdrawRequestData->schedule ?? throw new \InvalidArgumentException('Schedule date is required for scheduled withdraw')
+            $withdrawRequestData->schedule ?? throw new \InvalidArgumentException('Schedule date is required for scheduled withdraw'),
         );
 
-        if (!$jobScheduled) {
+        if (! $jobScheduled) {
             return $this->handleSchedulingFailure($accountWithdrawData);
         }
 
@@ -114,15 +113,16 @@ class WithdrawService
         AccountData $accountData,
         WithdrawRequestData $withdrawRequestData,
         string $transactionId,
-        bool $scheduled = false
+        bool $scheduled = false,
     ): AccountWithdrawData {
         $status = $scheduled ? WithdrawStatusEnum::PENDING->value : WithdrawStatusEnum::NEW->value;
 
-        if (!is_null($withdrawRequestData->id)) {
+        if (! is_null($withdrawRequestData->id)) {
             $withdraw = $this->accountWithdrawRepository->findWithdrawById($withdrawRequestData->id);
             if ($withdraw === null) {
                 throw new \InvalidArgumentException('Withdraw not found');
             }
+
             return $withdraw;
         }
 
@@ -134,19 +134,19 @@ class WithdrawService
             'scheduled' => $scheduled,
             'scheduled_for' => $withdrawRequestData->schedule,
             'status' => $status,
-            'meta' => $withdrawRequestData->metadata
+            'meta' => $withdrawRequestData->metadata,
         ]);
 
         // Cria dados PIX se necessário
         if ($this->shouldCreatePixData($withdrawRequestData)) {
             $pixKey = $withdrawRequestData->getPixKey();
             $pixType = $withdrawRequestData->getPixType();
-            
+
             if ($pixKey !== null && $pixType !== null) {
                 $this->accountWithdrawRepository->createPixData(
                     $accountWithdrawData->id,
                     $pixKey,
-                    $pixType
+                    $pixType,
                 );
             }
         }
@@ -161,9 +161,9 @@ class WithdrawService
     {
         $this->accountWithdrawRepository->markAsFailed(
             $accountWithdrawData->id,
-            'Erro ao debitar valor da conta.'
+            'Erro ao debitar valor da conta.',
         );
-        
+
         return WithdrawResultData::debitError();
     }
 
@@ -174,11 +174,11 @@ class WithdrawService
     {
         $this->accountWithdrawRepository->markAsFailed(
             $accountWithdrawData->id,
-            'Erro ao agendar processamento automático do saque'
+            'Erro ao agendar processamento automático do saque',
         );
-        
+
         return WithdrawResultData::processingError(
-            'Erro ao agendar o saque. Tente novamente.'
+            'Erro ao agendar o saque. Tente novamente.',
         );
     }
 
@@ -187,7 +187,7 @@ class WithdrawService
      */
     private function shouldCreatePixData(WithdrawRequestData $withdrawRequestData): bool
     {
-        return $withdrawRequestData->isPixMethod() 
+        return $withdrawRequestData->isPixMethod()
             && $withdrawRequestData->getPixType() === PixKeyTypeEnum::EMAIL->value;
     }
 }

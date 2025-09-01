@@ -4,20 +4,20 @@ declare(strict_types=1);
 
 namespace App\Repository\Contract;
 
-use Hyperf\DbConnection\Model\Model;
-use Hyperf\Database\Model\Collection;
 use App\Repository\Exceptions\RepositoryNotFoundException;
+use Hyperf\Database\Model\Collection;
+use Hyperf\DbConnection\Model\Model;
 
 /**
  * Interface BaseRepositoryInterface
- * 
+ *
  * Interface genérica para funcionalidades básicas de repositório
  */
 interface BaseRepositoryInterface
 {
     /**
      * Encontra um registro pelo ID
-     * 
+     *
      * @param string $id
      * @return Model|null
      * @throws RepositoryNotFoundException
@@ -26,7 +26,7 @@ interface BaseRepositoryInterface
 
     /**
      * Encontra um registro pelo ID ou falha
-     * 
+     *
      * @param string $id
      * @return Model
      * @throws RepositoryNotFoundException
@@ -35,7 +35,7 @@ interface BaseRepositoryInterface
 
     /**
      * Encontra registros por critérios
-     * 
+     *
      * @param array $criteria
      * @return Collection
      */
@@ -43,7 +43,7 @@ interface BaseRepositoryInterface
 
     /**
      * Encontra um registro por critérios
-     * 
+     *
      * @param array $criteria
      * @return Model|null
      */
@@ -51,14 +51,14 @@ interface BaseRepositoryInterface
 
     /**
      * Lista todos os registros
-     * 
+     *
      * @return Collection
      */
     public function findAll(): Collection;
 
     /**
      * Cria um novo registro
-     * 
+     *
      * @param array $data
      * @return Model
      */
@@ -66,7 +66,7 @@ interface BaseRepositoryInterface
 
     /**
      * Atualiza um registro pelo ID
-     * 
+     *
      * @param string $id
      * @param array $data
      * @return bool
@@ -76,7 +76,7 @@ interface BaseRepositoryInterface
 
     /**
      * Atualiza registros por critérios
-     * 
+     *
      * @param array $criteria
      * @param array $data
      * @return int Número de registros atualizados
@@ -85,7 +85,7 @@ interface BaseRepositoryInterface
 
     /**
      * Deleta um registro pelo ID
-     * 
+     *
      * @param string $id
      * @return bool
      * @throws RepositoryNotFoundException
@@ -94,7 +94,7 @@ interface BaseRepositoryInterface
 
     /**
      * Deleta registros por critérios
-     * 
+     *
      * @param array $criteria
      * @return int Número de registros deletados
      */
@@ -102,7 +102,7 @@ interface BaseRepositoryInterface
 
     /**
      * Conta registros por critérios
-     * 
+     *
      * @param array $criteria
      * @return int
      */
@@ -110,7 +110,7 @@ interface BaseRepositoryInterface
 
     /**
      * Verifica se existe registro com os critérios
-     * 
+     *
      * @param array $criteria
      * @return bool
      */
@@ -118,7 +118,7 @@ interface BaseRepositoryInterface
 
     /**
      * Executa transação
-     * 
+     *
      * @param callable $callback
      * @return mixed
      */

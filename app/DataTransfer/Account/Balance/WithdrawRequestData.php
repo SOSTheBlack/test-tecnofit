@@ -17,8 +17,9 @@ readonly class WithdrawRequestData
         public ?PixData $pix = null,
         public ?Carbon $schedule = null,
         public ?array $metadata = null,
-        public ?string $id = null // existe quando é processado pelo cron
-    ) {}
+        public ?string $id = null, // existe quando é processado pelo cron
+    ) {
+    }
 
     public static function fromArray(array $data): self
     {
@@ -26,7 +27,7 @@ readonly class WithdrawRequestData
         if (isset($data['schedule']) && $data['schedule'] !== null) {
             $schedule = $data['schedule'] instanceof Carbon
                 ? $data['schedule']
-                : timezone()->parse($data['schedule']);
+                : Carbon::parse($data['schedule']);
         }
 
         $pix = null;
@@ -65,13 +66,13 @@ readonly class WithdrawRequestData
             amount: (float) $withdraw->amount,
             pix: $withdraw->pixData ? PixData::fromModel($withdraw->pixData) : null,
             schedule: $withdraw->scheduled_for,
-            metadata: $withdraw->meta ?? []
+            metadata: $withdraw->meta ?? [],
         );
     }
 
     /**
      * Cria instância a partir de AccountWithdrawData DTO
-     * 
+     *
      * @param AccountWithdrawData $withdrawData DTO do saque
      * @param PixData|null $pixData Dados PIX (opcional)
      * @return self
@@ -85,7 +86,7 @@ readonly class WithdrawRequestData
             amount: $withdrawData->amount,
             pix: $pixData,
             schedule: $withdrawData->scheduledFor,
-            metadata: $withdrawData->meta ?? []
+            metadata: $withdrawData->meta ?? [],
         );
     }
 
@@ -95,12 +96,12 @@ readonly class WithdrawRequestData
             return false;
         }
 
-        return $this->schedule->isAfter(timezone()->now());
+        return $this->schedule->isAfter(Carbon::now());
     }
 
     public function isImmediate(): bool
     {
-        return !$this->isScheduled();
+        return ! $this->isScheduled();
     }
 
     public function isPixMethod(): bool
@@ -136,7 +137,7 @@ readonly class WithdrawRequestData
 
         // Validação específica para PIX
         if ($this->isPixMethod()) {
-            if (!$this->hasPixData()) {
+            if (! $this->hasPixData()) {
                 $errors[] = 'Para saques PIX é necessário informar os dados PIX.';
             } else {
                 // Valida os dados PIX se estiverem presentes
@@ -151,7 +152,7 @@ readonly class WithdrawRequestData
 
         // Validação de agendamento
         if ($this->schedule !== null && is_null($this->id)) {
-            $now = timezone()->now();
+            $now = Carbon::now();
             if ($this->schedule->isBefore($now)) {
                 $errors[] = 'A data de agendamento deve ser futura.';
             }

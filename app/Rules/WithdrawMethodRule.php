@@ -11,6 +11,11 @@ class WithdrawMethodRule implements Rule
 {
     public function passes(string $attribute, mixed $value): bool
     {
+        // Verificar se o valor é uma string
+        if (! is_string($value)) {
+            return false;
+        }
+
         return WithdrawMethodEnum::isValid($value);
     }
 
@@ -18,5 +23,5 @@ class WithdrawMethodRule implements Rule
     {
         return 'Método de saque inválido. Use: ' . implode(', ', WithdrawMethodEnum::getValues());
     }
-    
+
 }

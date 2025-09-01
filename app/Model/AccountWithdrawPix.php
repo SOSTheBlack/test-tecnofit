@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Model;
 
-use App\Enum\PixKeyTypeEnum;
 use Carbon\Carbon;
 use Hyperf\Database\Model\Relations\BelongsTo;
 use Hyperf\Database\Model\SoftDeletes;
@@ -26,7 +25,7 @@ class AccountWithdrawPix extends Model
     use SoftDeletes;
 
     protected ?string $table = 'account_withdraw_pix';
-    
+
     public bool $incrementing = false;
     protected string $keyType = 'string';
 

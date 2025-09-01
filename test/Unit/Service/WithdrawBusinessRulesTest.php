@@ -7,7 +7,7 @@ namespace HyperfTest\Unit\Service;
 use App\DataTransfer\Account\AccountData;
 use App\DataTransfer\Account\Balance\WithdrawRequestData;
 use App\Enum\WithdrawMethodEnum;
-use App\Service\WithdrawBusinessRules;
+use App\Service\Withdraw\WithdrawBusinessRules;
 use PHPUnit\Framework\TestCase;
 use Carbon\Carbon;
 
@@ -28,14 +28,20 @@ class WithdrawBusinessRulesTest extends TestCase
             id: 'test-account-123',
             name: 'Test Account',
             balance: 1000.0,
-            availableBalance: 1000.0
+            availableBalance: 1000.0,
+            pendingWithdrawAmount: 0.0,
+            createdAt: \Carbon\Carbon::now()
         );
 
+        $pixData = new \App\DataTransfer\Account\Balance\PixData(
+            type: \App\Enum\PixKeyTypeEnum::EMAIL,
+            key: 'test@example.com'
+        );
         $withdrawRequestData = new WithdrawRequestData(
             accountId: 'test-account-123',
             method: WithdrawMethodEnum::PIX,
             amount: 100.0,
-            pix: ['type' => 'email', 'key' => 'test@example.com']
+            pix: $pixData
         );
 
         // Act
@@ -52,14 +58,20 @@ class WithdrawBusinessRulesTest extends TestCase
             id: 'test-account-123',
             name: 'Test Account',
             balance: 50.0,
-            availableBalance: 50.0
+            availableBalance: 50.0,
+            pendingWithdrawAmount: 0.0,
+            createdAt: \Carbon\Carbon::now()
         );
 
+        $pixData = new \App\DataTransfer\Account\Balance\PixData(
+            type: \App\Enum\PixKeyTypeEnum::EMAIL,
+            key: 'test@example.com'
+        );
         $withdrawRequestData = new WithdrawRequestData(
             accountId: 'test-account-123',
             method: WithdrawMethodEnum::PIX,
             amount: 100.0,
-            pix: ['type' => 'email', 'key' => 'test@example.com']
+            pix: $pixData
         );
 
         // Act
@@ -77,14 +89,20 @@ class WithdrawBusinessRulesTest extends TestCase
             id: 'test-account-123',
             name: 'Test Account',
             balance: 1000.0,
-            availableBalance: 1000.0
+            availableBalance: 1000.0,
+            pendingWithdrawAmount: 0.0,
+            createdAt: \Carbon\Carbon::now()
         );
 
+        $pixData = new \App\DataTransfer\Account\Balance\PixData(
+            type: \App\Enum\PixKeyTypeEnum::EMAIL,
+            key: 'test@example.com'
+        );
         $withdrawRequestData = new WithdrawRequestData(
             accountId: 'test-account-123',
             method: WithdrawMethodEnum::PIX,
             amount: 0.001, // Below minimum
-            pix: ['type' => 'email', 'key' => 'test@example.com']
+            pix: $pixData
         );
 
         // Act
@@ -102,7 +120,9 @@ class WithdrawBusinessRulesTest extends TestCase
             id: 'test-account-123',
             name: 'Test Account',
             balance: 1000.0,
-            availableBalance: 1000.0
+            availableBalance: 1000.0,
+            pendingWithdrawAmount: 0.0,
+            createdAt: \Carbon\Carbon::now()
         );
 
         // Act & Assert
@@ -125,7 +145,9 @@ class WithdrawBusinessRulesTest extends TestCase
             id: 'test-account-123',
             name: 'Test Account',
             balance: 1000.0,
-            availableBalance: 1000.0
+            availableBalance: 1000.0,
+            pendingWithdrawAmount: 0.0,
+            createdAt: \Carbon\Carbon::now()
         );
 
         // Act
@@ -139,11 +161,15 @@ class WithdrawBusinessRulesTest extends TestCase
     public function testShouldSendEmailNotificationForEmailPix(): void
     {
         // Arrange
+        $pixData = new \App\DataTransfer\Account\Balance\PixData(
+            type: \App\Enum\PixKeyTypeEnum::EMAIL,
+            key: 'test@example.com'
+        );
         $withdrawRequestData = new WithdrawRequestData(
             accountId: 'test-account-123',
             method: WithdrawMethodEnum::PIX,
             amount: 100.0,
-            pix: ['type' => 'email', 'key' => 'test@example.com']
+            pix: $pixData
         );
 
         // Act & Assert
@@ -152,12 +178,12 @@ class WithdrawBusinessRulesTest extends TestCase
 
     public function testShouldNotSendEmailNotificationForNonEmailPix(): void
     {
-        // Arrange
+        // Arrange - Como só existe EMAIL no enum, testamos com null
         $withdrawRequestData = new WithdrawRequestData(
             accountId: 'test-account-123',
             method: WithdrawMethodEnum::PIX,
             amount: 100.0,
-            pix: ['type' => 'CPF', 'key' => '12345678901']
+            pix: null
         );
 
         // Act & Assert

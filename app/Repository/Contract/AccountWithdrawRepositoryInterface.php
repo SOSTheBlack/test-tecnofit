@@ -9,7 +9,7 @@ use App\DataTransfer\Account\Balance\AccountWithdrawPixData;
 
 /**
  * Interface para repositório de saques
- * 
+ *
  * Define o contrato para operações de persistência de saques,
  * seguindo o padrão de retornar apenas DTOs
  */
@@ -17,7 +17,7 @@ interface AccountWithdrawRepositoryInterface extends BaseRepositoryInterface
 {
     /**
      * Encontra um saque pelo ID retornando DTO
-     * 
+     *
      * @param string $id ID do saque
      * @return AccountWithdrawData|null DTO do saque ou null se não encontrado
      */
@@ -25,7 +25,7 @@ interface AccountWithdrawRepositoryInterface extends BaseRepositoryInterface
 
     /**
      * Encontra um saque pelo ID ou lança exceção retornando DTO
-     * 
+     *
      * @param string $id ID do saque
      * @return AccountWithdrawData DTO do saque
      * @throws \App\Repository\Exceptions\RepositoryNotFoundException Quando saque não encontrado
@@ -34,7 +34,7 @@ interface AccountWithdrawRepositoryInterface extends BaseRepositoryInterface
 
     /**
      * Encontra um saque pelo transaction_id
-     * 
+     *
      * @param string $transactionId ID da transação
      * @return AccountWithdrawData|null DTO do saque ou null se não encontrado
      */
@@ -42,7 +42,7 @@ interface AccountWithdrawRepositoryInterface extends BaseRepositoryInterface
 
     /**
      * Cria um novo saque
-     * 
+     *
      * @param array $data Dados do saque
      * @return AccountWithdrawData DTO do saque criado
      * @throws \RuntimeException Quando falha ao criar
@@ -51,7 +51,7 @@ interface AccountWithdrawRepositoryInterface extends BaseRepositoryInterface
 
     /**
      * Cria dados PIX para um saque
-     * 
+     *
      * @param string $withdrawId ID do saque
      * @param string $key Chave PIX
      * @param string $type Tipo da chave PIX
@@ -62,7 +62,7 @@ interface AccountWithdrawRepositoryInterface extends BaseRepositoryInterface
 
     /**
      * Atualiza um saque
-     * 
+     *
      * @param string $id ID do saque
      * @param array $data Dados a serem atualizados
      * @return bool Verdadeiro se a atualização foi bem-sucedida
@@ -74,7 +74,7 @@ interface AccountWithdrawRepositoryInterface extends BaseRepositoryInterface
 
     /**
      * Marca um saque como completado
-     * 
+     *
      * @param string $id ID do saque
      * @param array $metadata Metadados adicionais (opcional)
      * @return bool Verdadeiro se a atualização foi bem-sucedida
@@ -84,7 +84,7 @@ interface AccountWithdrawRepositoryInterface extends BaseRepositoryInterface
 
     /**
      * Marca um saque como falhado
-     * 
+     *
      * @param string $id ID do saque
      * @param string $errorReason Motivo da falha
      * @param array $metadata Metadados adicionais (opcional)
@@ -97,7 +97,7 @@ interface AccountWithdrawRepositoryInterface extends BaseRepositoryInterface
 
     /**
      * Lista saques agendados prontos para execução
-     * 
+     *
      * @param int $limit Limite de resultados
      * @return array Lista de DTOs de saques prontos para execução
      */

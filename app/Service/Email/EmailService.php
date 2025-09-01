@@ -16,7 +16,7 @@ use Symfony\Component\Mime\Email;
 
 /**
  * Serviço de email para notificações do sistema
- * 
+ *
  * Centraliza o envio de emails relacionados a saques e outras operações.
  * Migrado para trabalhar com DTOs em vez de models diretamente.
  */
@@ -30,12 +30,12 @@ class EmailService
     public function __construct(LoggerFactory $loggerFactory)
     {
         $this->logger = $loggerFactory->get('email', 'default');
-        
+
         // Configuração do Mailhog para desenvolvimento
         $transport = new EsmtpTransport('mailhog', 1025);
-        
+
         $this->mailer = new Mailer($transport);
-        
+
         // Configurações obtidas diretamente do env() ou valores padrão
         $this->appName = env('APP_NAME', 'TecnofitPixAPI');
         $this->fromAddress = env('MAIL_FROM_ADDRESS', 'noreply@tecnofit.com');
@@ -43,7 +43,7 @@ class EmailService
 
     /**
      * Envia confirmação de saque usando DTOs
-     * 
+     *
      * @param AccountWithdrawData $withdrawData DTO do saque
      * @param AccountData $accountData DTO da conta
      * @param AccountWithdrawPixData $pixData DTO dos dados PIX
@@ -53,14 +53,15 @@ class EmailService
     public function sendWithdrawConfirmationFromDTOs(
         AccountWithdrawData $withdrawData,
         AccountData $accountData,
-        AccountWithdrawPixData $pixData
+        AccountWithdrawPixData $pixData,
     ): bool {
         try {
             if ($pixData->type->value !== 'email') {
                 $this->logger->warning("Tentativa de envio de email para chave PIX não-email", [
                     'withdraw_id' => $withdrawData->id,
-                    'pix_type' => $pixData->type->value
+                    'pix_type' => $pixData->type->value,
                 ]);
+
                 return false;
             }
 
@@ -77,7 +78,7 @@ class EmailService
                 'account_id' => $accountData->id,
                 'recipient' => $pixData->key,
                 'amount' => $withdrawData->amount,
-                'sent' => true
+                'sent' => true,
             ]);
 
             return true;
@@ -87,7 +88,7 @@ class EmailService
                 'withdraw_id' => $withdrawData->id,
                 'account_id' => $accountData->id,
                 'error' => $e->getMessage(),
-                'exception' => $e
+                'exception' => $e,
             ]);
 
             throw $e;
@@ -96,24 +97,25 @@ class EmailService
 
     /**
      * Envia notificação genérica de saque (para métodos não-PIX)
-     * 
+     *
      * @param AccountWithdrawData $withdrawData DTO do saque
      * @param AccountData $accountData DTO da conta
      * @return bool Verdadeiro se enviado com sucesso
      */
     public function sendGenericWithdrawConfirmation(
         AccountWithdrawData $withdrawData,
-        AccountData $accountData
+        AccountData $accountData,
     ): bool {
         try {
             // Para métodos não-PIX, pode usar email da conta ou configuração do sistema
             $recipientEmail = $this->getAccountNotificationEmail($accountData);
-            
-            if (!$recipientEmail) {
+
+            if (! $recipientEmail) {
                 $this->logger->info("Nenhum email configurado para notificações da conta", [
                     'withdraw_id' => $withdrawData->id,
-                    'account_id' => $accountData->id
+                    'account_id' => $accountData->id,
                 ]);
+
                 return false;
             }
 
@@ -131,7 +133,7 @@ class EmailService
                 'recipient' => $recipientEmail,
                 'method' => $withdrawData->method->value,
                 'amount' => $withdrawData->amount,
-                'sent' => true
+                'sent' => true,
             ]);
 
             return true;
@@ -141,7 +143,7 @@ class EmailService
                 'withdraw_id' => $withdrawData->id,
                 'account_id' => $accountData->id,
                 'error' => $e->getMessage(),
-                'exception' => $e
+                'exception' => $e,
             ]);
 
             throw $e;
@@ -150,7 +152,7 @@ class EmailService
 
     /**
      * Método legado - mantido para compatibilidade
-     * 
+     *
      * @deprecated Use sendWithdrawConfirmationFromDTOs instead
      * @param AccountWithdraw $withdraw
      * @return bool
@@ -161,8 +163,9 @@ class EmailService
             if ($withdraw->pixData === null || $withdraw->pixData->type !== 'email') {
                 $this->logger->warning("Tentativa de envio de email para chave PIX não-email", [
                     'withdraw_id' => $withdraw->id,
-                    'pix_type' => $withdraw->pixData !== null ? $withdraw->pixData->type : null
+                    'pix_type' => $withdraw->pixData !== null ? $withdraw->pixData->type : null,
                 ]);
+
                 return false;
             }
 
@@ -178,7 +181,7 @@ class EmailService
                 'withdraw_id' => $withdraw->id,
                 'recipient' => $withdraw->pixData->key,
                 'amount' => $withdraw->amount,
-                'sent' => true
+                'sent' => true,
             ]);
 
             return true;
@@ -187,7 +190,7 @@ class EmailService
             $this->logger->error("Falha ao enviar email de confirmação", [
                 'withdraw_id' => $withdraw->id,
                 'error' => $e->getMessage(),
-                'exception' => $e
+                'exception' => $e,
             ]);
 
             throw $e;
@@ -196,7 +199,7 @@ class EmailService
 
     /**
      * Constrói template de email usando DTOs
-     * 
+     *
      * @param AccountWithdrawData $withdrawData DTO do saque
      * @param AccountData $accountData DTO da conta
      * @param AccountWithdrawPixData $pixData DTO dos dados PIX
@@ -205,7 +208,7 @@ class EmailService
     private function buildEmailTemplateFromDTOs(
         AccountWithdrawData $withdrawData,
         AccountData $accountData,
-        AccountWithdrawPixData $pixData
+        AccountWithdrawPixData $pixData,
     ): string {
         $amount = $withdrawData->getFormattedAmount();
         $processedAt = $withdrawData->updatedAt?->format('d/m/Y H:i:s') ?? 'N/A';
@@ -272,14 +275,14 @@ class EmailService
 
     /**
      * Constrói template genérico de email
-     * 
+     *
      * @param AccountWithdrawData $withdrawData DTO do saque
      * @param AccountData $accountData DTO da conta
      * @return string HTML do email
      */
     private function buildGenericEmailTemplate(
         AccountWithdrawData $withdrawData,
-        AccountData $accountData
+        AccountData $accountData,
     ): string {
         $amount = $withdrawData->getFormattedAmount();
         $processedAt = $withdrawData->updatedAt?->format('d/m/Y H:i:s') ?? 'N/A';
@@ -345,7 +348,7 @@ class EmailService
 
     /**
      * Template legado - mantido para compatibilidade
-     * 
+     *
      * @deprecated Use buildEmailTemplateFromDTOs instead
      * @param AccountWithdraw $withdraw
      * @return string
@@ -413,10 +416,10 @@ class EmailService
 
     /**
      * Obtém email para notificações da conta
-     * 
+     *
      * Por enquanto retorna null, mas pode ser estendido para buscar
      * email da conta ou configuração do sistema
-     * 
+     *
      * @param AccountData $accountData DTO da conta
      * @return string|null Email para notificações
      */
@@ -424,13 +427,13 @@ class EmailService
     {
         // TODO: Implementar lógica para obter email da conta
         // Pode ser um campo na conta ou configuração do sistema
-        
+
         // Por enquanto retorna um email padrão para desenvolvimento
         // @phpstan-ignore-next-line
         if (false) {
             return 'noreply@tecnofit.com.br';
         }
-        
+
         return null;
     }
 }

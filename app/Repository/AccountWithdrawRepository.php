@@ -10,14 +10,12 @@ use App\Model\AccountWithdraw;
 use App\Model\AccountWithdrawPix;
 use App\Repository\Contract\AccountWithdrawRepositoryInterface;
 use App\Repository\Exceptions\RepositoryNotFoundException;
-use Carbon\Carbon;
-use Hyperf\DbConnection\Db;
 use Hyperf\Stringable\Str;
 use Throwable;
 
 /**
  * Repositório para gerenciamento de saques
- * 
+ *
  * Implementa operações de persistência para saques seguindo o padrão
  * de retornar apenas DTOs, mantendo o modelo isolado na camada de dados
  */
@@ -29,7 +27,7 @@ class AccountWithdrawRepository extends BaseRepository implements AccountWithdra
 
     /**
      * Retorna o modelo que este repositório gerencia
-     * 
+     *
      * @return AccountWithdraw
      */
     protected function getModel(): AccountWithdraw
@@ -44,7 +42,7 @@ class AccountWithdrawRepository extends BaseRepository implements AccountWithdra
     {
         /** @var AccountWithdraw|null $withdraw */
         $withdraw = AccountWithdraw::query()->find($id);
-        
+
         return $withdraw ? AccountWithdrawData::fromModel($withdraw) : null;
     }
 
@@ -55,8 +53,8 @@ class AccountWithdrawRepository extends BaseRepository implements AccountWithdra
     {
         /** @var AccountWithdraw|null $withdraw */
         $withdraw = AccountWithdraw::query()->find($id);
-        
-        if (!$withdraw) {
+
+        if (! $withdraw) {
             throw new RepositoryNotFoundException("Saque com ID '{$id}' não encontrado.");
         }
 
@@ -70,7 +68,7 @@ class AccountWithdrawRepository extends BaseRepository implements AccountWithdra
     {
         /** @var AccountWithdraw|null $withdraw */
         $withdraw = AccountWithdraw::query()->where('transaction_id', $transactionId)->first();
-        
+
         return $withdraw ? AccountWithdrawData::fromModel($withdraw) : null;
     }
 
@@ -82,12 +80,12 @@ class AccountWithdrawRepository extends BaseRepository implements AccountWithdra
         try {
             return $this->transaction(function () use ($data) {
                 // Gera UUID se não fornecido
-                if (!isset($data['id'])) {
+                if (! isset($data['id'])) {
                     $data['id'] = (string) Str::uuid();
                 }
 
                 // Gera transaction_id se não fornecido
-                if (!isset($data['transaction_id'])) {
+                if (! isset($data['transaction_id'])) {
                     $data['transaction_id'] = 'TXN-' . time() . '-' . substr(md5(uniqid()), 0, 8);
                 }
 
@@ -102,14 +100,14 @@ class AccountWithdrawRepository extends BaseRepository implements AccountWithdra
 
                 /** @var AccountWithdraw $withdraw */
                 $withdraw = AccountWithdraw::query()->create($data);
-                
+
                 return AccountWithdrawData::fromModel($withdraw);
             });
         } catch (Throwable $e) {
             throw new \RuntimeException(
                 "Erro ao criar saque: {$e->getMessage()}",
                 0,
-                $e
+                $e,
             );
         }
     }
@@ -128,14 +126,14 @@ class AccountWithdrawRepository extends BaseRepository implements AccountWithdra
                     'key' => $key,
                     'type' => $type,
                 ]);
-                
+
                 return AccountWithdrawPixData::fromModel($pixData);
             });
         } catch (Throwable $e) {
             throw new \RuntimeException(
                 "Erro ao criar dados PIX: {$e->getMessage()}",
                 0,
-                $e
+                $e,
             );
         }
     }
@@ -147,8 +145,8 @@ class AccountWithdrawRepository extends BaseRepository implements AccountWithdra
     {
         /** @var AccountWithdraw|null $withdraw */
         $withdraw = AccountWithdraw::query()->find($id);
-        
-        if (!$withdraw) {
+
+        if (! $withdraw) {
             throw new RepositoryNotFoundException("AccountWithdraw com ID {$id} não encontrado.");
         }
 
@@ -168,7 +166,7 @@ class AccountWithdrawRepository extends BaseRepository implements AccountWithdra
             'updated_at' => timezone()->now(),
         ];
 
-        if (!empty($metadata)) {
+        if (! empty($metadata)) {
             $withdraw = $this->findWithdrawById($id);
             $updateData['meta'] = array_merge($withdraw?->meta ?? [], $metadata);
         }
@@ -189,7 +187,7 @@ class AccountWithdrawRepository extends BaseRepository implements AccountWithdra
             'updated_at' => timezone()->now(),
         ];
 
-        if (!empty($metadata)) {
+        if (! empty($metadata)) {
             $withdraw = $this->findWithdrawById($id);
             $updateData['meta'] = array_merge($withdraw?->meta ?? [], $metadata);
         }
@@ -214,20 +212,21 @@ class AccountWithdrawRepository extends BaseRepository implements AccountWithdra
 
         return $withdraws->map(static function ($withdraw): AccountWithdrawData {
             \assert($withdraw instanceof AccountWithdraw);
+
             return AccountWithdrawData::fromModel($withdraw);
         })->toArray();
     }
 
     /**
      * Obtém estatísticas de saques
-     * 
+     *
      * @param string|null $accountId ID da conta (opcional)
      * @return array Estatísticas dos saques
      */
     public function getWithdrawStatistics(?string $accountId = null): array
     {
         $query = AccountWithdraw::query();
-        
+
         if ($accountId) {
             $query->where('account_id', $accountId);
         }
@@ -244,7 +243,7 @@ class AccountWithdrawRepository extends BaseRepository implements AccountWithdra
         ', [
             AccountWithdraw::STATUS_COMPLETED,
             AccountWithdraw::STATUS_FAILED,
-            AccountWithdraw::STATUS_PENDING
+            AccountWithdraw::STATUS_PENDING,
         ])->first();
 
         return [

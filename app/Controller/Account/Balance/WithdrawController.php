@@ -14,7 +14,7 @@ class WithdrawController extends BalanceController
 {
     public function __construct(private ResponseInterface $response, private WithdrawUseCase $withdrawUseCase)
     {
-        
+
     }
 
     public function __invoke(string $accountId, WithdrawRequest $request): PsrResponseInterface
@@ -31,12 +31,12 @@ class WithdrawController extends BalanceController
                 ->withStatus($result->getHttpStatusCode());
         } catch (\Throwable $e) {
             error_log('Erro ao processar solicitação de saque: ' . print_r($e, false));
-            
+
             return $this->response->json([
                 'success' => false,
                 'message' => 'Erro interno do servidor.',
                 'error_code' => 'INTERNAL_ERROR',
-                'errors' => [$e->getMessage()]
+                'errors' => [$e->getMessage()],
             ])->withStatus(500);
         }
     }

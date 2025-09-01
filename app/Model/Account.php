@@ -23,7 +23,7 @@ class Account extends Model
     use SoftDeletes;
 
     protected ?string $table = 'account';
-    
+
     public bool $incrementing = false;
     protected string $keyType = 'string';
 
@@ -48,7 +48,7 @@ class Account extends Model
         return $this->hasMany(AccountWithdraw::class, 'account_id', 'id');
     }
 
-        /**
+    /**
      * Conta de saques pendentes
      */
     public function getPendingWithdrawsCount(): int
@@ -65,6 +65,7 @@ class Account extends Model
     public function getAvailableBalance(): float
     {
         $pendingAmount = $this->getTotalPendingWithdrawAmount();
+
         return max(0, $this->balance - $pendingAmount);
     }
 

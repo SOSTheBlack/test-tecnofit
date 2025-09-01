@@ -17,7 +17,8 @@ readonly class AccountData
         public float $pendingWithdrawAmount,
         public Carbon $createdAt,
         public ?Carbon $updatedAt = null,
-    ) {}
+    ) {
+    }
 
     public static function fromModel(Account $account): self
     {

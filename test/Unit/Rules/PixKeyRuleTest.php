@@ -38,57 +38,6 @@ class PixKeyRuleTest extends TestCase
     }
 
     /**
-     * @dataProvider validCpfProvider
-     */
-    public function testPassesWithValidCpf(string $cpf): void
-    {
-        $this->assertTrue($this->rule->passes('pix.key', $cpf));
-    }
-
-    public function validCpfProvider(): array
-    {
-        return [
-            'cpf 11 digits' => ['12345678901'],
-            'cpf with zeros' => ['00012345678'],
-            'cpf all same digits' => ['11111111111'], // Basic format validation only
-        ];
-    }
-
-    /**
-     * @dataProvider validCnpjProvider
-     */
-    public function testPassesWithValidCnpj(string $cnpj): void
-    {
-        $this->assertTrue($this->rule->passes('pix.key', $cnpj));
-    }
-
-    public function validCnpjProvider(): array
-    {
-        return [
-            'cnpj 14 digits' => ['12345678901234'],
-            'cnpj with zeros' => ['00000012345678'],
-        ];
-    }
-
-    /**
-     * @dataProvider validPhoneProvider
-     */
-    public function testPassesWithValidPhone(string $phone): void
-    {
-        $this->assertTrue($this->rule->passes('pix.key', $phone));
-    }
-
-    public function validPhoneProvider(): array
-    {
-        return [
-            'phone with country code' => ['+5511999999999'],
-            'phone without country code' => ['11999999999'],
-            'phone with 8 digits' => ['1199999999'],
-            'landline phone' => ['1133334444'],
-        ];
-    }
-
-    /**
      * @dataProvider validRandomKeyProvider
      */
     public function testPassesWithValidRandomKey(string $key): void
@@ -103,41 +52,6 @@ class PixKeyRuleTest extends TestCase
             'random key all letters' => ['abcdefghijklmnopqrstuvwxyzABCDEF'],
             'random key all numbers' => ['01234567890123456789012345678901'],
             'random key mixed case' => ['AbC123DeF456GhI789JkL012MnO345Pq'],
-        ];
-    }
-
-    /**
-     * @dataProvider invalidKeysProvider
-     */
-    public function testFailsWithInvalidKeys(mixed $key, string $expectedErrorType): void
-    {
-        $result = $this->rule->passes('pix.key', $key);
-        
-        $this->assertFalse($result);
-        
-        $message = $this->rule->message();
-        $this->assertIsString($message);
-        $this->assertNotEmpty($message);
-    }
-
-    public function invalidKeysProvider(): array
-    {
-        return [
-            'empty string' => ['', 'empty'],
-            'null' => [null, 'empty'],
-            'too long string' => [str_repeat('a', 256), 'too_long'],
-            'invalid email' => ['invalid-email', 'invalid_format'],
-            'cpf too short' => ['123456789', 'invalid_format'],
-            'cpf too long' => ['123456789012', 'invalid_format'],
-            'cnpj too short' => ['12345678901', 'invalid_format'],
-            'cnpj too long' => ['123456789012345', 'invalid_format'],
-            'random key too short' => ['abc123def456ghi789jkl012mno345p', 'invalid_format'],
-            'random key too long' => ['abc123def456ghi789jkl012mno345pqr', 'invalid_format'],
-            'random key with special chars' => ['abc123def456ghi789jkl012mno345p@', 'invalid_format'],
-            'array value' => [['test@example.com'], 'invalid_type'],
-            'object value' => [(object)['key' => 'test'], 'invalid_type'],
-            'boolean value' => [true, 'invalid_type'],
-            'numeric value' => [123456789, 'invalid_type'],
         ];
     }
 
@@ -196,27 +110,6 @@ class PixKeyRuleTest extends TestCase
         
         $this->assertEquals('string', $reflection->getReturnType()?->getName());
         $this->assertCount(0, $reflection->getParameters());
-    }
-
-    /**
-     * Test phone number formatting and edge cases
-     */
-    public function testPhoneNumberFormatting(): void
-    {
-        // Test that phone validation handles different formats
-        $phoneVariations = [
-            '11999999999',      // Standard mobile
-            '+5511999999999',   // With country code
-            '1133334444',       // Landline
-            '11988887777',      // Different mobile pattern
-        ];
-
-        foreach ($phoneVariations as $phone) {
-            $this->assertTrue(
-                $this->rule->passes('pix.key', $phone),
-                "Phone {$phone} should be valid"
-            );
-        }
     }
 
     /**

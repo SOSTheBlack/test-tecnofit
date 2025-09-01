@@ -15,14 +15,14 @@ use Throwable;
 
 /**
  * Class BaseRepository
- * 
+ *
  * Repositório base com funcionalidades genéricas para interação com Models
  */
 abstract class BaseRepository implements BaseRepositoryInterface
 {
     /**
      * Retorna o modelo que este repositório gerencia
-     * 
+     *
      * @return Model
      */
     abstract protected function getModel(): Model;
@@ -34,6 +34,7 @@ abstract class BaseRepository implements BaseRepositoryInterface
     {
         /** @var Model|null $model */
         $model = $this->getModel()::query()->find($id);
+
         return $model;
     }
 
@@ -45,11 +46,12 @@ abstract class BaseRepository implements BaseRepositoryInterface
         try {
             /** @var Model $model */
             $model = $this->getModel()::query()->findOrFail($id);
+
             return $model;
         } catch (ModelNotFoundException $e) {
             throw new RepositoryNotFoundException(
                 "Registro com ID '{$id}' não encontrado.",
-                previous: $e
+                previous: $e,
             );
         }
     }
@@ -71,6 +73,7 @@ abstract class BaseRepository implements BaseRepositoryInterface
 
         /** @var Collection $result */
         $result = $query->get();
+
         return $result;
     }
 
@@ -91,6 +94,7 @@ abstract class BaseRepository implements BaseRepositoryInterface
 
         /** @var Model|null $model */
         $model = $query->first();
+
         return $model;
     }
 
@@ -110,19 +114,20 @@ abstract class BaseRepository implements BaseRepositoryInterface
         try {
             return $this->transaction(function () use ($data) {
                 // Gera UUID se necessário e não fornecido
-                if (!isset($data['id']) && $this->getModel()->incrementing === false) {
+                if (! isset($data['id']) && $this->getModel()->incrementing === false) {
                     $data['id'] = (string) Str::uuid();
                 }
 
                 /** @var Model $model */
                 $model = $this->getModel()::query()->create($data);
+
                 return $model;
             });
         } catch (Throwable $e) {
             throw new \RuntimeException(
                 "Erro ao criar registro: {$e->getMessage()}",
                 0,
-                $e
+                $e,
             );
         }
     }
@@ -134,7 +139,7 @@ abstract class BaseRepository implements BaseRepositoryInterface
     {
         $model = $this->findById($id);
 
-        if (!$model) {
+        if (! $model) {
             throw new RepositoryNotFoundException("Registro com ID '{$id}' não encontrado.");
         }
 
@@ -171,6 +176,7 @@ abstract class BaseRepository implements BaseRepositoryInterface
         }
 
         $result = $model->delete();
+
         return $result === true;
     }
 
@@ -238,7 +244,7 @@ abstract class BaseRepository implements BaseRepositoryInterface
 
     /**
      * Aplica paginação à query
-     * 
+     *
      * @param int $page
      * @param int $perPage
      * @param array $criteria
@@ -258,12 +264,13 @@ abstract class BaseRepository implements BaseRepositoryInterface
 
         /** @var \Hyperf\Paginator\LengthAwarePaginator $result */
         $result = $query->paginate($perPage, ['*'], 'page', $page);
+
         return $result;
     }
 
     /**
      * Aplica ordenação personalizada
-     * 
+     *
      * @param array $criteria
      * @param array $orderBy ['field' => 'direction']
      * @return Collection
@@ -286,6 +293,7 @@ abstract class BaseRepository implements BaseRepositoryInterface
 
         /** @var Collection $result */
         $result = $query->get();
+
         return $result;
     }
 }

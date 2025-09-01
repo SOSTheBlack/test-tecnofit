@@ -9,7 +9,7 @@ use App\DataTransfer\Account\Balance\WithdrawRequestData;
 
 /**
  * Classe responsável pelas regras de negócio puras relacionadas a saques
- * 
+ *
  * Esta classe contém apenas regras de negócio sem dependências externas,
  * seguindo os princípios da Clean Architecture
  */
@@ -17,7 +17,7 @@ class WithdrawBusinessRules
 {
     /**
      * Valida se o saque pode ser realizado baseado nas regras de negócio
-     * 
+     *
      * @param AccountData $accountData Dados da conta
      * @param WithdrawRequestData $withdrawRequestData Dados da solicitação de saque
      * @return array Lista de erros de validação (vazia se válido)
@@ -27,21 +27,21 @@ class WithdrawBusinessRules
         $errors = [];
 
         // Regra: Validar saldo disponível
-        if (!$this->hasSufficientBalance($accountData, $withdrawRequestData->amount)) {
+        if (! $this->hasSufficientBalance($accountData, $withdrawRequestData->amount)) {
             $errors[] = sprintf(
                 'Saldo insuficiente. Saldo disponível: R$ %.2f, Valor solicitado: R$ %.2f',
                 $accountData->availableBalance,
-                $withdrawRequestData->amount
+                $withdrawRequestData->amount,
             );
         }
 
         // Regra: Validar limite mínimo de saque
-        if (!$this->isAmountAboveMinimum($withdrawRequestData->amount)) {
+        if (! $this->isAmountAboveMinimum($withdrawRequestData->amount)) {
             $errors[] = 'Valor mínimo para saque é R$ 0,01';
         }
 
         // Regra: Validar se a conta está ativa
-        if (!$this->isAccountActive($accountData)) {
+        if (! $this->isAccountActive($accountData)) {
             $errors[] = 'Conta inativa. Não é possível realizar saques';
         }
 
@@ -66,7 +66,7 @@ class WithdrawBusinessRules
 
     /**
      * Verifica se a conta está ativa
-     * 
+     *
      * @param AccountData $accountData
      * @return bool
      */

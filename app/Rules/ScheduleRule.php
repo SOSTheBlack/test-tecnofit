@@ -14,7 +14,7 @@ class ScheduleRule implements Rule
     private const INVALID_FORMAT_MESSAGE = 'Formato da data de agendamento inválido. Use: %s';
     private const PAST_DATE_MESSAGE = 'Data de agendamento deve ser no futuro.';
     private const EXCEEDS_MAX_FUTURE_MESSAGE = 'Data de agendamento não pode ser superior a %d dias.';
-    
+
     private string $errorMessage = self::DEFAULT_ERROR_MESSAGE;
     private const MAX_FUTURE_DAYS = 7;
     private const DATE_FORMAT = 'Y-m-d H:i';
@@ -26,15 +26,15 @@ class ScheduleRule implements Rule
         }
 
         $scheduleDate = $this->parseDate($value);
-        if (!$scheduleDate) {
+        if (! $scheduleDate) {
             return false;
         }
 
-        if (!$this->isValidFutureDate($scheduleDate)) {
+        if (! $this->isValidFutureDate($scheduleDate)) {
             return false;
         }
 
-        if (!$this->isWithinMaxFuture($scheduleDate)) {
+        if (! $this->isWithinMaxFuture($scheduleDate)) {
             return false;
         }
 
@@ -63,6 +63,7 @@ class ScheduleRule implements Rule
             return timezone()->createFromFormat(self::DATE_FORMAT, (string) $value);
         } catch (Throwable $e) {
             $this->errorMessage = sprintf(self::INVALID_FORMAT_MESSAGE, self::DATE_FORMAT);
+
             return null;
         }
     }
@@ -73,9 +74,10 @@ class ScheduleRule implements Rule
     private function isValidFutureDate(Carbon $scheduleDate): bool
     {
         $now = timezone()->now();
-        
+
         if ($scheduleDate->lte($now)) {
             $this->errorMessage = self::PAST_DATE_MESSAGE;
+
             return false;
         }
 
@@ -92,6 +94,7 @@ class ScheduleRule implements Rule
 
         if ($scheduleDate->isAfter($maxFuture)) {
             $this->errorMessage = sprintf(self::EXCEEDS_MAX_FUTURE_MESSAGE, self::MAX_FUTURE_DAYS);
+
             return false;
         }
 

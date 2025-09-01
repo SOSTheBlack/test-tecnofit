@@ -8,5 +8,4 @@ use App\Controller\BaseController;
 
 abstract class AccountController extends BaseController
 {
-
 }
