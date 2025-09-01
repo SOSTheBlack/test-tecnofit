@@ -10,7 +10,7 @@ use App\Repository\AccountWithdrawRepository;
 use App\Repository\Contract\AccountRepositoryInterface;
 use App\Repository\Contract\AccountWithdrawPixRepositoryInterface;
 use App\Repository\Contract\AccountWithdrawRepositoryInterface;
-use App\Service\EmailService;
+use App\Service\Email\EmailService;
 use Hyperf\AsyncQueue\Job;
 use Hyperf\Context\ApplicationContext;
 use Hyperf\Logger\LoggerFactory;

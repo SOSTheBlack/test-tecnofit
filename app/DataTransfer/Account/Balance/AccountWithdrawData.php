@@ -8,6 +8,38 @@ use App\Enum\WithdrawMethodEnum;
 use App\Model\AccountWithdraw;
 use Carbon\Carbon;
 
+/**
+ * DTO (Data Transfer Object) para dados de saque da conta
+ * 
+ * Representa um saque de conta bancária com todos os seus atributos e metadados.
+ * Esta classe implementa o padrão DTO (Data Transfer Object) e segue os princípios
+ * de immutability através do uso da palavra-chave readonly.
+ * 
+ * A classe fornece métodos utilitários para verificação de status, formatação
+ * de dados para exibição e conversão entre diferentes formatos de representação.
+ * 
+ * @package App\DataTransfer\Account\Balance
+ * @version 1.0.0
+ * @since 1.0.0
+ * 
+ * @example
+ * ```php
+ * $withdrawData = AccountWithdrawData::fromModel($accountWithdrawModel);
+ * 
+ * if ($withdrawData->isCompleted()) {
+ *     echo "Saque concluído: " . $withdrawData->getFormattedAmount();
+ * }
+ * 
+ * // Converte para array para API response
+ * $apiResponse = $withdrawData->toDetailedResponse();
+ * ```
+ * 
+ * @see WithdrawRequestData Para dados de requisição de saque
+ * @see WithdrawResultData Para resultado de operações de saque
+ * @see AccountData Para dados da conta associada
+ * 
+ * @author Sistema Tecnofit PIX API
+ */
 readonly class AccountWithdrawData
 {
     public function __construct(

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Service;
+namespace App\Service\Withdraw;
 
 use App\DataTransfer\Account\Balance\WithdrawRequestData;
 use App\Job\Account\Balance\SendWithdrawNotificationJob;
