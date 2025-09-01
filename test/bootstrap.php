@@ -42,6 +42,13 @@ if (!class_exists('Carbon\\Carbon')) {
     eval('
     namespace Carbon {
         class Carbon extends \\DateTime {
+            public $timestamp;
+            
+            public function __construct($time = "now", $timezone = null) {
+                parent::__construct($time, $timezone);
+                $this->timestamp = $this->getTimestamp();
+            }
+            
             public static function now($tz = null): static {
                 return new static();
             }
@@ -53,6 +60,32 @@ if (!class_exists('Carbon\\Carbon')) {
                 return new static($time);
             }
             
+            public static function create($year = null, $month = null, $day = null, $hour = null, $minute = null, $second = null, $tz = null): static {
+                $date = sprintf("%04d-%02d-%02d %02d:%02d:%02d", 
+                    $year ?: date("Y"), 
+                    $month ?: 1, 
+                    $day ?: 1, 
+                    $hour ?: 0, 
+                    $minute ?: 0, 
+                    $second ?: 0
+                );
+                return new static($date);
+            }
+            
+            public static function createFromFormat($format, $time, $timezone = null): static|false {
+                if ($timezone && is_string($timezone)) {
+                    $timezone = new \\DateTimeZone($timezone);
+                }
+                $result = parent::createFromFormat($format, $time, $timezone);
+                if ($result === false) {
+                    return false;
+                }
+                $carbon = new static();
+                $carbon->setTimestamp($result->getTimestamp());
+                $carbon->timestamp = $carbon->getTimestamp();
+                return $carbon;
+            }
+            
             public static function setTestNow($testNow = null): void {
                 // Mock implementation
             }
@@ -60,12 +93,14 @@ if (!class_exists('Carbon\\Carbon')) {
             public function addDays(int $days): static {
                 $clone = clone $this;
                 $clone->modify("+{$days} days");
+                $clone->timestamp = $clone->getTimestamp();
                 return $clone;
             }
             
             public function subDays(int $days): static {
                 $clone = clone $this;
                 $clone->modify("-{$days} days");
+                $clone->timestamp = $clone->getTimestamp();
                 return $clone;
             }
             
@@ -75,6 +110,14 @@ if (!class_exists('Carbon\\Carbon')) {
             
             public function toDateTimeString(): string {
                 return $this->format("Y-m-d H:i:s");
+            }
+            
+            public function isPast(): bool {
+                return $this->getTimestamp() < time();
+            }
+            
+            public function isFuture(): bool {
+                return $this->getTimestamp() > time();
             }
         }
     }
@@ -87,6 +130,16 @@ if (!class_exists('Mockery')) {
     class Mockery {
         public static function mock(string $class = null) {
             return new class {
+                private $properties = [];
+                
+                public function __get($name) {
+                    return $this->properties[$name] ?? null;
+                }
+                
+                public function __set($name, $value) {
+                    $this->properties[$name] = $value;
+                }
+                
                 public function __call($name, $args) {
                     return $this;
                 }

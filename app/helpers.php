@@ -27,7 +27,7 @@ if (! function_exists('logger')) {
 }
 
 if (! function_exists('config')) {
-    function config(string $key = null, $default = null)
+    function config(string $key = null, mixed $default = null): mixed
     {
         if (is_null($key)) {
             return container()->get(\Hyperf\Contract\ConfigInterface::class);
@@ -38,7 +38,7 @@ if (! function_exists('config')) {
 }
 
 if (! function_exists('env')) {
-    function env(string $key, $default = null)
+    function env(string $key, mixed $default = null): mixed
     {
         $value = getenv($key);
 

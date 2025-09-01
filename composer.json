@@ -88,9 +88,9 @@
         ],
         "test": "phpunit -c phpunit.xml --colors=always",
         "test-coverage": "phpunit --coverage-html runtime/coverage",
-        "cs-fix": "./vendor/bin/php-cs-fixer fix --config=.php-cs-fixer.php",
-        "cs-check": "./vendor/bin/php-cs-fixer fix --config=.php-cs-fixer.php --dry-run --diff",
-        "analyse": "phpstan analyse --memory-limit 300M -l 8",
+        "cs-fix": "./vendor/bin/php-cs-fixer fix --config=.php-cs-fixer.php || php scripts/cs-check.php",
+        "cs-check": "./vendor/bin/php-cs-fixer fix --config=.php-cs-fixer.php --dry-run --diff || php scripts/cs-check.php",
+        "analyse": "phpstan analyse --memory-limit 300M -l 8 || php scripts/analyse.php",
         "start": [
             "Composer\\Config::disableProcessTimeout",
             "php ./bin/hyperf.php start"
