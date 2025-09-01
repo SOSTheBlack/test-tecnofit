@@ -623,9 +623,9 @@ O sistema está **preparado para expansão**. Para adicionar novos métodos:
 enum WithdrawMethodEnum: string
 {
     case PIX = 'PIX';
-    case BANK_TRANSFER = 'BANK_TRANSFER';  // ✨ Novo
-    case TED = 'TED';                      // ✨ Novo
-    case DOC = 'DOC';                      // ✨ Novo
+    case BANK_TRANSFER = 'BANK_TRANSFER';  // ✨ Futuro
+    case TED = 'TED';                      // ✨ Futuro
+    case DOC = 'DOC';                      // ✨ Futuro
 }
 ```
 
@@ -636,10 +636,10 @@ enum WithdrawMethodEnum: string
 enum PixKeyTypeEnum: string
 {
     case EMAIL = 'email';
-    case PHONE = 'phone';
-    case CPF = 'CPF';
-    case CNPJ = 'CNPJ';
-    case RANDOM_KEY = 'random_key';
+    case PHONE = 'phone'; // ✨ Futuro
+    case CPF = 'CPF'; // ✨ Futuro
+    case CNPJ = 'CNPJ'; // ✨ Futuro
+    case RANDOM_KEY = 'random_key'; // ✨ Futuro
     case QR_CODE = 'qr_code';          // ✨ Futuro
     case ALIAS = 'alias';              // ✨ Futuro
 }

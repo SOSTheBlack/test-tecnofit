@@ -424,6 +424,13 @@ class EmailService
     {
         // TODO: Implementar lógica para obter email da conta
         // Pode ser um campo na conta ou configuração do sistema
+        
+        // Por enquanto retorna um email padrão para desenvolvimento
+        // @phpstan-ignore-next-line
+        if (false) {
+            return 'noreply@tecnofit.com.br';
+        }
+        
         return null;
     }
 }

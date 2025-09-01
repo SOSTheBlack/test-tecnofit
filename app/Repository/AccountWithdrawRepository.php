@@ -235,7 +235,8 @@ class AccountWithdrawRepository extends BaseRepository implements AccountWithdra
         $total = $query->count();
 
         return [
-            'data' => $withdraws->map(function (AccountWithdraw $withdraw) {
+            'data' => $withdraws->map(static function ($withdraw): AccountWithdrawData {
+                \assert($withdraw instanceof AccountWithdraw);
                 return AccountWithdrawData::fromModel($withdraw);
             })->toArray(),
             'total' => $total,
@@ -260,7 +261,8 @@ class AccountWithdrawRepository extends BaseRepository implements AccountWithdra
             ->orderBy('scheduled_for', 'asc')
             ->get();
 
-        return $withdraws->map(function (AccountWithdraw $withdraw) {
+        return $withdraws->map(static function ($withdraw): AccountWithdrawData {
+            \assert($withdraw instanceof AccountWithdraw);
             return AccountWithdrawData::fromModel($withdraw);
         })->toArray();
     }
@@ -305,7 +307,8 @@ class AccountWithdrawRepository extends BaseRepository implements AccountWithdra
             ->orderBy('created_at', 'desc')
             ->get();
 
-        return $withdraws->map(function (AccountWithdraw $withdraw) {
+        return $withdraws->map(static function ($withdraw): AccountWithdrawData {
+            \assert($withdraw instanceof AccountWithdraw);
             return AccountWithdrawData::fromModel($withdraw);
         })->toArray();
     }
@@ -326,7 +329,8 @@ class AccountWithdrawRepository extends BaseRepository implements AccountWithdra
             ->orderBy('created_at', 'desc')
             ->get();
 
-        return $withdraws->map(function (AccountWithdraw $withdraw) {
+        return $withdraws->map(static function ($withdraw): AccountWithdrawData {
+            \assert($withdraw instanceof AccountWithdraw);
             return AccountWithdrawData::fromModel($withdraw);
         })->toArray();
     }

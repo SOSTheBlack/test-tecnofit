@@ -4,14 +4,12 @@ declare(strict_types=1);
 
 namespace App\UseCase\Account\Balance;
 
-use App\DataTransfer\Account\AccountData;
 use App\DataTransfer\Account\Balance\WithdrawRequestData;
 use App\DataTransfer\Account\Balance\WithdrawResultData;
 use App\Repository\AccountRepository;
 use App\Repository\AccountWithdrawRepository;
 use App\Repository\Contract\AccountRepositoryInterface;
 use App\Repository\Contract\AccountWithdrawRepositoryInterface;
-use App\Service\Email\EmailService;
 use App\Service\Transaction\TransactionIdService;
 use App\Service\Withdraw\ScheduledWithdrawService;
 use App\Service\Withdraw\WithdrawBusinessRules;
@@ -155,7 +153,6 @@ class WithdrawUseCase
     {
         return match ($withdrawRequestData->method->value) {
             'PIX' => $this->transactionIdService->generatePixTransactionId(),
-            'BANK_TRANSFER', 'TED' => $this->transactionIdService->generateBankTransferTransactionId(),
             default => $this->transactionIdService->generateTransactionId(),
         };
     }

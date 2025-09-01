@@ -163,7 +163,8 @@ class AccountWithdrawPixRepository extends BaseRepository implements AccountWith
         /** @var \Hyperf\Database\Model\Collection $pixDataCollection */
         $pixDataCollection = $query->get();
 
-        return $pixDataCollection->map(function (AccountWithdrawPix $pixData) {
+        return $pixDataCollection->map(static function ($pixData): AccountWithdrawPixData {
+            \assert($pixData instanceof AccountWithdrawPix);
             return AccountWithdrawPixData::fromModel($pixData);
         })->toArray();
     }
@@ -189,7 +190,8 @@ class AccountWithdrawPixRepository extends BaseRepository implements AccountWith
         $total = AccountWithdrawPix::query()->count();
 
         return [
-            'data' => $pixDataCollection->map(function (AccountWithdrawPix $pixData) {
+            'data' => $pixDataCollection->map(static function ($pixData): AccountWithdrawPixData {
+                \assert($pixData instanceof AccountWithdrawPix);
                 return AccountWithdrawPixData::fromModel($pixData);
             })->toArray(),
             'total' => $total,

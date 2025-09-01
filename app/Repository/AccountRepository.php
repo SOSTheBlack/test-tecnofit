@@ -182,7 +182,8 @@ class AccountRepository extends BaseRepository implements AccountRepositoryInter
         $total = $query->count();
 
         return [
-            'data' => $accounts->map(function (Account $account) {
+            'data' => $accounts->map(static function ($account): AccountData {
+                \assert($account instanceof Account);
                 return AccountData::fromModel($account);
             })->toArray(),
             'total' => $total,
@@ -220,7 +221,8 @@ class AccountRepository extends BaseRepository implements AccountRepositoryInter
             ->orderBy('balance', 'desc')
             ->get();
 
-        return $accounts->map(function (Account $account) {
+        return $accounts->map(static function ($account): AccountData {
+            \assert($account instanceof Account);
             return AccountData::fromModel($account);
         })->toArray();
     }
