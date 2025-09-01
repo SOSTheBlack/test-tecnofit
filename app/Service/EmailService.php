@@ -7,14 +7,14 @@ namespace App\Service;
 use App\Model\AccountWithdraw;
 use Hyperf\Logger\LoggerFactory;
 use Psr\Log\LoggerInterface;
-use Swift_Mailer;
-use Swift_Message;
-use Swift_SmtpTransport;
+use Symfony\Component\Mailer\Mailer;
+use Symfony\Component\Mailer\Transport\Smtp\EsmtpTransport;
+use Symfony\Component\Mime\Email;
 
 class EmailService
 {
     private LoggerInterface $logger;
-    private Swift_Mailer $mailer;
+    private Mailer $mailer;
     private string $appName;
     private string $fromAddress;
     private string $fromName;
@@ -24,11 +24,9 @@ class EmailService
         $this->logger = $loggerFactory->get('email', 'default');
         
         // Configuração do Mailhog para desenvolvimento
-        $transport = (new Swift_SmtpTransport('mailhog', 1025))
-            ->setUsername(null)
-            ->setPassword(null);
-            
-        $this->mailer = new Swift_Mailer($transport);
+        $transport = new EsmtpTransport('mailhog', 1025);
+        
+        $this->mailer = new Mailer($transport);
         
         // Configurações obtidas diretamente do env() ou valores padrão
         $this->appName = env('APP_NAME', 'TecnofitPixAPI');
@@ -47,22 +45,22 @@ class EmailService
                 return false;
             }
 
-            $message = (new Swift_Message())
-                ->setSubject("Confirmação de Saque PIX - {$this->appName}")
-                ->setFrom([$this->fromAddress => $this->fromName])
-                ->setTo([$withdraw->pixData->key])
-                ->setBody($this->buildEmailTemplate($withdraw), 'text/html');
+            $email = (new Email())
+                ->from($this->fromAddress)
+                ->to($withdraw->pixData->key)
+                ->subject("Confirmação de Saque PIX - {$this->appName}")
+                ->html($this->buildEmailTemplate($withdraw));
 
-            $result = $this->mailer->send($message);
+            $this->mailer->send($email);
 
             $this->logger->info("Email de confirmação de saque enviado", [
                 'withdraw_id' => $withdraw->id,
                 'recipient' => $withdraw->pixData->key,
                 'amount' => $withdraw->amount,
-                'sent' => $result > 0
+                'sent' => true
             ]);
 
-            return $result > 0;
+            return true;
 
         } catch (\Throwable $e) {
             $this->logger->error("Falha ao enviar email de confirmação", [
