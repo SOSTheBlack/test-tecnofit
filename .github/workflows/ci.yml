@@ -45,11 +45,32 @@ jobs:
     - name: Install dependencies
       run: composer install --prefer-dist --no-progress
 
-    - name: Run PHPStan analysis
-      run: composer analyse
+    - name: Verify CI Environment
+      run: |
+        echo "PHP Version: $(php -v | head -1)"
+        echo "Composer Version: $(composer --version)"
+        echo "Working Directory: $(pwd)"
+        echo "Contents of composer.json scripts:"
+        cat composer.json | grep -A 10 '"scripts"' || echo "No scripts section found"
+
+    - name: Verify PHP CS Fixer installation
+      run: |
+        if [ ! -f "./vendor/bin/php-cs-fixer" ]; then
+          echo "❌ PHP CS Fixer not found in vendor/bin/"
+          echo "Contents of vendor/bin/:"
+          ls -la vendor/bin/ || echo "vendor/bin/ does not exist"
+          exit 1
+        fi
+        echo "✅ PHP CS Fixer found"
+        ./vendor/bin/php-cs-fixer --version
 
     - name: Run PHP CS Fixer
-      run: composer cs-fix -- --dry-run --diff
+      run: |
+        rm -f .php-cs-fixer.cache
+        composer cs-check
+
+    - name: Run PHPStan analysis
+      run: composer analyse
 
     - name: Wait for MySQL
       run: |

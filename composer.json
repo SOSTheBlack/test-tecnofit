@@ -88,7 +88,8 @@
         ],
         "test": "phpunit -c phpunit.xml --colors=always",
         "test-coverage": "phpunit --coverage-html runtime/coverage",
-        "cs-fix": "php-cs-fixer fix $1",
+        "cs-fix": "./vendor/bin/php-cs-fixer fix --config=.php-cs-fixer.php",
+        "cs-check": "./vendor/bin/php-cs-fixer fix --config=.php-cs-fixer.php --dry-run --diff",
         "analyse": "phpstan analyse --memory-limit 300M -l 8",
         "start": [
             "Composer\\Config::disableProcessTimeout",
