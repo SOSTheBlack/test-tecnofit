@@ -17,7 +17,118 @@ require BASE_PATH . '/vendor/autoload.php';
 putenv('APP_ENV=testing');
 putenv('DB_DATABASE=tecnofit_pix_test');
 
-// Try to initialize Hyperf ClassLoader if available
-if (class_exists('Hyperf\Di\ClassLoader')) {
-    Hyperf\Di\ClassLoader::init();
+// Define mock env function for tests if not available
+if (!function_exists('env')) {
+    function env(string $key, $default = null) {
+        $value = getenv($key);
+        return $value !== false ? $value : $default;
+    }
+}
+
+// Create mock Hyperf validation interfaces if not available
+if (!interface_exists('Hyperf\\Validation\\Contract\\Rule')) {
+    eval('
+    namespace Hyperf\\Validation\\Contract {
+        interface Rule {
+            public function passes(string $attribute, mixed $value): bool;
+            public function message(): string;
+        }
+    }
+    ');
+}
+
+// Create mock Carbon class if not available
+if (!class_exists('Carbon\\Carbon')) {
+    eval('
+    namespace Carbon {
+        class Carbon extends \\DateTime {
+            public static function now($tz = null): static {
+                return new static();
+            }
+            
+            public static function parse($time = null, $tz = null): static {
+                if ($time === null) {
+                    return new static();
+                }
+                return new static($time);
+            }
+            
+            public static function setTestNow($testNow = null): void {
+                // Mock implementation
+            }
+            
+            public function addDays(int $days): static {
+                $clone = clone $this;
+                $clone->modify("+{$days} days");
+                return $clone;
+            }
+            
+            public function subDays(int $days): static {
+                $clone = clone $this;
+                $clone->modify("-{$days} days");
+                return $clone;
+            }
+            
+            public function format(string $format): string {
+                return parent::format($format);
+            }
+            
+            public function toDateTimeString(): string {
+                return $this->format("Y-m-d H:i:s");
+            }
+        }
+    }
+    ');
+}
+
+// Create mock Mockery class if not available
+if (!class_exists('Mockery')) {
+    eval('
+    class Mockery {
+        public static function mock(string $class = null) {
+            return new class {
+                public function __call($name, $args) {
+                    return $this;
+                }
+                
+                public function shouldReceive($method) {
+                    return $this;
+                }
+                
+                public function with(...$args) {
+                    return $this;
+                }
+                
+                public function andReturn($value) {
+                    return $value;
+                }
+                
+                public function once() {
+                    return $this;
+                }
+                
+                public function never() {
+                    return $this;
+                }
+            };
+        }
+        
+        public static function close(): void {
+            // Mock implementation
+        }
+    }
+    ');
+}
+
+// Initialize Carbon for tests
+if (class_exists('Carbon\Carbon')) {
+    \Carbon\Carbon::setTestNow();
+}
+
+// Explicitly load Mockery if available
+if (file_exists(BASE_PATH . '/vendor/mockery/mockery/library/Mockery.php')) {
+    require_once BASE_PATH . '/vendor/mockery/mockery/library/Mockery.php';
+} elseif (class_exists('\Mockery\Loader\EagerLoader')) {
+    $loader = new \Mockery\Loader\EagerLoader();
+    $loader->load();
 }

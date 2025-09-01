@@ -163,7 +163,7 @@ class WithdrawStatusEnumTest extends TestCase
         // Test color format
         foreach (WithdrawStatusEnum::cases() as $status) {
             $color = $status->getColor();
-            $this->assertMatchesRegularExpression('/^#[a-f0-9]{6}$/i', $color, "Color for {$status->value} should be valid hex");
+            $this->assertRegExp('/^#[a-f0-9]{6}$/i', $color, "Color for {$status->value} should be valid hex");
         }
     }
 

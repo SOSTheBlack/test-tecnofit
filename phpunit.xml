@@ -4,22 +4,16 @@
          bootstrap="test/bootstrap.php"
          colors="true"
          processIsolation="false"
-         stopOnFailure="false"
-         cacheDirectory=".phpunit.cache">
+         stopOnFailure="false">
     
-    <coverage>
-        <include>
+    <filter>
+        <whitelist>
             <directory suffix=".php">./app</directory>
-        </include>
-        <exclude>
-            <directory>./app/helpers.php</directory>
-        </exclude>
-        <report>
-            <clover outputFile="runtime/coverage/clover.xml"/>
-            <html outputDirectory="runtime/coverage/html"/>
-            <text outputFile="php://stdout"/>
-        </report>
-    </coverage>
+            <exclude>
+                <file>./app/helpers.php</file>
+            </exclude>
+        </whitelist>
+    </filter>
     
     <testsuites>
         <testsuite name="Unit Tests">
@@ -37,8 +31,4 @@
         <env name="QUEUE_CONNECTION" value="sync"/>
         <env name="MAIL_MAILER" value="array"/>
     </php>
-    
-    <logging>
-        <junit outputFile="runtime/coverage/junit.xml"/>
-    </logging>
 </phpunit>
