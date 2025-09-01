@@ -13,7 +13,7 @@ class PixKeyRule implements Rule
     public function passes(string $attribute, mixed $value): bool
     {
         // Verificar se o valor é uma string
-        if (!is_string($value)) {
+        if (! is_string($value)) {
             $this->errorMessage = 'Chave PIX deve ser uma string.';
 
             return false;

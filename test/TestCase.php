@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace HyperfTest;
 
 use Hyperf\Testing\TestCase as BaseTestCase;
+use Hyperf\DbConnection\Db;
 
 abstract class TestCase extends BaseTestCase
 {
@@ -12,27 +13,28 @@ abstract class TestCase extends BaseTestCase
     {
         parent::setUp();
 
-        // Configurações específicas para testes
-        $this->initializeDatabase();
+        // Configurar para usar banco de teste
+        $this->configureDatabase();
     }
 
     protected function tearDown(): void
     {
         parent::tearDown();
+    }
 
-        // Limpar dados após cada teste
-        $this->cleanupDatabase();
+    protected function configureDatabase(): void
+    {
+        // Configurar conexão de teste se necessário
+        putenv('DB_DATABASE=tecnofit_pix_test');
     }
 
     protected function initializeDatabase(): void
     {
-        // Inicializar banco de dados para testes
-        // Executar migrations, seeders, etc.
+        // Base implementation - override in subclasses if needed
     }
 
     protected function cleanupDatabase(): void
     {
-        // Limpar banco de dados após testes
-        // Rollback de transações, limpeza de cache, etc.
+        // Base implementation - override in subclasses if needed
     }
 }

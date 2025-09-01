@@ -13,4 +13,8 @@ date_default_timezone_set('America/Sao_Paulo');
 
 require BASE_PATH . '/vendor/autoload.php';
 
+// Set test environment
+putenv('APP_ENV=testing');
+putenv('DB_DATABASE=tecnofit_pix_test');
+
 Hyperf\Di\ClassLoader::init();
