@@ -54,7 +54,7 @@ class GlobalExceptionHandler extends ExceptionHandler
         ],
     ];
 
-    public function handle(Throwable $throwable, ResponseInterface $response)
+    public function handle(Throwable $throwable, ResponseInterface $response): ResponseInterface
     {
         $handledResponse = $this->handleException($throwable, $response);
         
@@ -118,6 +118,15 @@ class GlobalExceptionHandler extends ExceptionHandler
         }
 
         if ($includeError) {
+            if (!is_array($data)) {
+                $data = [];
+            }
+            if (!isset($data['errors']) || !is_array($data['errors'])) {
+                $data['errors'] = [];
+            }
+            if (!isset($data['errors']['general']) || !is_array($data['errors']['general'])) {
+                $data['errors']['general'] = [];
+            }
             $data['errors']['general'][] = $throwable->getMessage();
         }
 
@@ -141,10 +150,15 @@ class GlobalExceptionHandler extends ExceptionHandler
      */
     private function createJsonResponse(ResponseInterface $response, array $data, int $statusCode): ResponseInterface
     {
+        $jsonContent = json_encode($data, JSON_UNESCAPED_UNICODE);
+        if ($jsonContent === false) {
+            $jsonContent = '{"success":false,"message":"JSON encoding error"}';
+        }
+        
         return $response
             ->withStatus($statusCode)
             ->withAddedHeader('content-type', 'application/json')
-            ->withBody(new SwooleStream(json_encode($data, JSON_UNESCAPED_UNICODE)));
+            ->withBody(new SwooleStream($jsonContent));
     }
 
     /**

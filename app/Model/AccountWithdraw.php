@@ -92,47 +92,5 @@ class AccountWithdraw extends Model
         return $this->hasOne(AccountWithdrawPix::class, 'account_withdraw_id', 'id');
     }
 
-    /**
-     * Gera um novo transaction_id único
-     */
-    public static function generateTransactionId(): string
-    {
-        do {
-            $transactionId = 'TXN_' . strtoupper(uniqid()) . '_' . time();
-        } while (static::where('transaction_id', $transactionId)->exists());
 
-        return $transactionId;
-    }
-
-    /**
-     * Scope para filtrar por status
-     */
-    public function scopeByStatus($query, string $status)
-    {
-        return $query->where('status', $status);
-    }
-
-    /**
-     * Scope para saques agendados
-     */
-    public function scopeScheduled($query)
-    {
-        return $query->where('scheduled', true);
-    }
-
-    /**
-     * Scope para saques imediatos
-     */
-    public function scopeImmediate($query)
-    {
-        return $query->where('scheduled', false);
-    }
-
-    /**
-     * Scope para saques por método
-     */
-    public function scopeByMethod($query, string $method)
-    {
-        return $query->where('method', $method);
-    }
 }

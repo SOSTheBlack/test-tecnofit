@@ -10,7 +10,7 @@ class PixKeyRule implements Rule
 {
     private string $errorMessage = '';
 
-    public function passes(string $attribute, $value): bool
+    public function passes(string $attribute, mixed $value): bool
     {
         // Vamos assumir que a validação do tipo já foi feita pela PixTypeRule
         // Aqui vamos fazer uma validação básica do formato

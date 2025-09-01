@@ -6,12 +6,12 @@ parameters:
         - app/helpers.php
     
     ignoreErrors:
-        - '#Unsafe usage of new static#'
-        - '#Cannot call method .* on mixed#'
-        - '#Method .* should return .* but returns mixed#'
+        -
+            identifier: missingType.iterableValue
+        -
+            identifier: missingType.generics
     
-    checkMissingIterableValueType: false
-    checkGenericClassInNonGenericObjectType: false
+    treatPhpDocTypesAsCertain: false
     
     bootstrapFiles:
         - test/bootstrap.php

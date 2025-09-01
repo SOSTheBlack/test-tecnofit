@@ -48,24 +48,15 @@ class Account extends Model
         return $this->hasMany(AccountWithdraw::class, 'account_id', 'id');
     }
 
-    /**
-     * Saques pendentes
+        /**
+     * Conta de saques pendentes
      */
-    public function pendingWithdraws(): HasMany
+    public function getPendingWithdrawsCount(): int
     {
-        return $this->hasMany(AccountWithdraw::class, 'account_id', 'id')
+        return $this->withdraws()
             ->whereIn('status', [AccountWithdraw::STATUS_PENDING, AccountWithdraw::STATUS_SCHEDULED])
-            ->where('done', false);
-    }
-
-    /**
-     * Verifica se a conta tem saldo suficiente considerando saques pendentes
-     */
-    public function hasSufficientAvailableBalance(float $amount): bool
-    {
-        $pendingAmount = $this->getTotalPendingWithdrawAmount();
-        $availableBalance = $this->balance - $pendingAmount;
-        return $availableBalance >= $amount;
+            ->where('done', false)
+            ->count();
     }
 
     /**
@@ -82,28 +73,11 @@ class Account extends Model
      */
     public function getTotalPendingWithdrawAmount(): float
     {
-        return (float) $this->pendingWithdraws()->sum('amount');
+        return (float) $this->withdraws()
+            ->whereIn('status', [AccountWithdraw::STATUS_PENDING, AccountWithdraw::STATUS_SCHEDULED])
+            ->where('done', false)
+            ->sum('amount');
     }
 
-    /**
-     * Verifica se a conta tem saldo suficiente para um saque
-     */
-    public function hasSufficientBalance(float $amount): bool
-    {
-        return $this->balance >= $amount;
-    }
 
-    /**
-     * Debita um valor da conta
-     */
-    public function debit(float $amount): bool
-    {
-        if (!$this->hasSufficientBalance($amount)) {
-            return false;
-        }
-
-        return $this->update([
-            'balance' => $this->balance - $amount,
-        ]);
-    }
 }

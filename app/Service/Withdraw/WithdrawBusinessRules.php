@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Service;
+namespace App\Service\Withdraw;
 
 use App\DataTransfer\Account\AccountData;
 use App\DataTransfer\Account\Balance\WithdrawRequestData;

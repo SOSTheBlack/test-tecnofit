@@ -24,8 +24,8 @@ readonly class WithdrawRequestData
     {
         $schedule = null;
         if (isset($data['schedule']) && $data['schedule'] !== null) {
-            $schedule = $data['schedule'] instanceof Carbon 
-                ? $data['schedule'] 
+            $schedule = $data['schedule'] instanceof Carbon
+                ? $data['schedule']
                 : timezone()->parse($data['schedule']);
         }
 
@@ -69,12 +69,32 @@ readonly class WithdrawRequestData
         );
     }
 
+    /**
+     * Cria instância a partir de AccountWithdrawData DTO
+     * 
+     * @param AccountWithdrawData $withdrawData DTO do saque
+     * @param PixData|null $pixData Dados PIX (opcional)
+     * @return self
+     */
+    public static function fromAccountWithdrawData(AccountWithdrawData $withdrawData, ?PixData $pixData = null): self
+    {
+        return new self(
+            id: $withdrawData->id,
+            accountId: $withdrawData->accountId,
+            method: $withdrawData->method,
+            amount: $withdrawData->amount,
+            pix: $pixData,
+            schedule: $withdrawData->scheduledFor,
+            metadata: $withdrawData->meta ?? []
+        );
+    }
+
     public function isScheduled(): bool
     {
         if ($this->schedule === null) {
             return false;
         }
-        
+
         return $this->schedule->isAfter(timezone()->now());
     }
 
@@ -120,7 +140,9 @@ readonly class WithdrawRequestData
                 $errors[] = 'Para saques PIX é necessário informar os dados PIX.';
             } else {
                 // Valida os dados PIX se estiverem presentes
-                $pixErrors = $this->pix->validate();
+                /** @var PixData $pixData */
+                $pixData = $this->pix;
+                $pixErrors = $pixData->validate();
                 foreach ($pixErrors as $error) {
                     $errors[] = "PIX: {$error}";
                 }

@@ -32,7 +32,9 @@ abstract class BaseRepository implements BaseRepositoryInterface
      */
     public function findById(string $id): ?Model
     {
-        return $this->getModel()->find($id);
+        /** @var Model|null $model */
+        $model = $this->getModel()::query()->find($id);
+        return $model;
     }
 
     /**
@@ -41,7 +43,9 @@ abstract class BaseRepository implements BaseRepositoryInterface
     public function findByIdOrFail(string $id): Model
     {
         try {
-            return $this->getModel()->findOrFail($id);
+            /** @var Model $model */
+            $model = $this->getModel()::query()->findOrFail($id);
+            return $model;
         } catch (ModelNotFoundException $e) {
             throw new RepositoryNotFoundException(
                 "Registro com ID '{$id}' não encontrado.",
@@ -55,7 +59,7 @@ abstract class BaseRepository implements BaseRepositoryInterface
      */
     public function findBy(array $criteria): Collection
     {
-        $query = $this->getModel()->newQuery();
+        $query = $this->getModel()::query();
 
         foreach ($criteria as $field => $value) {
             if (is_array($value)) {
@@ -65,7 +69,9 @@ abstract class BaseRepository implements BaseRepositoryInterface
             }
         }
 
-        return $query->get();
+        /** @var Collection $result */
+        $result = $query->get();
+        return $result;
     }
 
     /**
@@ -73,7 +79,7 @@ abstract class BaseRepository implements BaseRepositoryInterface
      */
     public function findOneBy(array $criteria): ?Model
     {
-        $query = $this->getModel()->newQuery();
+        $query = $this->getModel()::query();
 
         foreach ($criteria as $field => $value) {
             if (is_array($value)) {
@@ -83,7 +89,9 @@ abstract class BaseRepository implements BaseRepositoryInterface
             }
         }
 
-        return $query->first();
+        /** @var Model|null $model */
+        $model = $query->first();
+        return $model;
     }
 
     /**
@@ -106,7 +114,9 @@ abstract class BaseRepository implements BaseRepositoryInterface
                     $data['id'] = (string) Str::uuid();
                 }
 
-                return $this->getModel()->create($data);
+                /** @var Model $model */
+                $model = $this->getModel()::query()->create($data);
+                return $model;
             });
         } catch (Throwable $e) {
             throw new \RuntimeException(
@@ -156,11 +166,12 @@ abstract class BaseRepository implements BaseRepositoryInterface
     {
         $model = $this->findById($id);
 
-        if (!$model) {
+        if ($model === null) {
             throw new RepositoryNotFoundException("Registro com ID '{$id}' não encontrado.");
         }
 
-        return $model->delete();
+        $result = $model->delete();
+        return $result === true;
     }
 
     /**
@@ -222,7 +233,7 @@ abstract class BaseRepository implements BaseRepositoryInterface
      */
     public function transaction(callable $callback): mixed
     {
-        return Db::transaction($callback);
+        return Db::transaction(\Closure::fromCallable($callback));
     }
 
     /**
@@ -235,7 +246,7 @@ abstract class BaseRepository implements BaseRepositoryInterface
      */
     public function paginate(int $page = 1, int $perPage = 15, array $criteria = []): \Hyperf\Paginator\LengthAwarePaginator
     {
-        $query = $this->getModel()->newQuery();
+        $query = $this->getModel()::query();
 
         foreach ($criteria as $field => $value) {
             if (is_array($value)) {
@@ -245,7 +256,9 @@ abstract class BaseRepository implements BaseRepositoryInterface
             }
         }
 
-        return $query->paginate($perPage, ['*'], 'page', $page);
+        /** @var \Hyperf\Paginator\LengthAwarePaginator $result */
+        $result = $query->paginate($perPage, ['*'], 'page', $page);
+        return $result;
     }
 
     /**
@@ -257,7 +270,7 @@ abstract class BaseRepository implements BaseRepositoryInterface
      */
     public function findByWithOrder(array $criteria, array $orderBy): Collection
     {
-        $query = $this->getModel()->newQuery();
+        $query = $this->getModel()::query();
 
         foreach ($criteria as $field => $value) {
             if (is_array($value)) {
@@ -271,6 +284,8 @@ abstract class BaseRepository implements BaseRepositoryInterface
             $query->orderBy($field, $direction);
         }
 
-        return $query->get();
+        /** @var Collection $result */
+        $result = $query->get();
+        return $result;
     }
 }

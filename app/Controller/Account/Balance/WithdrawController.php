@@ -28,8 +28,7 @@ class WithdrawController extends BalanceController
             // Retornar resposta baseada no resultado
             return $this->response
                 ->json($result->toJsonResponse())
-                ->withStatus($result->getHttpStatusCode()
-            );
+                ->withStatus($result->getHttpStatusCode());
         } catch (\Throwable $e) {
             error_log('Erro ao processar solicitação de saque: ' . print_r($e, false));
             

@@ -516,36 +516,6 @@ curl -X POST http://localhost/account/123e4567-e89b-12d3-a456-426614174000/balan
   --verbose
 ```
 
-### 📱 Saque com Telefone
-
-```bash
-curl -X POST http://localhost/account/223e4567-e89b-12d3-a456-426614174001/balance/withdraw \
-  -H "Content-Type: application/json" \
-  -d '{
-    "method": "PIX",
-    "pix": {
-      "type": "phone", 
-      "key": "11999999999"
-    },
-    "amount": 100.00
-  }'
-```
-
-### 🆔 Saque com CPF
-
-```bash
-curl -X POST http://localhost/account/123e4567-e89b-12d3-a456-426614174000/balance/withdraw \
-  -H "Content-Type: application/json" \
-  -d '{
-    "method": "PIX",
-    "pix": {
-      "type": "CPF",
-      "key": "11144477735"
-    },
-    "amount": 75.50
-  }'
-```
-
 ### 📅 Saque Agendado
 
 ```bash
@@ -653,9 +623,9 @@ O sistema está **preparado para expansão**. Para adicionar novos métodos:
 enum WithdrawMethodEnum: string
 {
     case PIX = 'PIX';
-    case BANK_TRANSFER = 'BANK_TRANSFER';  // ✨ Novo
-    case TED = 'TED';                      // ✨ Novo
-    case DOC = 'DOC';                      // ✨ Novo
+    case BANK_TRANSFER = 'BANK_TRANSFER';  // ✨ Futuro
+    case TED = 'TED';                      // ✨ Futuro
+    case DOC = 'DOC';                      // ✨ Futuro
 }
 ```
 
@@ -666,10 +636,10 @@ enum WithdrawMethodEnum: string
 enum PixKeyTypeEnum: string
 {
     case EMAIL = 'email';
-    case PHONE = 'phone';
-    case CPF = 'CPF';
-    case CNPJ = 'CNPJ';
-    case RANDOM_KEY = 'random_key';
+    case PHONE = 'phone'; // ✨ Futuro
+    case CPF = 'CPF'; // ✨ Futuro
+    case CNPJ = 'CNPJ'; // ✨ Futuro
+    case RANDOM_KEY = 'random_key'; // ✨ Futuro
     case QR_CODE = 'qr_code';          // ✨ Futuro
     case ALIAS = 'alias';              // ✨ Futuro
 }

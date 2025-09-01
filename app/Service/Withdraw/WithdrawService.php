@@ -2,14 +2,14 @@
 
 declare(strict_types=1);
 
-namespace App\Service;
+namespace App\Service\Withdraw;
 
 use App\DataTransfer\Account\AccountData;
 use App\DataTransfer\Account\Balance\AccountWithdrawData;
 use App\DataTransfer\Account\Balance\WithdrawRequestData;
 use App\DataTransfer\Account\Balance\WithdrawResultData;
 use App\Enum\PixKeyTypeEnum;
-use App\Model\AccountWithdraw;
+use App\Enum\WithdrawStatusEnum;
 use App\Repository\Contract\AccountRepositoryInterface;
 use App\Repository\Contract\AccountWithdrawRepositoryInterface;
 use Psr\Log\LoggerInterface;
@@ -27,8 +27,7 @@ class WithdrawService
         private readonly AccountWithdrawRepositoryInterface $accountWithdrawRepository,
         private readonly WithdrawBusinessRules $businessRules,
         private readonly WithdrawNotificationService $notificationService,
-        private readonly ScheduledWithdrawService $scheduledWithdrawService,
-        private readonly LoggerInterface $logger
+        private readonly ScheduledWithdrawService $scheduledWithdrawService
     ) {
     }
 
@@ -86,7 +85,7 @@ class WithdrawService
         // Agenda job assíncrono para processar saque na data correta
         $jobScheduled = $this->scheduledWithdrawService->scheduleWithdrawJob(
             $accountWithdrawData->id,
-            $withdrawRequestData->schedule
+            $withdrawRequestData->schedule ?? throw new \InvalidArgumentException('Schedule date is required for scheduled withdraw')
         );
 
         if (!$jobScheduled) {
@@ -100,7 +99,7 @@ class WithdrawService
             'current_balance' => (float) number_format($accountData->balance, 2, '.', ''),
             'available_balance' => $newBalances['available_balance'],
             'method' => $withdrawRequestData->method->value,
-            'scheduled_for' => $withdrawRequestData->schedule?->toISOString(),
+            'scheduled_for' => $withdrawRequestData->schedule->toISOString(),
             'pix_key' => $withdrawRequestData->getPixKey(),
             'pix_type' => $withdrawRequestData->getPixType(),
             'type' => 'scheduled',
@@ -117,15 +116,17 @@ class WithdrawService
         string $transactionId,
         bool $scheduled = false
     ): AccountWithdrawData {
-        $status = $scheduled ? AccountWithdraw::STATUS_PENDING : AccountWithdraw::STATUS_NEW;
+        $status = $scheduled ? WithdrawStatusEnum::PENDING->value : WithdrawStatusEnum::NEW->value;
 
         if (!is_null($withdrawRequestData->id)) {
-            return AccountWithdrawData::fromModel(
-                $this->accountWithdrawRepository->findById($withdrawRequestData->id)
-            );
+            $withdraw = $this->accountWithdrawRepository->findWithdrawById($withdrawRequestData->id);
+            if ($withdraw === null) {
+                throw new \InvalidArgumentException('Withdraw not found');
+            }
+            return $withdraw;
         }
 
-        $accountWithdrawData = AccountWithdrawData::fromModel($this->accountWithdrawRepository->create([
+        $accountWithdrawData = $this->accountWithdrawRepository->createWithdraw([
             'account_id' => $accountData->id,
             'transaction_id' => $transactionId,
             'method' => $withdrawRequestData->method->value,
@@ -134,15 +135,20 @@ class WithdrawService
             'scheduled_for' => $withdrawRequestData->schedule,
             'status' => $status,
             'meta' => $withdrawRequestData->metadata
-        ]));
+        ]);
 
         // Cria dados PIX se necessário
         if ($this->shouldCreatePixData($withdrawRequestData)) {
-            $this->accountWithdrawRepository->createPixData(
-                $accountWithdrawData->id,
-                $withdrawRequestData->getPixKey(),
-                $withdrawRequestData->getPixType()
-            );
+            $pixKey = $withdrawRequestData->getPixKey();
+            $pixType = $withdrawRequestData->getPixType();
+            
+            if ($pixKey !== null && $pixType !== null) {
+                $this->accountWithdrawRepository->createPixData(
+                    $accountWithdrawData->id,
+                    $pixKey,
+                    $pixType
+                );
+            }
         }
 
         return $accountWithdrawData;
