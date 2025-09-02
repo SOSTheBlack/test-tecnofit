@@ -29,6 +29,7 @@
 - [🚀 Escalabilidade](#-escalabilidade)
 - [🛠️ Troubleshooting](#️-troubleshooting)
 - [📊 Contas de Teste](#-contas-de-teste)
+- [🎯 Decisões Técnicas](#-decisões-técnicas)
 
 ---
 
@@ -91,7 +92,7 @@ Quando tudo estiver funcionando, você verá:
 ```json
 {
   "status": "ok",
-  "timestamp": "2025-01-20 10:30:00",
+  "timestamp": "2025-09-02 09:28:56",
   "checks": {
     "database": {"status": "ok", "message": "Database connection successful"},
     "redis": {"status": "ok", "message": "Redis connection successful"}
@@ -186,7 +187,7 @@ GET /health
 ```json
 {
   "status": "ok",
-  "timestamp": "2025-01-20 10:30:00",
+  "timestamp": "2025-09-02 09:28:56",
   "checks": {
     "database": {"status": "ok", "message": "Database connection successful"},
     "redis": {"status": "ok", "message": "Redis connection successful"}
@@ -198,7 +199,7 @@ GET /health
 ```json
 {
   "status": "error",
-  "timestamp": "2025-01-20 10:30:00", 
+  "timestamp": "2025-09-02 09:28:56", 
   "checks": {
     "database": {"status": "error", "message": "Connection timeout"},
     "redis": {"status": "ok", "message": "Redis connection successful"}
@@ -408,17 +409,27 @@ Cada tipo de chave PIX possui validação específica e rigorosa:
 
 ### 🔬 Execução de Testes
 
+**⚠️ IMPORTANTE**: Todos os testes devem ser executados dentro do container Docker.
+
 ```bash
 # Todos os testes
-docker compose exec hyperf composer test
+docker-compose exec hyperf composer test
 
 # Testes com cobertura HTML
-docker compose exec hyperf composer test-coverage
+docker-compose exec hyperf composer test-coverage
+
+# Visualizar cobertura no browser
 open runtime/coverage/index.html
 
-# Testes específicos
-docker compose exec hyperf ./vendor/bin/phpunit test/Unit/Request/
-docker compose exec hyperf ./vendor/bin/phpunit test/Feature/WithdrawControllerTest.php
+# Testes específicos por diretório
+docker-compose exec hyperf ./vendor/bin/phpunit test/Unit/Request/
+docker-compose exec hyperf ./vendor/bin/phpunit test/Feature/WithdrawControllerTest.php
+
+# Testes com verbosidade
+docker-compose exec hyperf composer test -- --verbose
+
+# Verificar se containers estão rodando antes dos testes
+docker-compose ps
 ```
 
 ### 📊 Cobertura de Testes
@@ -428,14 +439,14 @@ docker compose exec hyperf ./vendor/bin/phpunit test/Feature/WithdrawControllerT
 - ✅ **Análise contínua** via GitHub Actions
 - ✅ **Relatórios detalhados** em HTML e XML
 
-#### 📈 Visualizar Cobertura
+#### 🧪 Visualizar Cobertura
 
 ```bash
-# Gerar relatório de cobertura
-docker compose exec hyperf composer test-coverage
+# Gerar relatório de cobertura (dentro do container)
+docker-compose exec hyperf composer test-coverage
 
 # Visualizar resumo no terminal
-docker compose exec hyperf php scripts/extract-coverage.php ./runtime/coverage/clover.xml
+docker-compose exec hyperf php scripts/extract-coverage.php ./runtime/coverage/clover.xml
 
 # Abrir relatório HTML detalhado
 open runtime/coverage/html/index.html
@@ -457,15 +468,20 @@ open runtime/coverage/html/index.html
 
 ### 🔧 Análise de Qualidade
 
+**⚠️ IMPORTANTE**: Execute sempre dentro do container Docker.
+
 ```bash
 # PHPStan - Análise estática rigorosa
-docker compose exec hyperf composer analyse
+docker-compose exec hyperf composer analyse
 
 # PHP CS Fixer - Formatação PSR-12
-docker compose exec hyperf composer cs-fix
+docker-compose exec hyperf composer cs-fix
 
-# Verificar formatação apenas
-docker compose exec hyperf composer cs-fix -- --dry-run
+# Verificar formatação apenas (dry-run)
+docker-compose exec hyperf composer cs-fix -- --dry-run
+
+# Executar todas as verificações de qualidade
+docker-compose exec hyperf composer ci
 ```
 
 ### 🏆 Métricas de Qualidade
@@ -479,7 +495,45 @@ docker compose exec hyperf composer cs-fix -- --dry-run
 
 ## 🛠️ Exemplos Práticos
 
-### 🚀 Script de Teste Automatizado
+### 🚀 Ferramentas de Teste
+
+#### 📡 Collection Bruno (Recomendado)
+
+O projeto inclui uma **collection completa do Bruno** para testes de API:
+
+```bash
+# Collection localizada em:
+./bruno/TecnoFitPix/
+
+# Para usar o Bruno:
+# 1. Instale Bruno: https://usebruno.com/
+# 2. Abra a collection em ./bruno/TecnoFitPix/
+# 3. Configure o ambiente (Local/Docker)
+# 4. Execute os requests pré-configurados
+```
+
+**📁 Estrutura da Collection:**
+```
+bruno/TecnoFitPix/
+├── bruno.json              # Configuração da collection
+├── environments/            # Ambientes (Local, Docker, Prod)
+├── health.bru              # Health check endpoint
+├── index.bru               # Endpoint raiz
+└── accounts/               # Cenários de saque PIX
+    ├── withdraw-success.bru
+    ├── withdraw-scheduled.bru
+    ├── withdraw-validation-errors.bru
+    └── withdraw-edge-cases.bru
+```
+
+**🎯 Vantagens do Bruno:**
+- ✅ **Interface visual** para testes de API
+- ✅ **Ambientes pré-configurados** (Local, Docker)
+- ✅ **Cenários completos** de teste
+- ✅ **Assertions automáticas** para validação
+- ✅ **Collection versionada** no Git
+
+#### 🚀 Script de Teste Automatizado
 
 Execute todos os exemplos de uma vez:
 
@@ -570,26 +624,32 @@ curl -X POST http://localhost/account/323e4567-e89b-12d3-a456-426614174002/balan
 
 ```bash
 # Logs da aplicação em tempo real
-docker compose logs -f hyperf
+docker-compose logs -f hyperf
 
 # Logs específicos de saque
-docker compose exec hyperf tail -f storage/logs/hyperf.log | grep -i withdraw
+docker-compose exec hyperf tail -f runtime/logs/hyperf.log | grep -i withdraw
 
 # Logs de erro
-docker compose exec hyperf tail -f storage/logs/hyperf-error.log
+docker-compose exec hyperf tail -f runtime/logs/hyperf.log | grep -i error
+
+# Logs de email (notificações de saque)
+docker-compose exec hyperf tail -f runtime/logs/email.log
 ```
 
 ### 📊 Métricas da Aplicação
 
 ```bash
 # Status dos containers
-docker compose ps
+docker-compose ps
 
-# Uso de recursos
-docker compose top
+# Uso de recursos dos containers
+docker-compose top
 
-# Estatísticas detalhadas
+# Estatísticas detalhadas em tempo real
 docker stats
+
+# Verificar logs de todos os serviços
+docker-compose logs --tail=50
 ```
 
 ### 📧 Verificação de Emails
@@ -603,26 +663,36 @@ docker stats
 
 ```bash
 # Conectar ao MySQL
-docker compose exec mysql mysql -u tecnofit -ptecnofit123 tecnofit_pix
+docker-compose exec mysql mysql -u tecnofit -ptecnofit123 tecnofit_pix
 
 # Ver saques recentes
 SELECT * FROM account_withdraws ORDER BY created_at DESC LIMIT 5;
 
 # Ver saldos das contas
 SELECT id, balance FROM accounts;
+
+# Verificar estrutura das tabelas
+SHOW TABLES;
+DESCRIBE account_withdraws;
 ```
 
 ### 🧮 Cache e Redis
 
 ```bash
 # Conectar ao Redis
-docker compose exec redis redis-cli
+docker-compose exec redis redis-cli
 
 # Ver chaves de cache
 KEYS *
 
 # Ver filas de jobs
 LLEN queue:default
+
+# Monitorar comandos Redis em tempo real
+docker-compose exec redis redis-cli MONITOR
+
+# Verificar status do Redis
+docker-compose exec redis redis-cli INFO server
 ```
 
 ---
@@ -689,67 +759,89 @@ O sistema suporta:
 
 ```bash
 # Verificar logs detalhados
-docker compose logs hyperf
+docker-compose logs hyperf
 
-# Recriar containers
-docker compose down -v
-docker compose up -d --build
+# Recriar containers do zero
+docker-compose down -v
+docker-compose up -d --build
 
 # Verificar espaço em disco
 df -h
+
+# Verificar se portas estão livres
+ss -tulnp | grep -E ':(80|3306|6379|9501)'
 ```
 
 #### 🗄️ Erro de conexão com banco
 
 ```bash
 # Verificar se MySQL está rodando
-docker compose ps mysql
+docker-compose ps mysql
 
 # Testar conexão manual
-docker compose exec mysql mysql -u root -proot
+docker-compose exec mysql mysql -u root -proot
 
-# Recriar volumes do banco
-docker compose down -v
-docker volume prune
-docker compose up -d
+# Recriar volumes do banco (ATENÇÃO: apaga dados)
+docker-compose down -v
+docker volume prune -f
+docker-compose up -d
+
+# Aguardar MySQL estar pronto e executar migrations
+docker-compose exec hyperf php bin/hyperf.php migrate --force
 ```
 
 #### 🔄 Erro de dependências
 
 ```bash
-# Forçar reinstalação
-docker compose exec hyperf rm -rf vendor
-docker compose exec hyperf composer install --no-cache
+# Forçar reinstalação de dependências
+docker-compose exec hyperf rm -rf vendor
+docker-compose exec hyperf composer install --no-cache
 
-# Verificar permissões
-docker compose exec hyperf chown -R 1000:1000 /opt/www
+# Verificar permissões dos arquivos
+docker-compose exec hyperf chown -R www-data:www-data /opt/www
+
+# Limpar cache do composer
+docker-compose exec hyperf composer clear-cache
+
+# Regenerar autoload
+docker-compose exec hyperf composer dump-autoload --optimize
 ```
 
 #### 🌐 Erro de rede
 
 ```bash
 # Verificar portas em uso
-netstat -tlnp | grep -E ':(80|3306|6379|9501)'
+ss -tulnp | grep -E ':(80|3306|6379|9501)'
 
 # Recriar rede do Docker
-docker network prune
-docker compose up -d
+docker network prune -f
+docker-compose up -d
+
+# Verificar conectividade entre containers
+docker-compose exec hyperf ping mysql
+docker-compose exec hyperf ping redis
 ```
 
 ### 🔧 Comandos de Debug
 
 ```bash
 # Estado completo dos serviços
-docker compose ps -a
+docker-compose ps -a
 
-# Recursos utilizados
+# Recursos utilizados pelo Docker
 docker system df
 
-# Limpar sistema Docker
-docker system prune -a
+# Limpar sistema Docker (cuidado!)
+docker system prune -a -f
 
 # Restart específico de serviço
-docker compose restart hyperf
+docker-compose restart hyperf
+
+# Verificar logs de inicialização
+docker-compose logs hyperf --tail=100
+
+# Entrar no container para debug
+docker-compose exec hyperf bash
 ```
 
 ### 📞 Suporte Adicional
@@ -801,8 +893,14 @@ curl -X POST http://localhost/account/323e4567-e89b-12d3-a456-426614174002/balan
 ### 🔄 Reset de Dados
 
 ```bash
-# Restaurar saldos originais
-docker compose exec hyperf php bin/hyperf.php migrate:refresh --seed
+# Restaurar saldos originais das contas
+docker-compose exec hyperf php bin/hyperf.php migrate:refresh --seed
+
+# Limpar cache da aplicação
+docker-compose exec hyperf php bin/hyperf.php cache:clear
+
+# Limpar filas Redis
+docker-compose exec redis redis-cli FLUSHALL
 ```
 
 ---

@@ -17,10 +17,8 @@ class IndexController
             'version' => '1.0.0',
             'timestamp' => date('Y-m-d H:i:s'),
             'endpoints' => [
-                'auth' => '/api/auth/*',
-                'users' => '/api/users/*',
-                'withdrawals' => '/api/withdrawals/*',
-                'health' => '/api/health',
+                'account' => '/account/*',
+                'health' => '/health',
             ],
         ];
 
