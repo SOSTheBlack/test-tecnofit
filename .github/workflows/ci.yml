@@ -130,13 +130,56 @@ jobs:
         REDIS_HOST: 127.0.0.1
         REDIS_PORT: 6379
 
-    - name: Upload coverage reports
-      uses: codecov/codecov-action@v3
+    # === COVERAGE ANALYSIS ===
+    # Upload para Codecov é opcional para evitar rate limits
+    # Relatórios sempre disponíveis via GitHub Artifacts
+    
+    - name: Check if coverage file exists
+      id: coverage-file
+      run: |
+        if [ -f "./runtime/coverage/clover.xml" ]; then
+          echo "Coverage file exists"
+          echo "exists=true" >> $GITHUB_OUTPUT
+          echo "File size: $(ls -lh ./runtime/coverage/clover.xml | awk '{print $5}')"
+        else
+          echo "Coverage file not found"
+          echo "exists=false" >> $GITHUB_OUTPUT
+        fi
+
+    - name: Show coverage summary
+      if: steps.coverage-file.outputs.exists == 'true'
+      run: |
+        echo "📊 **COVERAGE ANALYSIS**"
+        echo "----------------------------------------"
+        php scripts/extract-coverage.php ./runtime/coverage/clover.xml
+        echo "----------------------------------------"
+        echo "💡 Detailed HTML report available in artifacts"
+
+    - name: Upload coverage reports (optional)
+      if: |
+        steps.coverage-file.outputs.exists == 'true' &&
+        (github.event_name == 'push' && github.ref == 'refs/heads/main') ||
+        (github.event_name == 'pull_request')
+      uses: codecov/codecov-action@v4
       with:
-        file: ./runtime/coverage/clover.xml
+        files: ./runtime/coverage/clover.xml
         flags: unittests
         name: codecov-umbrella
-        fail_ci_if_error: true
+        fail_ci_if_error: false
+        verbose: false
+        disable_search: true
+      continue-on-error: true
+
+    - name: Upload coverage artifacts
+      if: steps.coverage-file.outputs.exists == 'true'
+      uses: actions/upload-artifact@v4
+      with:
+        name: coverage-reports
+        path: |
+          ./runtime/coverage/clover.xml
+          ./runtime/coverage/html/
+        retention-days: 30
+      continue-on-error: true
 
   build:
     needs: test

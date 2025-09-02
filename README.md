@@ -423,10 +423,25 @@ docker compose exec hyperf ./vendor/bin/phpunit test/Feature/WithdrawControllerT
 
 ### 📊 Cobertura de Testes
 
-- ✅ **19 testes unitários** para validações
-- ✅ **Testes de integração** para endpoints
+- ✅ **184+ testes automatizados** (unitários + integração)
 - ✅ **Cobertura mínima**: 80% de code coverage
-- ✅ **Testes de regressão** para casos críticos
+- ✅ **Análise contínua** via GitHub Actions
+- ✅ **Relatórios detalhados** em HTML e XML
+
+#### 📈 Visualizar Cobertura
+
+```bash
+# Gerar relatório de cobertura
+docker compose exec hyperf composer test-coverage
+
+# Visualizar resumo no terminal
+docker compose exec hyperf php scripts/extract-coverage.php ./runtime/coverage/clover.xml
+
+# Abrir relatório HTML detalhado
+open runtime/coverage/html/index.html
+```
+
+> 💡 **Dica**: No CI/CD, os relatórios de cobertura são salvos como artefatos do GitHub Actions por 30 dias, mesmo se o Codecov falhar.
 
 #### 🧪 Cenários Testados
 

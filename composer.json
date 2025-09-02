@@ -87,7 +87,12 @@
             "rm -rf runtime/container"
         ],
         "test": "phpunit -c phpunit.xml --colors=always",
-        "test-coverage": "phpunit --coverage-html runtime/coverage",
+        "test-coverage": "phpunit --coverage-html runtime/coverage/html --coverage-clover runtime/coverage/clover.xml",
+        "coverage-summary": "php scripts/extract-coverage.php ./runtime/coverage/clover.xml",
+        "coverage-full": [
+            "@test-coverage",
+            "@coverage-summary"
+        ],
         "cs-fix": "./vendor/bin/php-cs-fixer fix --config=.php-cs-fixer.php",
         "cs-check": "./vendor/bin/php-cs-fixer fix --config=.php-cs-fixer.php --dry-run --diff",
         "analyse": "phpstan analyse --memory-limit 300M -l 8",
