@@ -142,24 +142,87 @@ Quando tudo estiver funcionando, você verá:
 
 ```
 app/
-├── Controller/           # 🎮 Camada de apresentação
-│   └── Account/Balance/
-│       └── WithdrawController.php
-├── UseCase/             # 🧠 Casos de uso (regras de negócio)
-│   └── Account/Balance/
-│       └── WithdrawUseCase.php
-├── Service/             # ⚙️ Serviços de domínio
-│   ├── AccountService.php
-│   └── Validator/
-├── Repository/          # 🗃️ Acesso a dados
-├── DataTransfer/        # 📦 DTOs type-safe
-├── Model/              # 🏗️ Modelos Eloquent
-├── Request/            # ✅ Validação de entrada
-├── Rules/              # 📏 Regras de validação customizadas
-├── Enum/               # 🏷️ Enums type-safe
-├── Exception/          # ⚠️ Exceptions customizadas
-├── Job/                # 🔄 Jobs assíncronos
-└── Middleware/         # 🛡️ Interceptadores HTTP
+├── Controller/                    # 🎮 Camada de Apresentação (HTTP)
+│   ├── BaseController.php        # → Controller base com métodos comuns
+│   ├── IndexController.php       # → Health check e informações da API
+│   └── Account/                  # → Controladores de conta
+│       ├── AccountController.php # → Operações gerais da conta
+│       └── Balance/              # → Operações de saldo
+│           ├── BalanceController.php    # → Consulta de saldo
+│           └── WithdrawController.php   # → Endpoint de saque PIX
+│
+├── UseCase/                      # 🧠 Casos de Uso (Regras de Negócio)
+│   └── Account/Balance/          # → Use cases de saldo
+│       └── WithdrawUseCase.php   # → Lógica principal de saque
+│
+├── Service/                      # ⚙️ Serviços de Domínio
+│   ├── Email/                    # → Serviços de email
+│   │   └── EmailService.php      # → Envio de notificações
+│   ├── Transaction/              # → Serviços de transação
+│   │   └── TransactionIdService.php # → Geração de IDs únicos
+│   └── Withdraw/                 # → Serviços de saque
+│       ├── ScheduledWithdrawService.php    # → Agendamento de saques
+│       ├── WithdrawBusinessRules.php       # → Regras de negócio
+│       ├── WithdrawNotificationService.php # → Notificações de saque
+│       └── WithdrawService.php             # → Processamento de saques
+│
+├── Repository/                   # 🗃️ Acesso a Dados (Data Layer)
+│   ├── BaseRepository.php        # → Repository base abstrato
+│   ├── AccountRepository.php     # → Operações de conta
+│   ├── AccountWithdrawRepository.php       # → Operações de saque
+│   ├── AccountWithdrawPixRepository.php    # → Dados PIX do saque
+│   ├── Contract/                 # → Interfaces dos repositórios
+│   │   ├── BaseRepositoryInterface.php
+│   │   ├── AccountRepositoryInterface.php
+│   │   ├── AccountWithdrawRepositoryInterface.php
+│   │   └── AccountWithdrawPixRepositoryInterface.php
+│   └── Exceptions/               # → Exceptions de repositório
+│       └── RepositoryNotFoundException.php
+│
+├── DataTransfer/                 # 📦 DTOs Type-Safe
+│   └── Account/                  # → DTOs de conta
+│       ├── AccountData.php       # → Dados da conta
+│       └── Balance/              # → DTOs de saldo
+│           ├── AccountWithdrawData.php     # → Dados do saque
+│           ├── AccountWithdrawPixData.php  # → Dados PIX
+│           ├── BalanceSummaryData.php      # → Resumo do saldo
+│           ├── PixData.php                 # → Dados da chave PIX
+│           ├── WithdrawRequestData.php     # → Request de saque
+│           └── WithdrawResultData.php      # → Resultado do saque
+│
+├── Model/                        # 🏗️ Modelos Eloquent (Data Models)
+│   ├── Account.php               # → Modelo da conta
+│   ├── AccountWithdraw.php       # → Modelo do saque
+│   └── AccountWithdrawPix.php    # → Modelo dos dados PIX
+│
+├── Request/                      # ✅ Form Requests (Validação HTTP)
+│   └── WithdrawRequest.php       # → Validação do request de saque
+│
+├── Rules/                        # 📏 Regras de Validação Customizadas
+│   ├── PixKeyRule.php            # → Validação de chave PIX
+│   ├── PixTypeRule.php           # → Validação de tipo PIX
+│   ├── ScheduleRule.php          # → Validação de agendamento
+│   └── WithdrawMethodRule.php    # → Validação de método de saque
+│
+├── Enum/                         # 🏷️ Enums Type-Safe
+│   ├── PixKeyTypeEnum.php        # → Tipos de chave PIX
+│   ├── WithdrawMethodEnum.php    # → Métodos de saque
+│   └── WithdrawStatusEnum.php    # → Status do saque
+│
+├── Exception/                    # ⚠️ Exception Handlers
+│   └── Handler/                  # → Manipuladores de exceção
+│       ├── GlobalExceptionHandler.php      # → Handler global
+│       └── ValidationExceptionHandler.php  # → Handler de validação
+│
+├── Job/                          # 🔄 Jobs Assíncronos (Background)
+│   └── Account/Balance/          # → Jobs de saldo
+│       ├── ProcessScheduledWithdrawJob.php   # → Processa saques agendados
+│       └── SendWithdrawNotificationJob.php  # → Envia notificações
+│
+├── Helper/                       # �️ Classes Auxiliares
+│   └── TimezoneHelper.php        # → Manipulação de timezone
+│
+└── helpers.php                   # 🔧 Funções Globais Auxiliares
 ```
 
 ### 🧩 Padrões Implementados
@@ -357,29 +420,6 @@ Cada tipo de chave PIX possui validação específica e rigorosa:
 - **Tamanho**: Máximo 77 caracteres
 - **Exemplo**: `usuario@dominio.com.br`
 
-#### 📱 Telefone
-- **Formato**: Apenas números
-- **Tamanho**: 10-11 dígitos
-- **Padrão**: DDD + número (11999999999)
-- **Validação**: Verificação de DDD válido
-
-#### 🆔 CPF
-- **Formato**: Apenas números
-- **Tamanho**: Exatos 11 dígitos
-- **Validação**: Algoritmo completo de dígitos verificadores
-- **Rejeita**: CPFs sequenciais (11111111111)
-
-#### 🏢 CNPJ  
-- **Formato**: Apenas números
-- **Tamanho**: Exatos 14 dígitos  
-- **Validação**: Algoritmo completo de dígitos verificadores
-- **Rejeita**: CNPJs sequenciais (11111111111111)
-
-#### 🎲 Chave Aleatória
-- **Formato**: Alfanumérico [a-zA-Z0-9]
-- **Tamanho**: Exatos 32 caracteres
-- **Exemplo**: `1234567890123456789012345678901a`
-
 ### 💰 Validação de Valor
 
 - ✅ **Valor mínimo**: R$ 0,01
@@ -401,7 +441,6 @@ Cada tipo de chave PIX possui validação específica e rigorosa:
 - ✅ **Existência**: Verificação no banco de dados
 - ✅ **Status ativo**: Conta deve estar ativa
 - ✅ **Saldo disponível**: Verificação em tempo real
-- ✅ **Limites**: Verificação de limites diários/mensais
 
 ---
 
